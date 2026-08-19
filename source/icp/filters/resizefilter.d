@@ -9,17 +9,17 @@ import cereslib.math;
 /// Resizes the image
 public @filter final class ResizeFilter : IFilter
 {
-    private size_t[2] resultResolution = [16, 16];
+    private int[2] resultResolution = [16, 16];
 
-    public @property void resultXResolution(size_t resolution)
+    public @property void resultXResolution(int resolution)
     {
-        resolution = resolution.clamp(1, size_t.max);
+        resolution = resolution.clamp(1, int.max);
         resultResolution[0] = resolution;
     }
 
-    public @property void resultYResolution(size_t resolution)
+    public @property void resultYResolution(int resolution)
     {
-        resolution = resolution.clamp(1, size_t.max);
+        resolution = resolution.clamp(1, int.max);
         resultResolution[1] = resolution;
     }
 
@@ -28,11 +28,11 @@ public @filter final class ResizeFilter : IFilter
         immutable inputResolution = image.resolution;
         Image result = new Image(resultResolution);
 
-        foreach(y; 0..resultResolution[1])
-        foreach(x; 0..resultResolution[0])
+        foreach(int y; 0..resultResolution[1])
+        foreach(int x; 0..resultResolution[0])
         {
-            size_t remapX = cast(size_t) remap!double(x, 0, resultResolution[0], 0, inputResolution[0]);
-            size_t remapY = cast(size_t) remap!double(y, 0, resultResolution[1], 0, inputResolution[1]);
+            int remapX = cast(int) remap!double(x, 0, resultResolution[0], 0, inputResolution[0]);
+            int remapY = cast(int) remap!double(y, 0, resultResolution[1], 0, inputResolution[1]);
 
             result[x, y] = image[remapX, remapY];
         }

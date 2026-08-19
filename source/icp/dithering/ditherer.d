@@ -37,7 +37,7 @@ public class Ditherer : IDitherer
         // [3] because RGB (and we don't dither A)
         short[3][][] accumulatedErrors = new short[3][][](result.resolution[1], result.resolution[0]);
 
-        void applyError(Color corrected, Color source, size_t sourceX, size_t sourceY)
+        void applyError(Color quantizedColor, Color correctedSourceColor, size_t sourceX, size_t sourceY)
         {
             foreach(mask; masks_)
             {
@@ -51,9 +51,9 @@ public class Ditherer : IDitherer
 
                 ref errors = accumulatedErrors[y][x];
 
-                immutable resultErrorR = cast(ubyte) ((source.r - corrected.r) * mask.errorMultiplier).clamp(0, 255);
-                immutable resultErrorG = cast(ubyte) ((source.g - corrected.g) * mask.errorMultiplier).clamp(0, 255);
-                immutable resultErrorB = cast(ubyte) ((source.b - corrected.b) * mask.errorMultiplier).clamp(0, 255);
+                immutable resultErrorR = cast(short) ((correctedSourceColor.r - quantizedColor.r) * mask.errorMultiplier);
+                immutable resultErrorG = cast(short) ((correctedSourceColor.g - quantizedColor.g) * mask.errorMultiplier);
+                immutable resultErrorB = cast(short) ((correctedSourceColor.b - quantizedColor.b) * mask.errorMultiplier);
 
                 errors[0] += resultErrorR;
                 errors[1] += resultErrorG;
@@ -72,12 +72,11 @@ public class Ditherer : IDitherer
             immutable correctedG = cast(ubyte) (sourceColor.g + errors[1]).clamp(0, 255);
             immutable correctedB = cast(ubyte) (sourceColor.b + errors[2]).clamp(0, 255);
 
-            immutable correctedColor = toMostSimilar(Color(correctedR, correctedG, correctedB), colors);
-            result[x, y] = correctedColor;
-            applyError(correctedColor, sourceColor, x, y);
+            immutable correctedColor = Color(correctedR, correctedG, correctedB);
+            immutable quantizedColor = toMostSimilar(correctedColor, colors);
+            result[x, y] = quantizedColor;
 
-            // but we dont know if corrected color is in the source2DestinationColorMap (probably it's not)
-            // so now we convert it to the most similar color in the map
+            applyError(quantizedColor, correctedColor, x, y);
         }
 
         return result;

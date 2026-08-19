@@ -66,8 +66,8 @@ public final class ICP_VM
         if(loadedImage.c == ColFmt.RGBA)
         {
             enum colorSize = 4;
-            foreach(y; 0..icpImage.resolution[1])
-            for(size_t x = 0; x < icpImage.resolution[0]; x++)
+            foreach(int y; 0..icpImage.resolution[1])
+            foreach(int x; 0..icpImage.resolution[0])
             {
                 immutable index = (y * icpImage.resolution[0] + x) * colorSize;
                 immutable icp.color.Color color =
@@ -82,8 +82,8 @@ public final class ICP_VM
         else
         {
             enum colorSize = 3;
-            foreach(y; 0..icpImage.resolution[1])
-            for(size_t x = 0; x < icpImage.resolution[0]; x++)
+            foreach(int y; 0..icpImage.resolution[1])
+            foreach(int x; 0..icpImage.resolution[0])
             {
                 immutable index = (y * icpImage.resolution[0] + x) * colorSize;
                 immutable icp.color.Color color =
@@ -125,7 +125,8 @@ public ColorDrawBuf createDrawBufFromImage(Image image)
         // this line says "assume this pointer is a slice of length resolution[0]"
         ColorBGRA[] line = (cast(ColorBGRA*) linePtr)[0..resolution[0]];
 
-        foreach(x; 0..line.length)
+        // we assume line.length < int.max cuz a 2 millin by 2 million texture is a nonsense
+        foreach(int x; 0.. cast(int) line.length)
         {
             // Source contains RGBA color and we need ARGB so we swap B and A
             // (cuz RGBA's A is ARGB's B)

@@ -3,10 +3,10 @@ public import icp.color;
 
 public class Image
 {
-    public immutable size_t[2] resolution;
+    public immutable int[2] resolution;
     private Color[][] bitmap;
 
-    public this(size_t[2] resolution)
+    public this(int[2] resolution)
     {
         this.resolution = resolution;
         bitmap = new Color[][](resolution[1], resolution[0]);
@@ -26,12 +26,12 @@ public class Image
     }
 
     /// Get pixel at [x, y] position
-    public ref inout(Color) opIndex(size_t x, size_t y) pure inout
+    public ref inout(Color) opIndex(int x, int y) pure inout
     {
         return bitmap[y][x];
     }
     
-    void opIndexAssign(Color value, size_t x, size_t y)
+    void opIndexAssign(Color value, int x, int y)
     {
         bitmap[y][x] = value;
     }
