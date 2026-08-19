@@ -3,6 +3,9 @@ import vm;
 import view;
 import vm.logging;
 import std.sumtype : has, get;
+import std.file : getcwd;
+import std.path : chainPath;
+import std.array : array;
 
 mixin APP_ENTRY_POINT;
 
@@ -15,7 +18,6 @@ private Logger appLogger;
 
 extern(C) int UIAppMain(string[] args)
 {
-    appLogger = new Logger();
     registerDefaultPresets();
 
     embeddedResourceList.addResources(embedResourcesFromList!("resources.list")());
@@ -25,7 +27,9 @@ extern(C) int UIAppMain(string[] args)
     auto frame = new MainFrame();
     window.mainWidget = frame;
 
+    appLogger = new Logger();
     appLogger.addLoggee(new StatusLineLoggee(frame.statusLine));
+    appLogger.addLoggee(new FileLoggee(chainPath(getcwd(), "Logs").array));
 
     window.show();
     return Platform.instance.enterMessageLoop();
@@ -124,12 +128,12 @@ private final class MainFrame : AppFrame
                 appLogger.log("Unhandled exception while running ICP :(. Message: " ~ ex.message.to!string, LogType.error);
             }
 
+            import core.memory;
+            immutable gcMemoryUsage = GC.stats.usedSize / (1024f * 1024f);
+            appLogger.log("Used memory after processing: " ~ gcMemoryUsage.to!string ~ "MiB", LogType.debug_);
             appLogger.log("Processed an image. No errors occured.");
             return true;
         };
-
-        //тудуЖ нуэно чтоп пресет работал и отображал всё
-
 
         auto presetView = body.childById!VerticalLayout("presetView");
         auto presetsComboBox = body.childById!ComboBox("presetsComboBox");
