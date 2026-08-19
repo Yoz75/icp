@@ -126,8 +126,11 @@ public final class MedianSectionFilterView : IReplaceableView
     private enum SupportedDitherers
     {
         no,
-        rightPropagation,
-        floydSteinberg
+        floydSteinberg,
+        sierra3,
+        sierra2Row,
+        sierraLight,
+        rightPropagation
     }
 
     private WidgetGroup parent;
@@ -155,11 +158,20 @@ public final class MedianSectionFilterView : IReplaceableView
                 case SupportedDitherers.no:
                     filter.ditherer = null;
                     break;
-                case SupportedDitherers.rightPropagation:
-                    filter.ditherer = new RightPropagationDitherer();
-                    break;
                 case SupportedDitherers.floydSteinberg:
                     filter.ditherer = new FloydSteinbergDitherer();
+                    break;
+                case SupportedDitherers.sierra3:
+                    filter.ditherer = new SierraThreeDitherer();
+                    break;
+                case SupportedDitherers.sierra2Row:
+                    filter.ditherer = new SierraTwoRowDitherer();
+                    break;
+                case SupportedDitherers.sierraLight:
+                    filter.ditherer = new SierraLightDitherer();
+                    break;
+                case SupportedDitherers.rightPropagation:
+                    filter.ditherer = new RightPropagationDitherer();
                     break;
             }
         };
