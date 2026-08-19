@@ -94,17 +94,26 @@ public final class ConsoleLoggee : ILoggee
 public final class FileLoggee : ILoggee
 {
     import std.file;
+    import std.path;
     import std.datetime;
+    import std.array : array;
+    import std.string : replace;
+
     private string logFilePath;
 
     public this(string logsDirectory)
     {
-        logFilePath = logsDirectory ~ '/' ~ "LOG " ~ Clock.currTime.toISOExtString;
+        if(!exists(logsDirectory))
+        {
+            mkdir(logsDirectory);
+        }
+
+        logFilePath = chainPath(logsDirectory, "LOG" ~ Clock.currTime.toISOExtString.replace(':', '_') ~ ".log").array;
     }
 
     /// Log some text to a file
     public void log(string text, LogType type)
     {
-        append(logFilePath, text);
+        append(logFilePath, text ~ '\n');
     }
 }
