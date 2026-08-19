@@ -1,0 +1,27 @@
+HorizontalLayout {
+    VerticalLayout {
+        layoutHeight: fill
+        minWidth: 100
+        ComboBox {
+            id: presetsComboBox
+        }
+        VerticalLayout {
+            id: presetView
+        }
+        VSpacer{
+            layoutHeight: fill
+        }
+        Button {
+            id: openFileButton
+            text: "open..."
+        }
+        
+        Button {
+            id: runButton
+            text: "run!"
+        }
+    }
+    VerticalLayout {
+        id: previewSide
+    }
+}

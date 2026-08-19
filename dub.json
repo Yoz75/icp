@@ -1,0 +1,33 @@
+{
+	"authors": [
+		"yoz75"
+	],
+	"license": "MIT",
+	"targetPath": "./bin/",
+	"copyright": "Copyright © 2026, yoz75",
+	"name": "icp",
+	"stringImportPaths": [
+		"resources/compiletime"
+	],
+	"description": "An image color processor that processes image color",
+	"dependencies": {
+		"imageformats": "~>7.0.2",
+		"icp:cereslib": "*",
+		"dlangui": "~>0.10.8"
+	},
+	"versions": ["CereslibEnableDebugLogs", "CereslibEnableLogs"],
+	"subPackages": ["cereslib"],
+	"buildTypes": {
+		"release-lto": {
+			"dflags": [
+				"--boundscheck=off",
+				"--enable-asserts=false",
+				"--enable-invariants=false",
+				"-O3",
+				"-release",
+				"-flto=full",
+				"-defaultlib=phobos2-ldc-lto,druntime-ldc-lto"
+			]
+		}
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "dub",
+			"run": true,
+			"cwd": "d:/papka_D/icp",
+			"compiler": "$current",
+			"archType": "$current",
+			"buildType": "$current",
+			"configuration": "$current",
+			"problemMatcher": [
+				"$dmd"
+			],
+			"group": "build",
+			"label": "dub: Run icp",
+			"detail": "dub run --compiler=ldc2 -a=x86_64 -b=debug -c=application"
+		}
+	]
+}
