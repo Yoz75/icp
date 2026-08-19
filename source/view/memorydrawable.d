@@ -26,7 +26,7 @@ public final class MemoryDrawable : ImageDrawable
             // this line says "assume this pointer is a slice of length resolution[0]"
             ColorBGRA[] line = (cast(ColorBGRA*) linePtr)[0..resolution[0]];
 
-            foreach(x; 0..line.length)
+            foreach(int x; 0.. cast(int) line.length)
             {
                 // Source contains RGBA color and we need ARGB so we swap B and A
                 // (cuz RGBA's A is ARGB's B)
