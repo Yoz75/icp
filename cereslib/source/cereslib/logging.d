@@ -64,10 +64,13 @@ public final class Logger
                     break;
             }
 
-            auto resultText = prefix ~ text;
-            foreach(loggee; loggees)
+            synchronized(this)
             {
-                loggee.log(resultText, type);
+                auto resultText = prefix ~ text;
+                foreach(loggee; loggees)
+                {
+                    loggee.log(resultText, type);
+                }
             }
         }
     }
