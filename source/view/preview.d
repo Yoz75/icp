@@ -8,6 +8,7 @@ import dlangui;
 public final class PreviewWindow : CanvasWidget
 {
     private Ref!ColorDrawBufEx imageBuffer_;
+    private bool shoouldUpdate;
 
     private enum Side
     {
@@ -18,6 +19,7 @@ public final class PreviewWindow : CanvasWidget
     public @property void imageBuffer(Ref!ColorDrawBufEx buf)
     {
         imageBuffer_ = buf;
+        shoouldUpdate = true;
     }
 
     public override void doDraw(DrawBuf buf, Rect rc)
@@ -25,6 +27,11 @@ public final class PreviewWindow : CanvasWidget
         if(imageBuffer_ is null)
         {
             buf.fill(0x0);
+            return;
+        }
+
+        if(!shoouldUpdate)
+        {
             return;
         }
 
