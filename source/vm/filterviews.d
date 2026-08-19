@@ -146,6 +146,7 @@ public final class MedianSectionFilterView : IReplaceableView
 
         settingsLayout = new VerticalLayout("medianSectionFilterSettingsLayout");
         
+        auto dithererText = new TextWidget("medianSectionDithererText").text("Ditherer");
         auto dithererSelector = new StateWidget!SupportedDitherers("medianSectionFilterDithererSelector");
         dithererSelector.stateChanged ~= (SupportedDitherers state)
         {
@@ -163,6 +164,7 @@ public final class MedianSectionFilterView : IReplaceableView
             }
         };
 
+        auto colorsCountText = new TextWidget("medianSectionColorsCountText").text("Colors Count");
         auto colorsCountBox = new NumberBox!uint("medianSectionFilterColorsCountNumberBox", min: 2, defaultValue: 8);
         colorsCountBox.layoutWidth = FILL_PARENT;
         colorsCountBox.numberEdited ~= (uint value)
@@ -191,6 +193,11 @@ public final class MedianSectionFilterView : IReplaceableView
             filter.blueCorrectionMultiplier = value;
         };
 
+        import cereslib.todo; mixin TODO!("Rename rgb correction checkbox text to make it clearer");
+        auto useColorCorrectionText = 
+         new MultilineTextWidget("medianSectionFilterCoorrectionText").
+         text("Color-width correction (median cut)");
+
         auto useColorCorrectionBox = new CheckBox("medianSectionFilterCorrectionCheckBox");
         useColorCorrectionBox.checkChange = (Widget widget, bool state)
         {
@@ -212,8 +219,11 @@ public final class MedianSectionFilterView : IReplaceableView
         };
 
         parent.addChild(settingsLayout);
+        settingsLayout.addChild(dithererText);
         settingsLayout.addChild(dithererSelector);
+        settingsLayout.addChild(colorsCountText);
         settingsLayout.addChild(colorsCountBox);
+        settingsLayout.addChild(useColorCorrectionText);
         settingsLayout.addChild(useColorCorrectionBox);
 
         settingsLayout.addChild(redCorrectionBox);

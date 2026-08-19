@@ -2,6 +2,7 @@ HorizontalLayout {
     VerticalLayout {
         layoutHeight: fill
         minWidth: 100
+        maxWidth: 250
         ComboBox {
             id: presetsComboBox
         }
