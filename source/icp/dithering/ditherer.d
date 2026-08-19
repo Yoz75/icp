@@ -33,9 +33,9 @@ public class Ditherer : IDitherer
     public Image dither(const Image sourceImage, Color[Color] source2DestinationColorMap)
     {
         Image result = new Image(sourceImage.resolution);
-        // // Ushort because ubyte will quickly overload
+
         // [3] because RGB (and we don't dither A)
-        short[3][][] accumulatedErrors = new short[3][][](result.resolution[1], result.resolution[0]);
+        int[3][][] accumulatedErrors = new int[3][][](result.resolution[1], result.resolution[0]);
 
         void applyError(Color quantizedColor, Color correctedSourceColor, size_t sourceX, size_t sourceY)
         {
@@ -51,9 +51,9 @@ public class Ditherer : IDitherer
 
                 ref errors = accumulatedErrors[y][x];
 
-                immutable resultErrorR = cast(short) ((correctedSourceColor.r - quantizedColor.r) * mask.errorMultiplier);
-                immutable resultErrorG = cast(short) ((correctedSourceColor.g - quantizedColor.g) * mask.errorMultiplier);
-                immutable resultErrorB = cast(short) ((correctedSourceColor.b - quantizedColor.b) * mask.errorMultiplier);
+                immutable resultErrorR = cast(int) ((correctedSourceColor.r - quantizedColor.r) * mask.errorMultiplier);
+                immutable resultErrorG = cast(int) ((correctedSourceColor.g - quantizedColor.g) * mask.errorMultiplier);
+                immutable resultErrorB = cast(int) ((correctedSourceColor.b - quantizedColor.b) * mask.errorMultiplier);
 
                 errors[0] += resultErrorR;
                 errors[1] += resultErrorG;
@@ -66,7 +66,7 @@ public class Ditherer : IDitherer
         foreach(x; 0..result.resolution[0])
         {
             immutable sourceColor = sourceImage[x, y];
-            immutable short[3] errors = accumulatedErrors[y][x];
+            immutable int[3] errors = accumulatedErrors[y][x];
 
             immutable correctedR = cast(ubyte) (sourceColor.r + errors[0]).clamp(0, 255);
             immutable correctedG = cast(ubyte) (sourceColor.g + errors[1]).clamp(0, 255);
