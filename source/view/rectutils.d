@@ -23,12 +23,12 @@ out(result)
 do
 {
     Rect result;
-    immutable widthResizeCoefficient = destination.width / source.width;
-    immutable heightResizeCoefficient = destination.height / source.height;
+    immutable widthResizeCoefficient = (cast(float) destination.width) / source.width;
+    immutable heightResizeCoefficient = (cast(float) destination.height)  / source.height;
 
     immutable leastCoefficient = min(widthResizeCoefficient, heightResizeCoefficient);
-    immutable height = source.height * leastCoefficient;
-    immutable width = source.width * leastCoefficient;
+    immutable height = cast(int) (source.height * leastCoefficient);
+    immutable width = cast(int) (source.width * leastCoefficient);
 
     result.top = destination.top + (destination.height - height) / 2;
     result.bottom = result.top + height;
