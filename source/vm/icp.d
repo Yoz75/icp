@@ -1,7 +1,7 @@
 module vm.icp;
 
 import vm.presets;
-import view.memorydrawable;
+import view;
 import icp.color;
 import icp.image;
 import icp.filters;
@@ -39,9 +39,9 @@ public final class ICP_VM
     /// Params:
     ///   drawable = the drawable to be processed
     /// Returns: processed drawable
-    public SumType!(ColorDrawBuf, ProcessError) process(string imagePath)
+    public SumType!(Ref!ColorDrawBufEx, ProcessError) process(string imagePath)
     {
-        alias Result = SumType!(ColorDrawBuf, ProcessError);
+        alias Result = SumType!(Ref!ColorDrawBufEx, ProcessError);
 
         IFImage loadedImage;
         try
@@ -107,7 +107,7 @@ public final class ICP_VM
 /// Params:
 ///   image = the icp image
 /// Returns: a new ColorDrawBuf
-public ColorDrawBuf createDrawBufFromImage(Image image)
+public Ref!ColorDrawBufEx createDrawBufFromImage(Image image)
 {
     /// ARGB but reversed (probably cuz little endian??? Idk but dlangui accepts BGRA)
     struct ColorBGRA
@@ -116,7 +116,7 @@ public ColorDrawBuf createDrawBufFromImage(Image image)
     }
 
     int[2] resolution = [cast(int) image.resolution[0], cast(int) image.resolution[1]];
-    ColorDrawBuf drawBuf = new ColorDrawBuf(resolution[0], resolution[1]);
+    ColorDrawBufEx drawBuf = new ColorDrawBufEx(resolution[0], resolution[1]);
     
     foreach(y; 0..resolution[1])
     {
@@ -139,5 +139,5 @@ public ColorDrawBuf createDrawBufFromImage(Image image)
         }
     }
 
-    return drawBuf;
+    return Ref!ColorDrawBufEx(drawBuf);
 }

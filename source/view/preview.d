@@ -1,5 +1,5 @@
 module view.preview;
-import view.rectutils;
+import view;
 import icp.image;
 import cereslib.math;
 import cereslib.todo;
@@ -7,7 +7,7 @@ import dlangui;
 
 public final class PreviewWindow : CanvasWidget
 {
-    private ColorDrawBuf imageBuffer_;
+    private Ref!ColorDrawBufEx imageBuffer_;
 
     private enum Side
     {
@@ -15,7 +15,7 @@ public final class PreviewWindow : CanvasWidget
         vertical
     }
 
-    public @property void imageBuffer(ColorDrawBuf buf)
+    public @property void imageBuffer(Ref!ColorDrawBufEx buf)
     {
         imageBuffer_ = buf;
     }
@@ -42,7 +42,7 @@ public final class PreviewWindow : CanvasWidget
         // Actually, bilinear interpolation IS APPLIED, but, for example, if image buffer is 4x4, 
         // we apply it not for 4x4 grid, but rescale this 4x4 buffer to size of the widget (e,g 500x500) and then apply interpolation 
         // to this 500x500 buffer
-        ColorDrawBuf cacheDrawBuf = new ColorDrawBuf(buf.width, buf.height);
+        ColorDrawBufEx cacheDrawBuf = new ColorDrawBufEx(buf.width, buf.height);
 
         immutable height = buf.height;
         immutable width = buf.width;
@@ -64,8 +64,6 @@ public final class PreviewWindow : CanvasWidget
                 cacheLine[x] = line[remapX];
             }
         }
-
-        mixin TODO!"add top and bottom borders so image wouldn't be stretched or cropped (currently it's cropped)";
         
         immutable cacheDrawBufRect = Rect(0, 0, cacheDrawBuf.width, cacheDrawBuf.height);
         immutable imageRect = Rect(0, 0, imageBuffer_.width, imageBuffer_.height);
@@ -75,5 +73,6 @@ public final class PreviewWindow : CanvasWidget
         buf.drawRescaled(rescaledRect, cacheDrawBuf, cacheDrawBufRect);
 
         super.doDraw(buf, rc);
+        cacheDrawBuf.free();
     }
 }

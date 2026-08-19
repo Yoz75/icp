@@ -19,6 +19,9 @@ private Logger appLogger;
 extern(C) int UIAppMain(string[] args)
 {
     registerDefaultPresets();
+    MallocBuf!int ints;
+    ints.reserve(100);
+    ints.clear();
 
     embeddedResourceList.addResources(embedResourcesFromList!("resources.list")());
     Window window = Platform.instance.createWindow("Wow!", null, 0, 800, 600);
@@ -109,7 +112,7 @@ private final class MainFrame : AppFrame
                             error = "Got process error while executing ICP, but its code is none (invalid).";
                             break;
                         case ICP_VM.ProcessError.wrongImageFormat:
-                            error = "Unknown image format.";
+                            error = "Unknown image format. Try to resave the image";
                             break;
                         case ICP_VM.ProcessError.corruptedImage:
                             error = "Image is corrupted or contains unsupported features and can not be loaded." ~
@@ -121,7 +124,7 @@ private final class MainFrame : AppFrame
                     return true;
                 }
 
-                preview.imageBuffer = buffer.get!ColorDrawBuf;
+                preview.imageBuffer = buffer.get!(Ref!ColorDrawBufEx);
             }
             catch(Exception ex)
             {
