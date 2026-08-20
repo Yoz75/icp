@@ -8,6 +8,7 @@ import dlangui;
 public final class PreviewWindow : CanvasWidget
 {
     private Ref!ColorDrawBufEx imageBuffer_;
+    private Ref!ColorDrawBufEx cacheDrawBuf;
     private bool shoouldUpdate;
 
     private enum Side
@@ -32,6 +33,7 @@ public final class PreviewWindow : CanvasWidget
 
         if(!shoouldUpdate)
         {
+            drawCacheBuffer(buf, rc);
             return;
         }
 
@@ -49,7 +51,7 @@ public final class PreviewWindow : CanvasWidget
         // Actually, bilinear interpolation IS APPLIED, but, for example, if image buffer is 4x4, 
         // we apply it not for 4x4 grid, but rescale this 4x4 buffer to size of the widget (e,g 500x500) and then apply interpolation 
         // to this 500x500 buffer
-        ColorDrawBufEx cacheDrawBuf = new ColorDrawBufEx(buf.width, buf.height);
+        cacheDrawBuf = new ColorDrawBufEx(buf.width, buf.height);
 
         immutable height = buf.height;
         immutable width = buf.width;
@@ -71,15 +73,25 @@ public final class PreviewWindow : CanvasWidget
                 cacheLine[x] = line[remapX];
             }
         }
-        
+
+        drawCacheBuffer(buf, rc);
+
+        super.doDraw(buf, rc);
+        cacheDrawBuf.free();
+        shoouldUpdate = false;
+    }
+
+    /// Draw the cache buffer into another buffer
+    /// Params:
+    ///   buf = the buffer in witch we draw the cache buffer
+    ///   rc =  buf's rect
+    private void drawCacheBuffer(DrawBuf buf, Rect rc)
+    {
         immutable cacheDrawBufRect = Rect(0, 0, cacheDrawBuf.width, cacheDrawBuf.height);
         immutable imageRect = Rect(0, 0, imageBuffer_.width, imageBuffer_.height);
         Rect rescaledRect = rc.fit(imageRect);
 
         buf.fill(0xFFFFFF);
         buf.drawRescaled(rescaledRect, cacheDrawBuf, cacheDrawBufRect);
-
-        super.doDraw(buf, rc);
-        cacheDrawBuf.free();
     }
 }

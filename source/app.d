@@ -18,6 +18,7 @@ private Logger appLogger;
 
 extern(C) int UIAppMain(string[] args)
 {
+    import std.stdio;
     registerDefaultPresets();
     MallocBuf!int ints;
     ints.reserve(100);

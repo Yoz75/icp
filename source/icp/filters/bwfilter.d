@@ -32,7 +32,7 @@ public @filter final class BW_Filter : IFilter
               color.g * gMultiplier + 
               color.b * bMultiplier);
 
-            Color brightnessColor = Color(brightness, brightness, brightness, color.a);
+            Color brightnessColor = Color(brightness, brightness, brightness);
 
             color = color.lerp(brightnessColor, effectStrength_);
         }

@@ -105,7 +105,7 @@ public final class MedianSectionFilter : IFilter
             mediumR /= totalColorsCount;
             mediumG /= totalColorsCount;
             mediumB /= totalColorsCount;
-            Color mediumColor = Color(cast(ubyte) mediumR, cast(ubyte) mediumG, cast(ubyte) mediumB, 255);
+            Color mediumColor = Color(cast(ubyte) mediumR, cast(ubyte) mediumG, cast(ubyte) mediumB);
             foreach(metaInfo; slice)
             {
                 Color* mappedColor = metaInfo.color in mappedColors;

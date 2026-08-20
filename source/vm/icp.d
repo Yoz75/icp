@@ -73,8 +73,7 @@ public final class ICP_VM
                 immutable icp.color.Color color =
                 icp.color.Color(loadedImage.pixels[index],
                     loadedImage.pixels[index + 1],
-                    loadedImage.pixels[index + 2],
-                    loadedImage.pixels[index + 3]);
+                    loadedImage.pixels[index + 2]);
 
                 icpImage[x, y] = color;
             }
@@ -89,8 +88,7 @@ public final class ICP_VM
                 immutable icp.color.Color color =
                 icp.color.Color(loadedImage.pixels[index],
                     loadedImage.pixels[index + 1],
-                    loadedImage.pixels[index + 2], 
-                    255);
+                    loadedImage.pixels[index + 2]);
 
                 icpImage[x, y] = color;
             }
@@ -132,8 +130,7 @@ public Ref!ColorDrawBufEx createDrawBufFromImage(Image image)
             // (cuz RGBA's A is ARGB's B)
             immutable colorRGBA = image[x, y];
 
-            /// at some reason dlangui thinks that alfa 0 is opaque and alfa 255 is transparent
-            immutable colorARGB = ColorBGRA(colorRGBA.b, colorRGBA.g, colorRGBA.r, 255 - colorRGBA.a);
+            immutable colorARGB = ColorBGRA(colorRGBA.b, colorRGBA.g, colorRGBA.r, 0);
 
             line[x] = colorARGB;
         }

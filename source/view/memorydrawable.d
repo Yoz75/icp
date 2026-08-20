@@ -32,8 +32,7 @@ public final class MemoryDrawable : ImageDrawable
                 // (cuz RGBA's A is ARGB's B)
                 immutable colorRGBA = source[x, y];
 
-                /// at some reason dlangui thinks that alfa 0 is opaque and alfa 255 is transparent
-                immutable colorARGB = ColorBGRA(colorRGBA.b, colorRGBA.g, colorRGBA.r, 255 - colorRGBA.a);
+                immutable colorARGB = ColorBGRA(colorRGBA.b, colorRGBA.g, colorRGBA.r);
 
                 line[x] = colorARGB;
             }

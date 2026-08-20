@@ -18,6 +18,7 @@ public struct DitherMask
 public class Ditherer : IDitherer
 {
     private DitherMask[] masks_;
+    private ubyte[] similarMap;
     /// Cache of the most similar colors for a given color. This is used to speed up the dithering process.
 
     /// Masks for error propagation.
@@ -89,18 +90,16 @@ public class Ditherer : IDitherer
     /// Returns: the most similar color in `colors`
     private Color toMostSimilar(Color source, Color[] colors)
     {
-        int minTotalDifference = int.max;
+        int minDistance = int.max;
         size_t mostSimilarIndex;
 
         foreach(i, color; colors)
         {
-            immutable ubyte differenceR = cast(ubyte) (source.r - color.r).abs;
-            immutable ubyte differenceG = cast(ubyte) (source.g - color.g).abs;
-            immutable ubyte differenceB = cast(ubyte) (source.b - color.b).abs;
-            immutable int totalDifference = differenceR + differenceG + differenceB;
-            if(totalDifference < minTotalDifference)
+            immutable distance = manhattanDistance(source, color);
+
+            if(distance < minDistance)
             {
-                minTotalDifference = totalDifference;
+                minDistance = distance;
                 mostSimilarIndex = i;            
             }
         }
