@@ -16,9 +16,19 @@ private Logger appLogger;
 2) попытаться оптимизировать дизеринг, посмотреть реализацию пэинтнета https://github.com/paintdotnet/PaintDotNet.Quantization/tree/main/PaintDotNet/Imaging/Quantization 
 */
 
+/*
+    туду на седня:
+    1) сделать первый пункт из туду на вчера
+    2) придумать переместить эп логгер в отдельный модуль и использовать его везде в том числе и в icp
+    3) сделать в строке состояний две кнопки (влевои  вправо) для просмотра последних 8 логов
+*/
+
 extern(C) int UIAppMain(string[] args)
 {
     import std.stdio;
+    stderr = File("./err.txt", "w");
+    stdout = File("./out.txt", "w");
+
     registerDefaultPresets();
     MallocBuf!int ints;
     ints.reserve(100);
@@ -133,8 +143,10 @@ private final class MainFrame : AppFrame
             }
 
             import core.memory;
+            immutable gcReserved = GC.stats.freeSize / (1024 * 1024);
             immutable gcMemoryUsage = GC.stats.usedSize / (1024f * 1024f);
-            appLogger.log("Used memory after processing: " ~ gcMemoryUsage.to!string ~ "MiB", LogType.debug_);
+            appLogger.log("Used memory after processing: " ~
+             gcMemoryUsage.to!string ~ "MiB " ~ "free: " ~ gcReserved.to!string ~ "MiB", LogType.debug_);
             appLogger.log("Processed an image. No errors occured.");
             return true;
         };

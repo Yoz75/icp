@@ -177,7 +177,7 @@ public final class MedianSectionFilterView : IReplaceableView
         };
 
         auto colorsCountText = new TextWidget("medianSectionColorsCountText").text("Colors Count");
-        auto colorsCountBox = new NumberBox!uint("medianSectionFilterColorsCountNumberBox", min: 2, defaultValue: 8);
+        auto colorsCountBox = new NumberBox!uint("medianSectionFilterColorsCountNumberBox", min: 2, defaultValue: 8, max: 255);
         colorsCountBox.layoutWidth = FILL_PARENT;
         colorsCountBox.numberEdited ~= (uint value)
         {

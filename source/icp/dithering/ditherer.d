@@ -18,6 +18,8 @@ public struct DitherMask
 public class Ditherer : IDitherer
 {
     private DitherMask[] masks_;
+    // dont woorry, if we can use only 255 colors, the indices will be 0..254, so 255 is free
+    enum wrongIndex = ubyte.max;
     private ubyte[] similarMap;
     /// Cache of the most similar colors for a given color. This is used to speed up the dithering process.
 
@@ -33,24 +35,32 @@ public class Ditherer : IDitherer
     /// Returns: quantized and dithered image. All colors 
     public Image dither(const Image sourceImage, Color[Color] source2DestinationColorMap)
     {
+        // cuz we have 3 color channels
         Image result = new Image(sourceImage.resolution);
+        similarMap = new ubyte[](1 << 24);
+        similarMap[] = wrongIndex;
 
         // [3] because RGB (and we don't dither A)
-        int[3][][] accumulatedErrors = new int[3][][](result.resolution[1], result.resolution[0]);
+        int[3][] accumulatedErrors = new int[3][](result.resolution[1] * result.resolution[0]);
 
-        void applyError(Color quantizedColor, Color correctedSourceColor, size_t sourceX, size_t sourceY)
+        pragma(inline, true)
+        void applyError(Color quantizedColor, Color correctedSourceColor, int sourceX, int sourceY)
         {
             foreach(mask; masks_)
             {
                 immutable x = sourceX + mask.bias[0];
                 immutable y = sourceY + mask.bias[1];
 
-                if(x < 0 || y < 0 || x >= accumulatedErrors[0].length || y >= accumulatedErrors.length)
+                immutable width = result.resolution[0];
+                immutable height = result.resolution[1];
+
+                if (x < 0 || y < 0 || x >= width || y >= height)
                 {
                     continue;
                 }
 
-                ref errors = accumulatedErrors[y][x];
+                immutable index = y * sourceImage.resolution[0] + x;
+                ref errors = accumulatedErrors[index];
 
                 immutable resultErrorR = cast(int) ((correctedSourceColor.r - quantizedColor.r) * mask.errorMultiplier);
                 immutable resultErrorG = cast(int) ((correctedSourceColor.g - quantizedColor.g) * mask.errorMultiplier);
@@ -64,36 +74,46 @@ public class Ditherer : IDitherer
 
         auto colors = source2DestinationColorMap.values;
         foreach(y; 0..result.resolution[1])
-        foreach(x; 0..result.resolution[0])
         {
-            immutable sourceColor = sourceImage[x, y];
-            immutable int[3] errors = accumulatedErrors[y][x];
+            immutable lineIndex = y * result.resolution[0];
+            foreach(x; 0..result.resolution[0])
+            {
+                immutable sourceColor = sourceImage[x, y];
+                immutable int[3] errors = accumulatedErrors[lineIndex + x];
 
-            immutable correctedR = cast(ubyte) (sourceColor.r + errors[0]).clamp(0, 255);
-            immutable correctedG = cast(ubyte) (sourceColor.g + errors[1]).clamp(0, 255);
-            immutable correctedB = cast(ubyte) (sourceColor.b + errors[2]).clamp(0, 255);
+                immutable correctedR = cast(ubyte) (sourceColor.r + errors[0]).clamp(0, 255);
+                immutable correctedG = cast(ubyte) (sourceColor.g + errors[1]).clamp(0, 255);
+                immutable correctedB = cast(ubyte) (sourceColor.b + errors[2]).clamp(0, 255);
 
-            immutable correctedColor = Color(correctedR, correctedG, correctedB);
-            immutable quantizedColor = toMostSimilar(correctedColor, colors);
-            result[x, y] = quantizedColor;
+                immutable correctedColor = Color(correctedR, correctedG, correctedB);
+                immutable quantizedColor = colors[toMostSimilarIndex(correctedColor, colors)];
+                result[x, y] = quantizedColor;
 
-            applyError(quantizedColor, correctedColor, x, y);
+                applyError(quantizedColor, correctedColor, x, y);
+            }
         }
 
         return result;
     }
 
-    /// Convert color `source` to the most similar one in the `colors`
+    /// Convert color `source` to the index of the most similar one in the `colors`
     /// Params:
     ///   source = the source color
     ///   colors = the array of available colors
     /// Returns: the most similar color in `colors`
-    private Color toMostSimilar(Color source, Color[] colors)
+    private ubyte toMostSimilarIndex(Color source, Color[] colors)
     {
         int minDistance = int.max;
-        size_t mostSimilarIndex;
+        ubyte mostSimilarIndex;
 
-        foreach(i, color; colors)
+        immutable cacheIndex = (cast(uint) source.r << 16) | (cast(uint) source.g << 8) | source.b;
+        immutable cachedIndex = similarMap[cacheIndex];
+        if(cachedIndex != wrongIndex)
+        {
+            return cachedIndex;
+        }
+
+        foreach(ubyte i, color; colors)
         {
             immutable distance = manhattanDistance(source, color);
 
@@ -104,6 +124,6 @@ public class Ditherer : IDitherer
             }
         }
 
-        return colors[mostSimilarIndex];
+        return mostSimilarIndex;
     }
 } 
