@@ -41,15 +41,15 @@ public final class SierraThreeDitherer : Ditherer
             DitherMask(5f/32, [1, 0]),
             DitherMask(3f/32, [2, 0]),
 
-            DitherMask(2f/32, [-2, -1]),
-            DitherMask(4f/32, [-1, -1]),
-            DitherMask(5f/32, [0, -1]),
-            DitherMask(4f/32, [1, -1]),
-            DitherMask(2f/32, [2, -1]),
+            DitherMask(2f/32, [-2, 1]),
+            DitherMask(4f/32, [-1, 1]),
+            DitherMask(5f/32, [0, 1]),
+            DitherMask(4f/32, [1, 1]),
+            DitherMask(2f/32, [2, 1]),
 
-            DitherMask(2f/32, [-1, -2]),
-            DitherMask(3f/32, [0, -2]),
-            DitherMask(2f/32, [1, -2]),
+            DitherMask(2f/32, [-1, 2]),
+            DitherMask(3f/32, [0, 2]),
+            DitherMask(2f/32, [1, 2]),
         ];
     }
 }
@@ -63,11 +63,11 @@ public final class SierraTwoRowDitherer : Ditherer
             DitherMask(4f/16, [1, 0]),
             DitherMask(3f/16, [2, 0]),
 
-            DitherMask(1f/16, [-2, -1]),
-            DitherMask(2f/16, [-1, -1]),
-            DitherMask(3f/16, [0, -1]),
-            DitherMask(2f/16, [1, -1]),
-            DitherMask(1f/16, [2, -1]),
+            DitherMask(1f/16, [-2, 1]),
+            DitherMask(2f/16, [-1, 1]),
+            DitherMask(3f/16, [0, 1]),
+            DitherMask(2f/16, [1, 1]),
+            DitherMask(1f/16, [2, 1]),
         ];
     }
 }
@@ -80,8 +80,8 @@ public final class SierraLightDitherer : Ditherer
         masks = [
             DitherMask(2f/4, [1, 0]),
 
-            DitherMask(1f/4, [0, -1]),
-            DitherMask(1f/4, [-1, -1]),
+            DitherMask(1f/4, [0, 1]),
+            DitherMask(1f/4, [-1, 1]),
         ];
     }
 }

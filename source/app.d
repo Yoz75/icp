@@ -2,14 +2,13 @@ import dlangui;
 import vm;
 import view;
 import vm.logging;
+import applogger;
 import std.sumtype : has, get;
 import std.file : getcwd;
 import std.path : chainPath;
 import std.array : array;
 
 mixin APP_ENTRY_POINT;
-
-private Logger appLogger;
 
 /*туду на завтра:
 1) доделать StateWidget так, чтобы обойтись без fromString (хранить список состояний просто)
@@ -42,9 +41,9 @@ extern(C) int UIAppMain(string[] args)
     auto frame = new MainFrame();
     window.mainWidget = frame;
 
-    appLogger = new Logger();
-    appLogger.addLoggee(new StatusLineLoggee(frame.statusLine));
-    appLogger.addLoggee(new FileLoggee(chainPath(getcwd(), "Logs").array));
+    globalAppLogger = new Logger();
+    globalAppLogger.addLoggee(new StatusLineLoggee(frame.statusLine));
+    globalAppLogger.addLoggee(new FileLoggee(chainPath(getcwd(), "Logs").array));
 
     window.show();
     return Platform.instance.enterMessageLoop();
@@ -137,7 +136,7 @@ private final class MainFrame : AppFrame
                             break;
                     }
 
-                    appLogger.log(error, LogType.error);
+                    globalAppLogger.log(error, LogType.error);
                     return true;
                 }
 
@@ -145,15 +144,15 @@ private final class MainFrame : AppFrame
             }
             catch(Exception ex)
             {
-                appLogger.log("Unhandled exception while running ICP :(. Message: " ~ ex.message.to!string, LogType.error);
+                globalAppLogger.log("Unhandled exception while running ICP :(. Message: " ~ ex.message.to!string, LogType.error);
             }
 
             import core.memory;
             immutable gcReserved = GC.stats.freeSize / (1024 * 1024);
             immutable gcMemoryUsage = GC.stats.usedSize / (1024f * 1024f);
-            appLogger.log("Used memory after processing: " ~
+            globalAppLogger.log("Used memory after processing: " ~
              gcMemoryUsage.to!string ~ "MiB " ~ "free: " ~ gcReserved.to!string ~ "MiB", LogType.debug_);
-            appLogger.log("Processed an image. No errors occured.");
+            globalAppLogger.log("Processed an image. No errors occured.");
             return true;
         };
 
