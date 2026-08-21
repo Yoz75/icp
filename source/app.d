@@ -30,10 +30,6 @@ extern(C) int UIAppMain(string[] args)
     stdout = File("./out.txt", "w");
 
     registerDefaultPresets();
-    MallocBuf!int ints;
-    ints.reserve(100);
-    ints.clear();
-
     embeddedResourceList.addResources(embedResourcesFromList!("resources.list")());
     Window window = Platform.instance.createWindow("Wow!", null, 0, 800, 600);
     window.windowOrContentResizeMode = WindowOrContentResizeMode.shrinkWidgets;
