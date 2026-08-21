@@ -14,20 +14,50 @@ public struct DitherMask
     byte[2] bias;
 }
 
+// Microsoft linker throws LNK4319 when creating the PDB file due the big static array,
+// this is a hacky trick to use dynamic array when building in debug mode
+import cereslib.todo; mixin TODO!"Fix LNK4318 when using large static array";
+debug
+{
+    version = ICP_DynamicSimilarMap;
+}
+
 /// Default IDitherer implementation. Fully customizable mask and error multiplier
 public class Ditherer : IDitherer
 {
+    private enum totalColorsCount = 1 << 24;
+    private enum wrongIndex = ubyte.max;
+
     private DitherMask[] masks_;
-    // dont woorry, if we can use only 255 colors, the indices will be 0..254, so 255 is free
-    enum wrongIndex = ubyte.max;
-    private ubyte[] similarMap;
-    /// Cache of the most similar colors for a given color. This is used to speed up the dithering process.
+
+    version(ICP_DynamicSimilarMap)
+    {
+        private ubyte[] similarMap;
+    }
+    else
+    {
+        // I could use dynamic array in the release build too, but
+        // we can't re-allocate a static array, that's an idiout-proofing.
+        // I don't use static array in the debug build only because of LNK4319 (btw, try to fix it)
+        /// Cache of the most similar colors for a given color. This is used to speed up the dithering process.
+        private ubyte[totalColorsCount] similarMap = void;
+    }
+
+    public this()
+    {
+        version(ICP_DynamicSimilarMap)
+        {
+            similarMap = new ubyte[totalColorsCount];
+        }
+    }
 
     /// Masks for error propagation.
     public @property void masks(DitherMask[] masks)
     {
         masks_ = masks;
     }
+
+    
     /// Dither an image.
     /// Params:
     /// sourceImage = the original not quantized image
@@ -37,7 +67,6 @@ public class Ditherer : IDitherer
     {
         // cuz we have 3 color channels
         Image result = new Image(sourceImage.resolution);
-        similarMap = new ubyte[](1 << 24);
         similarMap[] = wrongIndex;
 
         // [3] because RGB (and we don't dither A)

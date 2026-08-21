@@ -21,6 +21,7 @@ private Logger appLogger;
     1) сделать первый пункт из туду на вчера
     2) придумать переместить эп логгер в отдельный модуль и использовать его везде в том числе и в icp
     3) сделать в строке состояний две кнопки (влевои  вправо) для просмотра последних 8 логов
+    4) ВОЗМОЖНО доделать icp.palettes и перевести на них всё говно
 */
 
 extern(C) int UIAppMain(string[] args)
@@ -58,6 +59,11 @@ private final class MainFrame : AppFrame
     {
         _appName = "wow!";
         super.initialize();
+    }
+
+    protected override StatusLine createStatusLine()
+    {
+        return new LogLine(16);
     }
 
     protected override Widget createBody()
