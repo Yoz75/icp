@@ -6,20 +6,13 @@ HorizontalLayout {
         ComboBox {
             id: presetsComboBox
         }
+        
         VerticalLayout {
             id: presetView
         }
+
         VSpacer{
             layoutHeight: fill
-        }
-        Button {
-            id: openFileButton
-            text: "open..."
-        }
-        
-        Button {
-            id: runButton
-            text: "run!"
         }
     }
     VerticalLayout {

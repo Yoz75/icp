@@ -120,3 +120,17 @@ public final class FileLoggee : ILoggee
         append(logFilePath, text ~ '\n');
     }
 }
+
+/// Logs used GC memory and free memory occupied by GC
+public void logGCMemory(Logger logger, LogType logType = LogType.debug_)
+{
+    import core.memory;
+    import std.conv;
+    
+    immutable gcReserved = GC.stats.freeSize / (1024 * 1024);
+    immutable gcMemoryUsage = GC.stats.usedSize / (1024f * 1024f);
+    
+    logger.log("Used GC memory: " ~ 
+     gcMemoryUsage.to!string ~ "MiB. Free GC memory: " ~ gcReserved.to!string ~ "MiB", logType);
+    logger.log("Processed an image. No errors occured.");
+}   

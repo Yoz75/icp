@@ -99,6 +99,34 @@ public final class ICP_VM
         Result result = createDrawBufFromImage(icpImage);
         return result;
     }
+
+    /// Save `buffer` to the `path`
+    /// Params:
+    ///   buffer = the buffer 
+    ///   path = the file path (including extension)
+    public void save(Ref!ColorDrawBufEx buffer, string filePath)
+    {
+        int[] pixels = new int[buffer.width * buffer.height];
+
+        immutable width = buffer.width;
+        immutable height = buffer.height;
+        
+        foreach(y; 0..height)
+        {
+            int[] line = cast(int[]) buffer.scanLine(y)[0..width];
+
+            foreach(x; 0..width)
+            {
+                immutable index = y * width + x;
+                pixels[index] = line[x];
+                // dlangui iverts alfa at some reason :/
+                pixels[index] |= 0xFF000000;
+            }
+        }
+        
+        ubyte[] channels = cast(ubyte[]) pixels;
+        write_image(filePath, buffer.width, buffer.height, channels, ColFmt.RGBA);
+    }
 }
 
 /// Create a draw buf from image
