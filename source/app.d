@@ -37,7 +37,7 @@ extern(C) int UIAppMain(string[] args)
 
     registerDefaultPresets();
     embeddedResourceList.addResources(embedResourcesFromList!("resources.list")());
-    
+
     // loading version from string file and then converting it to string sounds strange, but
     // what if we move window initialization somewhere? The "window initializatior" shlound't ever know
     // how we load the version so it is what it is
@@ -143,6 +143,12 @@ private final class MainFrame : AppFrame
                 }
             }
 
+            return true;
+        };
+
+        body.childById!Button("runButton").click = (Widget unused)
+        {
+            run();
             return true;
         };
 

@@ -14,6 +14,11 @@ HorizontalLayout {
         VSpacer{
             layoutHeight: fill
         }
+
+        Button {
+            id: runButton
+            text: "run"
+        }
     }
     VerticalLayout {
         id: previewSide
