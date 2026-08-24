@@ -153,6 +153,7 @@ public class Ditherer : IDitherer
             }
         }
 
+        similarMap[cacheIndex] = mostSimilarIndex;
         return mostSimilarIndex;
     }
 } 
