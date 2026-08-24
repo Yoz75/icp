@@ -2,6 +2,7 @@ import vm;
 import view;
 import vm.logging;
 import applogger;
+import cereslib.versions;
 import std.sumtype : has, get;
 import std.file : getcwd;
 import std.path : chainPath;
@@ -28,13 +29,19 @@ mixin APP_ENTRY_POINT;
 */
 extern(C) int UIAppMain(string[] args)
 {
+    programVersion = Version.fromString(import("version.txt"));
+
     import std.stdio;
     stderr = File("./err.txt", "w");
     stdout = File("./out.txt", "w");
 
     registerDefaultPresets();
     embeddedResourceList.addResources(embedResourcesFromList!("resources.list")());
-    Window window = Platform.instance.createWindow("Wow!", null, 0, 800, 600);
+    
+    // loading version from string file and then converting it to string sounds strange, but
+    // what if we move window initialization somewhere? The "window initializatior" shlound't ever know
+    // how we load the version so it is what it is
+    Window window = Platform.instance.createWindow("Image Color Processor" ~ programVersion.toDstring(), null, 0, 800, 600);
     window.windowOrContentResizeMode = WindowOrContentResizeMode.shrinkWidgets;
 
     auto frame = new MainFrame();
