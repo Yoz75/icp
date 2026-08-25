@@ -109,9 +109,9 @@ private Preset makePixelizerPreset()
     pixelizerPreset.filters ~= resizeFilter;
     pixelizerPreset.views ~= new ResizeFilterView(resizeFilter);
 
-    auto quantizeFilter = new MedianSectionFilter();
+    auto quantizeFilter = new QuantizeFilter();
     pixelizerPreset.filters ~= quantizeFilter;
-    pixelizerPreset.views ~= new MedianSectionFilterView(quantizeFilter);
+    pixelizerPreset.views ~= new QuantizerFilterView(quantizeFilter);
 
     return pixelizerPreset;
 }

@@ -1,6 +1,7 @@
 module icp.dithering.ditherer;
 import icp.dithering.iditherer;
 import icp.image;
+import icp.palettes;
 import std.algorithm.comparison : clamp;
 import std.math;
 /// A dither mask for one pixel
@@ -14,60 +15,26 @@ public struct DitherMask
     byte[2] bias;
 }
 
-// Microsoft linker throws LNK4319 when creating the PDB file due the big static array,
-// this is a hacky trick to use dynamic array when building in debug mode
-import cereslib.todo; mixin TODO!"Fix LNK4318 when using large static array";
-debug
-{
-    version = ICP_DynamicSimilarMap;
-}
-
 /// Default IDitherer implementation. Fully customizable mask and error multiplier
-public class Ditherer : IDitherer
+public class Ditherer(TPalette) : IDitherer!TPalette if(is(TPalette : IPalette))
 {
-    private enum totalColorsCount = 1 << 24;
-    private enum wrongIndex = ubyte.max;
-
     private DitherMask[] masks_;
-
-    version(ICP_DynamicSimilarMap)
-    {
-        private ubyte[] similarMap;
-    }
-    else
-    {
-        // I could use dynamic array in the release build too, but
-        // we can't re-allocate a static array, that's an idiout-proofing.
-        // I don't use static array in the debug build only because of LNK4319 (btw, try to fix it)
-        /// Cache of the most similar colors for a given color. This is used to speed up the dithering process.
-        private ubyte[totalColorsCount] similarMap = void;
-    }
-
-    public this()
-    {
-        version(ICP_DynamicSimilarMap)
-        {
-            similarMap = new ubyte[totalColorsCount];
-        }
-    }
 
     /// Masks for error propagation.
     public @property void masks(DitherMask[] masks)
     {
         masks_ = masks;
     }
-
     
     /// Dither an image.
     /// Params:
     /// sourceImage = the original not quantized image
     /// source2DestinationColorMap = associative array, that maps colors from the source image to quanitzed colors
     /// Returns: quantized and dithered image. All colors 
-    public Image dither(const Image sourceImage, Color[Color] source2DestinationColorMap)
+    public Image dither(const Image sourceImage, TPalette palette)
     {
         // cuz we have 3 color channels
         Image result = new Image(sourceImage.resolution);
-        similarMap[] = wrongIndex;
 
         // [3] because RGB (and we don't dither A)
         int[3][] accumulatedErrors = new int[3][](result.resolution[1] * result.resolution[0]);
@@ -101,7 +68,6 @@ public class Ditherer : IDitherer
             }
         }
 
-        auto colors = source2DestinationColorMap.values;
         foreach(y; 0..result.resolution[1])
         {
             immutable lineIndex = y * result.resolution[0];
@@ -115,7 +81,7 @@ public class Ditherer : IDitherer
                 immutable correctedB = cast(ubyte) (sourceColor.b + errors[2]).clamp(0, 255);
 
                 immutable correctedColor = Color(correctedR, correctedG, correctedB);
-                immutable quantizedColor = colors[toMostSimilarIndex(correctedColor, colors)];
+                immutable quantizedColor = palette.getClosestOnPalette(correctedColor);
                 result[x, y] = quantizedColor;
 
                 applyError(quantizedColor, correctedColor, x, y);
@@ -123,37 +89,5 @@ public class Ditherer : IDitherer
         }
 
         return result;
-    }
-
-    /// Convert color `source` to the index of the most similar one in the `colors`
-    /// Params:
-    ///   source = the source color
-    ///   colors = the array of available colors
-    /// Returns: the most similar color in `colors`
-    private ubyte toMostSimilarIndex(Color source, Color[] colors)
-    {
-        int minDistance = int.max;
-        ubyte mostSimilarIndex;
-
-        immutable cacheIndex = (cast(uint) source.r << 16) | (cast(uint) source.g << 8) | source.b;
-        immutable cachedIndex = similarMap[cacheIndex];
-        if(cachedIndex != wrongIndex)
-        {
-            return cachedIndex;
-        }
-
-        foreach(ubyte i, color; colors)
-        {
-            immutable distance = manhattanDistance(source, color);
-
-            if(distance < minDistance)
-            {
-                minDistance = distance;
-                mostSimilarIndex = i;            
-            }
-        }
-
-        similarMap[cacheIndex] = mostSimilarIndex;
-        return mostSimilarIndex;
     }
 } 

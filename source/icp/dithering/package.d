@@ -4,11 +4,12 @@ module icp.dithering;
 public import icp.dithering.iditherer;
 public import icp.dithering.noditherer;
 public import icp.dithering.ditherer;
+import icp.palettes;
 
 // Most of the algorythms I took from https://habr.com/ru/articles/326936/
 
 /// Uses Floyd-Steinberg dithering algorythm
-public final class FloydSteinbergDitherer : Ditherer
+public final class FloydSteinbergDitherer(TPalette) : Ditherer!TPalette if(is(TPalette : IPalette))
 {
     public this()
     {
@@ -22,7 +23,7 @@ public final class FloydSteinbergDitherer : Ditherer
 }
 
 /// Accumulates error on the right pixel. Super fast
-public final class RightPropagationDitherer : Ditherer
+public final class RightPropagationDitherer(TPalette) : Ditherer!TPalette if(is(TPalette : IPalette))
 {
     public this()
     {
@@ -33,7 +34,7 @@ public final class RightPropagationDitherer : Ditherer
 }
 
 /// Full Sierra's ditherer
-public final class SierraThreeDitherer : Ditherer
+public final class SierraThreeDitherer(TPalette) : Ditherer!TPalette if(is(TPalette : IPalette))
 {
     public this()
     {
@@ -55,7 +56,7 @@ public final class SierraThreeDitherer : Ditherer
 }
 
 /// Medium Sierra's ditherer
-public final class SierraTwoRowDitherer : Ditherer
+public final class SierraTwoRowDitherer(TPalette) : Ditherer!TPalette if(is(TPalette : IPalette))
 {
     public this()
     {
@@ -73,7 +74,7 @@ public final class SierraTwoRowDitherer : Ditherer
 }
 
 /// Tiny Sierra's ditherer
-public final class SierraLightDitherer : Ditherer
+public final class SierraLightDitherer(TPalette) : Ditherer!TPalette if(is(TPalette : IPalette))
 {
     public this()
     {

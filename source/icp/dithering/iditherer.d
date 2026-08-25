@@ -1,5 +1,6 @@
 module icp.dithering.iditherer;
 import icp.image;
+public import icp.palettes;
 
 /*
 /// A map that converts 
@@ -14,12 +15,13 @@ public struct QuantizationMap
     private Color[] quantizedColors;
 }
 */
-public interface IDitherer
+public interface IDitherer (TPalette) if(is(TPalette : IPalette))
 {
     /// Dither an image.
     /// Params:
     /// sourceImage = the original not quantized image
-    /// source2DestinationColorMap = associative array, that maps colors from the source image to quanitzed colors
-    /// Returns: quantized and dithered image. All colors 
-    public Image dither(const Image sourceImage, Color[Color] source2DestinationColorMap);
+    /// palette = the palette of colors
+    /// colors = the handles of palette's colors
+    /// Returns: quantized and dithered image
+    public Image dither(const Image sourceImage, TPalette palette);
 }

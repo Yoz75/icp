@@ -1,5 +1,5 @@
 module icp.filters.ifilter;
-import icp.image;
+public import icp.image;
 
 // currently unused, needed for custom presets supporting (I hope i'll add it)
 /// Attribute that tells that class is a filter

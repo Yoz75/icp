@@ -2,6 +2,7 @@
 module vm.filterviews;
 import icp.filters;
 import icp.dithering;
+import icp.quantizers;
 import vm.replaceableview;
 import view;
 import std.conv;
@@ -121,11 +122,11 @@ public final class ResizeFilterView : IReplaceableView
     }
 }
 
-public final class MedianSectionFilterView : IReplaceableView
+public final class QuantizerFilterView : IReplaceableView
 {
     private enum SupportedDitherers
     {
-        no,
+        no = 0,
         floydSteinberg,
         sierra3,
         sierra2Row,
@@ -133,12 +134,18 @@ public final class MedianSectionFilterView : IReplaceableView
         rightPropagation
     }
 
+    private enum SupportedQuantizers
+    {
+        medianSection = 0,
+        clonePalette
+    }
+
     private WidgetGroup parent;
     private VerticalLayout settingsLayout;
 
-    private MedianSectionFilter filter;
+    private QuantizeFilter filter;
 
-    public this(MedianSectionFilter filter)
+    public this(QuantizeFilter filter)
     {
         this.filter = filter;
     }
@@ -147,62 +154,98 @@ public final class MedianSectionFilterView : IReplaceableView
     {
         parent = group;
 
-        settingsLayout = new VerticalLayout("medianSectionFilterSettingsLayout");
+        settingsLayout = new VerticalLayout("quantizerFilterSettingsLayout");
+
+        import cereslib.todo;
+        mixin TODO!"Try to make abstraction for every quantizer. Probably use IReplaceableView";
         
-        auto dithererText = new TextWidget("medianSectionDithererText").text("Ditherer");
-        auto dithererSelector = new StateWidget!SupportedDitherers("medianSectionFilterDithererSelector");
+        auto dithererText = new TextWidget("quantizerFilterDithererText").text("Ditherer");
+        auto dithererSelector = new StateWidget!SupportedDitherers("quantizerFilterrDithererSelector");
         dithererSelector.stateChanged ~= (SupportedDitherers state)
         {
+            with(SupportedDitherers)
             final switch(state)
             {
-                case SupportedDitherers.no:
-                    filter.ditherer = null;
+                case no:
+                    filter.ditherer = new NoDitherer!Palette();
                     break;
-                case SupportedDitherers.floydSteinberg:
-                    filter.ditherer = new FloydSteinbergDitherer();
+                case floydSteinberg:
+                    filter.ditherer = new FloydSteinbergDitherer!Palette();
                     break;
-                case SupportedDitherers.sierra3:
-                    filter.ditherer = new SierraThreeDitherer();
+                case sierra3:
+                    filter.ditherer = new SierraThreeDitherer!Palette();
                     break;
-                case SupportedDitherers.sierra2Row:
-                    filter.ditherer = new SierraTwoRowDitherer();
+                case sierra2Row:
+                    filter.ditherer = new SierraTwoRowDitherer!Palette();
                     break;
-                case SupportedDitherers.sierraLight:
-                    filter.ditherer = new SierraLightDitherer();
+                case sierraLight:
+                    filter.ditherer = new SierraLightDitherer!Palette();
                     break;
-                case SupportedDitherers.rightPropagation:
-                    filter.ditherer = new RightPropagationDitherer();
+                case rightPropagation:
+                    filter.ditherer = new RightPropagationDitherer!Palette();
                     break;
             }
         };
 
-        auto colorsCountText = new TextWidget("medianSectionColorsCountText").text("Colors Count");
-        auto colorsCountBox = new NumberBox!uint("medianSectionFilterColorsCountNumberBox", min: 2, defaultValue: 8, max: 255);
+        auto quantizerText = new TextWidget("quantizerFilterDithererText").text("Quantizer");
+        auto quantizerSelector = new StateWidget!SupportedQuantizers("quantizerFilterrQuantizerSelector");
+        quantizerSelector.stateChanged ~= (SupportedQuantizers state)
+        {
+            with(SupportedQuantizers)
+            final switch(state)
+            {
+                case medianSection:
+                    filter.quantizer = new MedianSectionQuantizer!Palette();
+                    break;
+                case clonePalette:
+
+                    break;
+            }
+        };
+
+        auto colorsCountText = new TextWidget("quantizerFilterColorsCountText").text("Colors Count");
+        auto colorsCountBox = new NumberBox!uint("quantizerFilterColorsCountNumberBox", min: 2, defaultValue: 8, max: 255);
         colorsCountBox.layoutWidth = FILL_PARENT;
         colorsCountBox.numberEdited ~= (uint value)
         {
-            filter.colorsCount = value;
+            if(cast(MedianSectionQuantizer!Palette)filter.quantizer !is null)
+            {
+                auto medianSection = cast(MedianSectionQuantizer!Palette) filter.quantizer;
+                medianSection.colorsCount = value;
+            }
         };
 
         auto redCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionFilterRedCorrectionNumberBox", 
                                 min: 0, defaultValue: 0.2126f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
         redCorrectionBox.numberEdited ~= (float value)
         {
-            filter.redCorrectionMultiplier = value;
+            if(cast(MedianSectionQuantizer!Palette)filter.quantizer !is null)
+            {
+                auto medianSection = cast(MedianSectionQuantizer!Palette) filter.quantizer;
+                medianSection.redCorrectionMultiplier = value;
+            }
         };
         
         auto greenCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionFilterGreenCorrectionNumberBox", 
                                 min: 0, defaultValue: 0.7152f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
         greenCorrectionBox.numberEdited ~= (float value)
         {
-            filter.greenCorrectionMultiplier = value;
+            if(cast(MedianSectionQuantizer!Palette)filter.quantizer !is null)
+            {
+                auto medianSection = cast(MedianSectionQuantizer!Palette) filter.quantizer;
+                medianSection.greenCorrectionMultiplier = value;
+            }
         };
 
         auto blueCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionFilterBlueCorrectionNumberBox", 
                                 min: 0, defaultValue: 0.0722f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
         blueCorrectionBox.numberEdited ~= (float value)
         {
-            filter.blueCorrectionMultiplier = value;
+            if(cast(MedianSectionQuantizer!Palette)filter.quantizer !is null)
+            {
+                auto medianSection = cast(MedianSectionQuantizer!Palette) filter.quantizer;
+                medianSection.blueCorrectionMultiplier = value;
+            }
         };
 
         import cereslib.todo; mixin TODO!("Rename rgb correction checkbox text to make it clearer");
@@ -213,26 +256,34 @@ public final class MedianSectionFilterView : IReplaceableView
         auto useColorCorrectionBox = new CheckBox("medianSectionFilterCorrectionCheckBox");
         useColorCorrectionBox.checkChange = (Widget widget, bool state)
         {
-            filter.useColorCorrection = state;
+           if(cast(MedianSectionQuantizer!Palette)filter.quantizer !is null)
+            {
+                auto medianSection = cast(MedianSectionQuantizer!Palette) filter.quantizer;
+                medianSection.useColorCorrection = state;
 
-            if(state)
-            {
-                redCorrectionBox.enable();
-                greenCorrectionBox.enable();
-                blueCorrectionBox.enable();
-            }
-            else
-            {
-                redCorrectionBox.disable();
-                greenCorrectionBox.disable();
-                blueCorrectionBox.disable();
+                if(state)
+                {
+                    redCorrectionBox.enable();
+                    greenCorrectionBox.enable();
+                    blueCorrectionBox.enable();
+                }
+                else
+                {
+                    redCorrectionBox.disable();
+                    greenCorrectionBox.disable();
+                    blueCorrectionBox.disable();
+                }
             }
             return true;
         };
 
+        //туду: сделать квантайзер-копирщик цветов
+
         parent.addChild(settingsLayout);
         settingsLayout.addChild(dithererText);
         settingsLayout.addChild(dithererSelector);
+        settingsLayout.addChild(quantizerText);
+        settingsLayout.addChild(quantizerSelector);
         settingsLayout.addChild(colorsCountText);
         settingsLayout.addChild(colorsCountBox);
         settingsLayout.addChild(useColorCorrectionText);
@@ -265,6 +316,6 @@ private class NoDithererView : IReplaceableView
 
     public void destroy()
     {
-        // ditto
+        // ditto``
     }
 }

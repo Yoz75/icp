@@ -1,8 +1,6 @@
-module icp.filters.quantizers;
+module icp.quantizers.mediansection;
 
-import icp.image;
-import icp.filters.ifilter;
-import icp.dithering;
+import icp.quantizers.iquantizer;
 import std.algorithm.sorting;
 import std.range;
 
@@ -20,37 +18,22 @@ private enum ColorChannel : ubyte
     b
 }
 
-/// Quantizes colors using median section algorythm
-public final class MedianSectionFilter : IFilter
+public final class MedianSectionQuantizer(TPalette) : IQuantizer!TPalette if(is(TPalette : IPalette))
 {
-    /// The total count of colors in the result image
-    public uint colorsCount = 8;
-
     /// Should we slightly correct colors for better perception? (https://habr.com/ru/articles/304210/)
     public bool useColorCorrection;
-
+    /// Target colors count in the palette
+    public uint colorsCount = 8;
+    
     private float redCorrectionMultiplier_ = 0.2126f;
     private float greenCorrectionMultiplier_ = 0.7152;
     private float blueCorrectionMultiplier_ = 0.0722;
 
-    private IDitherer ditherer_;
-
-    public this()
+    invariant
     {
-        ditherer_ = new NoDitherer();
+        assert(colorsCount > 0);
     }
 
-    public @property void ditherer(IDitherer ditherer)
-    {
-        if(ditherer is null)
-        {
-            ditherer_ = new NoDitherer();
-            return;
-        }
-
-        ditherer_ = ditherer;
-    }
-    
     public @property void redCorrectionMultiplier(float value)
     {
         redCorrectionMultiplier_ = value;
@@ -66,107 +49,111 @@ public final class MedianSectionFilter : IFilter
         blueCorrectionMultiplier_ = value;
     }
 
-    public Image filter(const Image image)
+    /// Create a palette from iamge with `colorsCount` colors
+    /// Params:
+    ///   image = the image to grab colors
+    ///   colorsCount = the result count of colors in the palette
+    /// Returns: a new palette
+    public TPalette quantize(const(Image) image)
     {
-        auto registeredColors = registerColors(image);
-        if(registeredColors.length <= colorsCount)
-        {
-            return image.dup;
-        }
-
-        auto quantizedMap = quantize(registeredColors, colorsCount);
-
-        return ditherer_.dither(image, quantizedMap);
+        uint[] appearances;
+        Color[] colors = findColors(image, appearances);
+        return quantize(colors, appearances);
     }
 
     /// Quantize colors of the image and return a map of colors to their meta info
     /// Params:
     ///   image = 
     /// Returns: registered colors mapped to it's quantized variants. Assumes you'll map ONLY REGISTERED colors
-    private Color[Color] quantize(ColorMetaInfo[Color] registeredColors, uint colorsCount)
+    private TPalette quantize(Color[] registeredColors, uint[] appearances)
     {
-        // a kostyl to make it work
-        Color[Color] mappedColors;
+        TPalette palette = new TPalette();
+
         // This shit calculates medium color and maps colors in the slice to it
-        void mapColorsIn(ColorMetaInfo[] slice)
+        void mapColorsIn(Color[] slice)
         {
             uint mediumR, mediumG, mediumB;
             uint totalColorsCount;
 
-            foreach(metaInfo; slice)
+            immutable sliceIndex = registeredColors.getSubArrayStartIndex(slice);
+            foreach(color; slice)
             {
-                mediumR += metaInfo.color.r * metaInfo.appearances;
-                mediumG += metaInfo.color.g * metaInfo.appearances;
-                mediumB += metaInfo.color.b * metaInfo.appearances;
+                immutable appearance = appearances[sliceIndex];
+                mediumR += color.r * appearance;
+                mediumG += color.g * appearance;
+                mediumB += color.b * appearance;
 
-                totalColorsCount += metaInfo.appearances;
+                totalColorsCount += appearance;
             }
 
             mediumR /= totalColorsCount;
             mediumG /= totalColorsCount;
             mediumB /= totalColorsCount;
             Color mediumColor = Color(cast(ubyte) mediumR, cast(ubyte) mediumG, cast(ubyte) mediumB);
-            foreach(metaInfo; slice)
+            foreach(color; slice)
             {
-                Color* mappedColor = metaInfo.color in mappedColors;
-                if(mappedColor is null)
+                if(!palette.has(color))
                 {
-                    mappedColors[metaInfo.color] = mediumColor;
+                    palette.add(color, mediumColor);
                 }
             }
         }
-
-        ColorMetaInfo[] quantizedColors = registeredColors.byValue.array;
 
         immutable float[3] rgbMultipliers = 
         useColorCorrection ? [redCorrectionMultiplier_, greenCorrectionMultiplier_, blueCorrectionMultiplier_]
                            : [1f, 1f, 1f];
 
-        recursiveAction!sortByChannel(quantizedColors, colorsCount, rgbMultipliers);
-        forEachSubArray!mapColorsIn(quantizedColors, colorsCount);
+        recursiveAction!sortByChannel(registeredColors, colorsCount, rgbMultipliers);
+        forEachSubArray!mapColorsIn(registeredColors, colorsCount);
 
-        return mappedColors;
+        return palette;
     }
 }
+
+// very lowlevel thyng -_-
+/// If `subArray` is a slice of `superArray`, returns index in `superArray` of the first element of `subArray`. suze_t.max otherwise
+/// Params:
+///   superArray = the array
+///   subarray = the slice of `superArray`
+/// Returns: index in `superArray` or size_t.max if `subArray` isn't a slice of `superArray`
+private size_t getSubArrayStartIndex(T)(in T[] superArray, in T[] subArray) @system pure
+{
+    enum size = T.sizeof;
+    const T* superPtr = superArray.ptr;
+    const T* subPtr = subArray.ptr;
+
+    if(!superArray.isInsideBounds(subArray))
+    {
+        return size_t.max;
+    }
+
+    immutable distance = subPtr - superPtr;
+
+    return distance / size;
+}
+
+/// Returns true if `subArray` is inside bounds of `superArray` (i.e a slice of `superArray`), false otherwise
+/// Params:
+///   superArray = the array
+///   subarray = the slice of the `superArray`
+/// Returns: true if `subArray` is inside bounds of `superArray` (i.e a slice of `superArray`), false otherwise
+private bool isInsideBounds(T)(in T[] superArray, in T[] subArray) pure
+{
+    immutable byteSuperLength = superArray.length * T.sizeof;
+    return superArray.ptr <= subArray.ptr && subArray.ptr < (superArray.ptr + byteSuperLength);
+}
+
 
 /*
     I had to separate these functions cuz of "double context"
 */
-
-/// Register all unique colors and their appearances in the image and return a map of colors to their meta info
-/// Params:
-///   image = 
-/// Returns: associative array of colors to their meta info
-private ColorMetaInfo[Color] registerColors(const Image image) pure
-{
-    uint totalColorsCount;
-    ColorMetaInfo[Color] registeredColors;
-    foreach(y; 0..image.resolution[1])
-    foreach(x; 0..image.resolution[0])
-    {
-        Color currentColor = image[x, y];
-        ColorMetaInfo* registeredColor = currentColor in registeredColors;
-        if(registeredColor is null)
-        {
-            registeredColors[currentColor] = ColorMetaInfo(currentColor, 1);
-            totalColorsCount++;
-        }
-        else
-        {
-            registeredColor.appearances++;
-        }
-    }
-    return registeredColors;
-}
-
-
 
 /// Perfom `action` on the input array, then on its halves, then quarters, etc
 /// Params:
 ///   colors = the array
 ///   targetSubarrayCount = the count of subarrays on the last layer
 ///   params = additional parameters of the function
-private void recursiveAction(alias action, T...)(ColorMetaInfo[] colors, size_t targetSubarrayCount, T params) pure
+private void recursiveAction(alias action, T...)(Color[] colors, size_t targetSubarrayCount, T params) pure
 {
     size_t subarraysCount = 1;
     while (subarraysCount <= targetSubarrayCount)
@@ -186,7 +173,7 @@ private void recursiveAction(alias action, T...)(ColorMetaInfo[] colors, size_t 
 ///   colors = the array
 ///   subArraysCount = the count of subarrays
 ///   params = additional parameters of the function
-private void forEachSubArray(alias action, T...)(ColorMetaInfo[] colors, size_t subArraysCount, T params)
+private void forEachSubArray(alias action, T...)(Color[] colors, size_t subArraysCount, T params)
 {
     for (size_t subarrayIndex = 0; subarrayIndex < subArraysCount; ++subarrayIndex)
     {
@@ -198,11 +185,11 @@ private void forEachSubArray(alias action, T...)(ColorMetaInfo[] colors, size_t 
 /// Sort the input array by widest color channel
 /// Params:
 ///   input = the in[ut array]
-private void sortByChannel(ColorMetaInfo[] input, float[3] rgbCorrection) pure
+private void sortByChannel(Color[] input, float[3] rgbCorrection) pure
 {
-    static bool isLessR(ColorMetaInfo a, ColorMetaInfo b) => a.color.r < b.color.r;
-    static bool isLessG(ColorMetaInfo a, ColorMetaInfo b) => a.color.g < b.color.g;
-    static bool isLessB(ColorMetaInfo a, ColorMetaInfo b) => a.color.b < b.color.b;
+    static bool isLessR(Color a, Color b) => a.r < b.r;
+    static bool isLessG(Color a, Color b) => a.g < b.g;
+    static bool isLessB(Color a, Color b) => a.b < b.b;
 
     immutable channelWithMostGap = findChannelWithMostGap(input, rgbCorrection);
     final switch(channelWithMostGap)
@@ -214,7 +201,7 @@ private void sortByChannel(ColorMetaInfo[] input, float[3] rgbCorrection) pure
 }
 /// Find the color channel with the biggest gap (i.e biggest difference between min and max)
 /// Returns: 
-private ColorChannel findChannelWithMostGap(scope ColorMetaInfo[] slice, float[3] rgbCorrection) pure
+private ColorChannel findChannelWithMostGap(return scope Color[] slice, float[3] rgbCorrection) pure
 {
     import std.algorithm.comparison : min, max;
 
@@ -224,12 +211,12 @@ private ColorChannel findChannelWithMostGap(scope ColorMetaInfo[] slice, float[3
 
     foreach(color; slice)
     {
-        minR = min(color.color.r, minR);
-        maxR = max(color.color.r, maxR);
-        minG = min(color.color.g, minG);
-        maxG = max(color.color.g, maxG);
-        minB = min(color.color.b, minB);
-        maxB = max(color.color.b, maxB);
+        minR = min(color.r, minR);
+        maxR = max(color.r, maxR);
+        minG = min(color.g, minG);
+        maxG = max(color.g, maxG);
+        minB = min(color.b, minB);
+        maxB = max(color.b, maxB);
     }
 
     immutable differenceR = cast(ubyte) ((maxR - minR) * rgbCorrection[0]);
