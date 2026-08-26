@@ -95,6 +95,7 @@ public final class ICP_VM
                 RawColor color; 
                 color.pixel = line[x];
                 
+                // Don't ask me why i did this but it fixes "red and blue swapping" when saving1607
                 immutable temp = color.color.r;
                 color.color.r = color.color.b;
                 color.color.b = temp;

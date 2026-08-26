@@ -1,5 +1,6 @@
 module icp.quantizers.clonequantizer;
 
+import icp.exceptions;
 import icp.quantizers.iquantizer;
 
 /// Clones palette from an image
@@ -22,6 +23,11 @@ public final class CloneQuantizer(TPalette) : IQuantizer!TPalette if(is(TPalette
     /// Returns: a new palette
     public TPalette quantize(const(Image) image)
     {
+        if(sourceImage_ is null)
+        {
+            throw new NullReferenceException("Palette source image is not assigned.");
+        }
+        
         Color[] colors = findColors(sourceImage_);
 
         TPalette palette = new TPalette();

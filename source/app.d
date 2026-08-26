@@ -237,7 +237,7 @@ private final class MainFrame : AppFrame
         }
         catch(Exception ex)
         {
-            globalAppLogger.log("Unhandled exception while running ICP :(. Message: " ~ ex.message.to!string, LogType.error);
+            globalAppLogger.log("An error occured: " ~ ex.message.to!string, LogType.error);
         }
 
         globalAppLogger.logGCMemory();
