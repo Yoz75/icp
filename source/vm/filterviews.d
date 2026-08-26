@@ -1,5 +1,6 @@
 /// Module that defines views for filters
 module vm.filterviews;
+import vm.image;
 import icp.filters;
 import icp.dithering;
 import icp.quantizers;
@@ -137,11 +138,164 @@ public final class QuantizerFilterView : IReplaceableView
     private enum SupportedQuantizers
     {
         medianSection = 0,
-        clonePalette
+        paletteInjection
+    }
+
+    private static final class MedianSectionView : IReplaceableView
+    {
+        private WidgetGroup parent;
+        private VerticalLayout settingsLayout;
+
+        private MedianSectionQuantizer!Palette quantizer;
+
+        public this(MedianSectionQuantizer!Palette quantizer)
+        {
+            this.quantizer = quantizer;
+        }
+        
+        public void initialize(WidgetGroup group)
+        {
+            parent = group;
+            settingsLayout = new VerticalLayout("medianSectionSettingsLayout");
+
+            auto colorsCountText = new TextWidget("quantizerFilterColorsCountText").text("Colors Count");
+            auto colorsCountBox = new NumberBox!uint("quantizerFilterColorsCountNumberBox", min: 2, defaultValue: 8, max: 255);
+            colorsCountBox.layoutWidth = FILL_PARENT;
+            colorsCountBox.numberEdited ~= (uint value)
+            {
+                quantizer.colorsCount = value;                
+            };
+
+            auto redCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionRedCorrectionNumberBox", 
+                                    min: 0, defaultValue: 0.2126f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
+            redCorrectionBox.numberEdited ~= (float value)
+            {
+                quantizer.redCorrectionMultiplier = value;                
+            };
+            
+            auto greenCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionGreenCorrectionNumberBox", 
+                                    min: 0, defaultValue: 0.7152f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
+            greenCorrectionBox.numberEdited ~= (float value)
+            {
+                quantizer.greenCorrectionMultiplier = value;
+            };
+
+            auto blueCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionBlueCorrectionNumberBox", 
+                                    min: 0, defaultValue: 0.0722f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
+            blueCorrectionBox.numberEdited ~= (float value)
+            {
+                quantizer.blueCorrectionMultiplier = value;
+            };
+
+            import cereslib.todo; mixin TODO!("Rename rgb correction checkbox text to make it clearer");
+            auto useColorCorrectionText = 
+            new MultilineTextWidget("medianSectionFilterCoorrectionText").
+            text("Color-width correction (median cut)");
+
+            auto useColorCorrectionBox = new CheckBox("medianSectionFilterCorrectionCheckBox");
+            useColorCorrectionBox.checkChange = (Widget widget, bool state)
+            {
+                quantizer.useColorCorrection = state;
+
+                if(state)
+                {
+                    redCorrectionBox.enable();
+                    greenCorrectionBox.enable();
+                    blueCorrectionBox.enable();
+                }
+                else
+                {
+                    redCorrectionBox.disable();
+                    greenCorrectionBox.disable();
+                    blueCorrectionBox.disable();
+                }
+                
+                return true;
+            };
+
+            parent.addChild(settingsLayout);
+            settingsLayout.addChild(colorsCountText);
+            settingsLayout.addChild(colorsCountBox);
+            settingsLayout.addChild(useColorCorrectionText);
+            settingsLayout.addChild(useColorCorrectionBox);
+            settingsLayout.addChild(redCorrectionBox);
+            settingsLayout.addChild(greenCorrectionBox);
+            settingsLayout.addChild(blueCorrectionBox);
+
+            
+            //cuz initially color correction disabled
+            redCorrectionBox.disable();
+            greenCorrectionBox.disable();
+            blueCorrectionBox.disable();
+        }
+
+        public void destroy()
+        {
+            immutable layoutIndex = parent.childIndex(settingsLayout);
+            assert(layoutIndex > -1, "Oh crap, our widgets were already deleted!");
+            parent.removeChild(layoutIndex);
+        }
+    }
+
+    private static final class CloneView : IReplaceableView
+    {
+        private WidgetGroup parent;
+        private VerticalLayout settingsLayout;
+
+        private CloneQuantizer!Palette quantizer;
+
+        public this(CloneQuantizer!Palette quantizer)
+        {
+            this.quantizer = quantizer;
+        }
+        
+        public void initialize(WidgetGroup group)
+        {
+            import dlangui.dialogs.dialog;
+            import dlangui.dialogs.filedlg;
+            
+            parent = group;
+            settingsLayout = new VerticalLayout("cloneSettingsLayout");
+
+            auto selectImageButton = new Button("cloneSelectImageButton").text("Palette Image..."d);
+            selectImageButton.click = (widget)
+            {
+                auto dialog = new FileDialog(UIString.fromRaw("Open palette source image..."d), null);
+                dialog.addFilter(FileFilterEntry(UIString.fromRaw("Images (png|jpg|bmp|tga)"d),
+                "*.png;*.jpg;*.jpeg;*.bmp;*.tga"));
+
+                dialog.dialogResult = (Dialog unused, const Action action)
+                {
+                    auto image = loadImageFrom(action.stringParam);
+                    if(!image.hasValue)
+                    {
+                        import applogger;
+                        globalAppLogger.log("Couldn't load a palette-source image, Try resaving it.", LogType.error);
+                        return;
+                    }
+
+                    quantizer.sourceImage = image.value;
+                };
+
+                dialog.show();
+                return true;
+            };
+
+            parent.addChild(settingsLayout);
+            settingsLayout.addChild(selectImageButton);
+        }
+
+        public void destroy()
+        {
+            immutable layoutIndex = parent.childIndex(settingsLayout);
+            assert(layoutIndex > -1, "Oh crap, our widgets were already deleted!");
+            parent.removeChild(layoutIndex);
+        }
     }
 
     private WidgetGroup parent;
     private VerticalLayout settingsLayout;
+    private IReplaceableView quantizerView;
 
     private QuantizeFilter filter;
 
@@ -191,112 +345,36 @@ public final class QuantizerFilterView : IReplaceableView
         auto quantizerSelector = new StateWidget!SupportedQuantizers("quantizerFilterrQuantizerSelector");
         quantizerSelector.stateChanged ~= (SupportedQuantizers state)
         {
+            if(quantizerView !is null)
+                quantizerView.destroy();
+
             with(SupportedQuantizers)
             final switch(state)
             {
-                case medianSection:
-                    filter.quantizer = new MedianSectionQuantizer!Palette();
+                case medianSection:                    
+                    auto quantizer = new MedianSectionQuantizer!Palette();
+                    filter.quantizer = quantizer;
+                    quantizerView = new MedianSectionView(quantizer);
                     break;
-                case clonePalette:
-
+                    
+                case paletteInjection:
+                    auto quantizer = new CloneQuantizer!Palette();
+                    filter.quantizer = quantizer;
+                    quantizerView = new CloneView(quantizer);
                     break;
             }
+
+            quantizerView.initialize(parent);
         };
-
-        auto colorsCountText = new TextWidget("quantizerFilterColorsCountText").text("Colors Count");
-        auto colorsCountBox = new NumberBox!uint("quantizerFilterColorsCountNumberBox", min: 2, defaultValue: 8, max: 255);
-        colorsCountBox.layoutWidth = FILL_PARENT;
-        colorsCountBox.numberEdited ~= (uint value)
-        {
-            if(cast(MedianSectionQuantizer!Palette)filter.quantizer !is null)
-            {
-                auto medianSection = cast(MedianSectionQuantizer!Palette) filter.quantizer;
-                medianSection.colorsCount = value;
-            }
-        };
-
-        auto redCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionFilterRedCorrectionNumberBox", 
-                                min: 0, defaultValue: 0.2126f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
-        redCorrectionBox.numberEdited ~= (float value)
-        {
-            if(cast(MedianSectionQuantizer!Palette)filter.quantizer !is null)
-            {
-                auto medianSection = cast(MedianSectionQuantizer!Palette) filter.quantizer;
-                medianSection.redCorrectionMultiplier = value;
-            }
-        };
-        
-        auto greenCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionFilterGreenCorrectionNumberBox", 
-                                min: 0, defaultValue: 0.7152f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
-        greenCorrectionBox.numberEdited ~= (float value)
-        {
-            if(cast(MedianSectionQuantizer!Palette)filter.quantizer !is null)
-            {
-                auto medianSection = cast(MedianSectionQuantizer!Palette) filter.quantizer;
-                medianSection.greenCorrectionMultiplier = value;
-            }
-        };
-
-        auto blueCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionFilterBlueCorrectionNumberBox", 
-                                min: 0, defaultValue: 0.0722f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
-        blueCorrectionBox.numberEdited ~= (float value)
-        {
-            if(cast(MedianSectionQuantizer!Palette)filter.quantizer !is null)
-            {
-                auto medianSection = cast(MedianSectionQuantizer!Palette) filter.quantizer;
-                medianSection.blueCorrectionMultiplier = value;
-            }
-        };
-
-        import cereslib.todo; mixin TODO!("Rename rgb correction checkbox text to make it clearer");
-        auto useColorCorrectionText = 
-         new MultilineTextWidget("medianSectionFilterCoorrectionText").
-         text("Color-width correction (median cut)");
-
-        auto useColorCorrectionBox = new CheckBox("medianSectionFilterCorrectionCheckBox");
-        useColorCorrectionBox.checkChange = (Widget widget, bool state)
-        {
-           if(cast(MedianSectionQuantizer!Palette)filter.quantizer !is null)
-            {
-                auto medianSection = cast(MedianSectionQuantizer!Palette) filter.quantizer;
-                medianSection.useColorCorrection = state;
-
-                if(state)
-                {
-                    redCorrectionBox.enable();
-                    greenCorrectionBox.enable();
-                    blueCorrectionBox.enable();
-                }
-                else
-                {
-                    redCorrectionBox.disable();
-                    greenCorrectionBox.disable();
-                    blueCorrectionBox.disable();
-                }
-            }
-            return true;
-        };
-
-        //туду: сделать квантайзер-копирщик цветов
 
         parent.addChild(settingsLayout);
         settingsLayout.addChild(dithererText);
         settingsLayout.addChild(dithererSelector);
         settingsLayout.addChild(quantizerText);
         settingsLayout.addChild(quantizerSelector);
-        settingsLayout.addChild(colorsCountText);
-        settingsLayout.addChild(colorsCountBox);
-        settingsLayout.addChild(useColorCorrectionText);
-        settingsLayout.addChild(useColorCorrectionBox);
 
-        settingsLayout.addChild(redCorrectionBox);
-        settingsLayout.addChild(greenCorrectionBox);
-        settingsLayout.addChild(blueCorrectionBox);
-
-        //cuz initially color correction disabled
-        redCorrectionBox.disable();
-        greenCorrectionBox.disable();
-        blueCorrectionBox.disable();
+        quantizerView = new MedianSectionView(cast(MedianSectionQuantizer!Palette) filter.quantizer);
+        quantizerView.initialize(parent);
     }
 
     public void destroy()

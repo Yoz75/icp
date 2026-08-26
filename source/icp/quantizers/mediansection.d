@@ -90,13 +90,7 @@ public final class MedianSectionQuantizer(TPalette) : IQuantizer!TPalette if(is(
             mediumG /= totalColorsCount;
             mediumB /= totalColorsCount;
             Color mediumColor = Color(cast(ubyte) mediumR, cast(ubyte) mediumG, cast(ubyte) mediumB);
-            foreach(color; slice)
-            {
-                if(!palette.has(color))
-                {
-                    palette.add(color, mediumColor);
-                }
-            }
+            palette.add(mediumColor);
         }
 
         immutable float[3] rgbMultipliers = 

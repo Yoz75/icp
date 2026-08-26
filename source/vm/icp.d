@@ -1,6 +1,7 @@
 module vm.icp;
 
 import vm.presets;
+import vm.image;
 import view;
 import icp.color;
 import icp.image;
@@ -19,7 +20,7 @@ public final class ICP_VM
     /// Expected errors of process method. Note that process MAY throw an exception on an unexpected error (null imagePath, devision by zero etc)
     public enum ProcessError
     {
-        /// No error!
+        /// Uninitialized value
         none = 0,
         /// Image format is not RGBA
         wrongImageFormat,
@@ -39,65 +40,27 @@ public final class ICP_VM
     /// Params:
     ///   drawable = the drawable to be processed
     /// Returns: processed drawable
-    public SumType!(Ref!ColorDrawBufEx, ProcessError) process(string imagePath)
+    public Result!(Ref!ColorDrawBufEx, ProcessError) process(string imagePath)
     {
-        alias Result = SumType!(Ref!ColorDrawBufEx, ProcessError);
-
-        IFImage loadedImage;
-        try
-        {
-            loadedImage = read_image(imagePath);
-        }
-        catch(ImageIOException)
-        {
-            return Result(ProcessError.corruptedImage);
-        }
+        alias ResultType = Result!(Ref!ColorDrawBufEx, ProcessError);
         
-        if(loadedImage.c != ColFmt.RGBA && loadedImage.c != ColFmt.RGB)
+        auto icpImage = loadImageFrom(imagePath);
+        if(icpImage.hasValue)
         {
-            return Result(ProcessError.wrongImageFormat);
+            icpImage = selectedPreset.process(icpImage.value);
+            return ResultType(createDrawBufFromImage(icpImage.value));
         }
 
-        Image icpImage = new Image([loadedImage.w, loadedImage.h]);
-
-        /*
-            OH NO!!!1! CODE DUPLICATION11111!!11!
-        */
-        if(loadedImage.c == ColFmt.RGBA)
+        with(ImageLoadErrorCode)
+        final switch(icpImage.error)
         {
-            enum colorSize = 4;
-            foreach(int y; 0..icpImage.resolution[1])
-            foreach(int x; 0..icpImage.resolution[0])
-            {
-                immutable index = (y * icpImage.resolution[0] + x) * colorSize;
-                immutable icp.color.Color color =
-                icp.color.Color(loadedImage.pixels[index],
-                    loadedImage.pixels[index + 1],
-                    loadedImage.pixels[index + 2]);
-
-                icpImage[x, y] = color;
-            }
+            case none:
+                throw new Exception("loadImageFrom returned error");
+            case corruptedImage:
+                return ResultType(ProcessError.corruptedImage);
+            case wrongImageFormat:
+                return ResultType(ProcessError.wrongImageFormat);
         }
-        else
-        {
-            enum colorSize = 3;
-            foreach(int y; 0..icpImage.resolution[1])
-            foreach(int x; 0..icpImage.resolution[0])
-            {
-                immutable index = (y * icpImage.resolution[0] + x) * colorSize;
-                immutable icp.color.Color color =
-                icp.color.Color(loadedImage.pixels[index],
-                    loadedImage.pixels[index + 1],
-                    loadedImage.pixels[index + 2]);
-
-                icpImage[x, y] = color;
-            }
-        }
-
-        icpImage = selectedPreset.process(icpImage);
-
-        Result result = createDrawBufFromImage(icpImage);
-        return result;
     }
 
     /// Save `buffer` to the `path`
@@ -127,42 +90,4 @@ public final class ICP_VM
         ubyte[] channels = cast(ubyte[]) pixels;
         write_image(filePath, buffer.width, buffer.height, channels, ColFmt.RGBA);
     }
-}
-
-/// Create a draw buf from image
-/// Params:
-///   image = the icp image
-/// Returns: a new ColorDrawBuf
-public Ref!ColorDrawBufEx createDrawBufFromImage(Image image)
-{
-    /// ARGB but reversed (probably cuz little endian??? Idk but dlangui accepts BGRA)
-    struct ColorBGRA
-    {
-        ubyte b, g, r, a;
-    }
-
-    int[2] resolution = [cast(int) image.resolution[0], cast(int) image.resolution[1]];
-    ColorDrawBufEx drawBuf = new ColorDrawBufEx(resolution[0], resolution[1]);
-    
-    foreach(y; 0..resolution[1])
-    {
-        uint* linePtr = drawBuf.scanLine(y);
-
-        // this line says "assume this pointer is a slice of length resolution[0]"
-        ColorBGRA[] line = (cast(ColorBGRA*) linePtr)[0..resolution[0]];
-
-        // we assume line.length < int.max cuz a 2 millin by 2 million texture is a nonsense
-        foreach(int x; 0.. cast(int) line.length)
-        {
-            // Source contains RGBA color and we need ARGB so we swap B and A
-            // (cuz RGBA's A is ARGB's B)
-            immutable colorRGBA = image[x, y];
-
-            immutable colorARGB = ColorBGRA(colorRGBA.b, colorRGBA.g, colorRGBA.r, 0);
-
-            line[x] = colorARGB;
-        }
-    }
-
-    return Ref!ColorDrawBufEx(drawBuf);
 }

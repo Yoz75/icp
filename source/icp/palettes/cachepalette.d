@@ -41,26 +41,15 @@ public final class AACachePalette(T) : IPalette if(is(T : IPalette) && __traits(
     /// Params:
     ///   sourceColor = the color to be mapped
     ///   paletteColor = the color to be added to the palette and mapped to the sourceColor
-    public void add(Color sourceColor, Color paletteColor)
+    public void add(Color color)
     {
-        return palette.add(sourceColor, paletteColor);
+        return palette.add(color);
     }
-
-    /// Get mapped to the `color`` in the palette. Assumes `color` is already added
-    /// Params:
-    ///   handle = the handle
-    /// Returns: mapped color
-    public Color map(Color color)
+    
+    /// Get the palette
+    /// Returns: slice of all colors in the palette
+    public inout(Color[]) get() inout
     {
-        return palette.map(color);
-    }
-
-        /// Does the palette has `color`?
-    /// Params:
-    ///   color = the color
-    /// Returns: true if has and false otherwise
-    public bool has(Color color)
-    {
-        return palette.has(color);
+        return palette.get();
     }
 }

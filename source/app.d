@@ -209,9 +209,9 @@ private final class MainFrame : AppFrame
         {
             auto buffer = icp.process(currentFilePath);
             
-            if(buffer.has!(ICP_VM.ProcessError))
+            if(!buffer.hasValue)
             {
-                immutable errorCode = buffer.get!(ICP_VM.ProcessError);
+                immutable errorCode = buffer.error;
                 string error;
 
                 final switch(errorCode)
@@ -232,12 +232,12 @@ private final class MainFrame : AppFrame
                     return;
                 }
 
-                currentImage = buffer.get!(Ref!ColorDrawBufEx);
+                currentImage = buffer.value;
                 preview.imageBuffer = currentImage;
         }
         catch(Exception ex)
         {
-                globalAppLogger.log("Unhandled exception while running ICP :(. Message: " ~ ex.message.to!string, LogType.error);
+            globalAppLogger.log("Unhandled exception while running ICP :(. Message: " ~ ex.message.to!string, LogType.error);
         }
 
         globalAppLogger.logGCMemory();

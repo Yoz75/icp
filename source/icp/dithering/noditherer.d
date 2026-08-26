@@ -18,7 +18,7 @@ public final class NoDitherer(TPalette) : IDitherer!TPalette if(is(TPalette : IP
         foreach(x; 0..sourceImage.resolution[0])
         {
             Color color = sourceImage[x, y];
-            result[x, y] = palette.map(color);
+            result[x, y] = palette.getClosestOnPalette(color);
         }
 
         return result;
