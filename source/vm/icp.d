@@ -69,6 +69,17 @@ public final class ICP_VM
     ///   path = the file path (including extension)
     public void save(Ref!ColorDrawBufEx buffer, string filePath)
     {
+        struct ColorRGBA
+        {
+            ubyte r, g, b, a;
+        }
+
+        union RawColor
+        {
+            ColorRGBA color;
+            int pixel;
+        }
+
         int[] pixels = new int[buffer.width * buffer.height];
 
         immutable width = buffer.width;
@@ -81,9 +92,16 @@ public final class ICP_VM
             foreach(x; 0..width)
             {
                 immutable index = y * width + x;
-                pixels[index] = line[x];
-                // dlangui iverts alfa at some reason :/
-                pixels[index] |= 0xFF000000;
+                RawColor color; 
+                color.pixel = line[x];
+                
+                immutable temp = color.color.r;
+                color.color.r = color.color.b;
+                color.color.b = temp;
+                color.color.a = 255;
+
+                // dlangui inverts alfa at some reason :/
+                pixels[index] = color.pixel;
             }
         }
         
