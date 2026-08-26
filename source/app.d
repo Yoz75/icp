@@ -41,7 +41,7 @@ extern(C) int UIAppMain(string[] args)
     // loading version from string file and then converting it to string sounds strange, but
     // what if we move window initialization somewhere? The "window initializatior" shlound't ever know
     // how we load the version so it is what it is
-    Window window = Platform.instance.createWindow("Image Color Processor" ~ programVersion.toDstring(), null, 0, 800, 600);
+    Window window = Platform.instance.createWindow("Image Color Processor " ~ programVersion.toDstring(), null, 0, 800, 600);
     window.windowOrContentResizeMode = WindowOrContentResizeMode.shrinkWidgets;
 
     auto frame = new MainFrame();
