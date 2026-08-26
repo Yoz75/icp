@@ -58,6 +58,19 @@ public final class MedianSectionQuantizer(TPalette) : IQuantizer!TPalette if(is(
     {
         uint[] appearances;
         Color[] colors = findColors(image, appearances);
+
+        if(colors.length <= colorsCount)
+        {
+            TPalette palette = new TPalette();
+
+            foreach(color; colors)
+            {
+                palette.add(color);
+            }
+
+            return palette;
+        }
+        
         return quantize(colors, appearances);
     }
 

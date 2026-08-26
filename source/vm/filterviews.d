@@ -8,6 +8,7 @@ import vm.replaceableview;
 import view;
 import std.conv;
 import std.string : isNumeric;
+import std.path : dirName;
 import dlangui;
 
 public final class NoFilterView : IReplaceableView
@@ -241,6 +242,7 @@ public final class QuantizerFilterView : IReplaceableView
     {
         private WidgetGroup parent;
         private VerticalLayout settingsLayout;
+        private string currentFilePath;
 
         private CloneQuantizer!Palette quantizer;
 
@@ -260,13 +262,19 @@ public final class QuantizerFilterView : IReplaceableView
             auto selectImageButton = new Button("cloneSelectImageButton").text("Palette Image..."d);
             selectImageButton.click = (widget)
             {
-                auto dialog = new FileDialog(UIString.fromRaw("Open palette source image..."d), null);
+                auto dialog = new FileDialog(UIString.fromRaw("Open palette source image..."d), parent.window);
                 dialog.addFilter(FileFilterEntry(UIString.fromRaw("Images (png|jpg|bmp|tga)"d),
                 "*.png;*.jpg;*.jpeg;*.bmp;*.tga"));
 
+                if(currentFilePath.length > 0)
+                {
+                    dialog.path = currentFilePath.dirName;
+                }
+
                 dialog.dialogResult = (Dialog unused, const Action action)
                 {
-                    auto image = loadImageFrom(action.stringParam);
+                    currentFilePath = action.stringParam;
+                    auto image = loadImageFrom(currentFilePath);
                     if(!image.hasValue)
                     {
                         import applogger;
