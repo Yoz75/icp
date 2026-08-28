@@ -37,11 +37,14 @@ extern(C) int UIAppMain(string[] args)
 
     registerDefaultPresets();
     embeddedResourceList.addResources(embedResourcesFromList!("resources.list")());
+    Platform.instance.uiTheme = "theme_neo_dark";
 
     // loading version from string file and then converting it to string sounds strange, but
     // what if we move window initialization somewhere? The "window initializatior" shlound't ever know
     // how we load the version so it is what it is
-    Window window = Platform.instance.createWindow("Image Color Processor " ~ programVersion.toDstring(), null, 0, 800, 600);
+    immutable width = 800;
+    immutable height = 600;
+    Window window = Platform.instance.createWindow("Image Color Processor " ~ programVersion.toDstring(), null, 0, width, height);
     window.windowOrContentResizeMode = WindowOrContentResizeMode.shrinkWidgets;
 
     auto frame = new MainFrame();
@@ -158,6 +161,7 @@ private final class MainFrame : AppFrame
     private void openFile()
     {
         auto dialog = new FileDialog(UIString.fromRaw("Open image..."d), window);
+        dialog.styleId = "ICP_DEFAULT_LAYOUT";
         dialog.addFilter(FileFilterEntry(UIString.fromRaw("Images (png|jpg|bmp|tga)"d),
          "*.png;*.jpg;*.jpeg;*.bmp;*.tga"));
 
@@ -177,9 +181,9 @@ private final class MainFrame : AppFrame
     private void saveFile()
     {
         if(currentImage is null) return;
-
         auto dialog = new FileDialog(UIString.fromRaw("Save image..."d), 
         window, fileDialogFlags: FileDialogFlag.Save | FileDialogFlag.EnableCreateDirectory);
+        dialog.styleId = "ICP_DEFAULT_LAYOUT";
 
         dialog.dialogResult = (Dialog unused, const Action action)
         {

@@ -263,6 +263,7 @@ public final class QuantizerFilterView : IReplaceableView
             selectImageButton.click = (widget)
             {
                 auto dialog = new FileDialog(UIString.fromRaw("Open palette source image..."d), parent.window);
+                dialog.styleId = "ICP_DEFAULT_LAYOUT";
                 dialog.addFilter(FileFilterEntry(UIString.fromRaw("Images (png|jpg|bmp|tga)"d),
                 "*.png;*.jpg;*.jpeg;*.bmp;*.tga"));
 

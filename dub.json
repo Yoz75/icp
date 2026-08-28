@@ -9,6 +9,9 @@
 	"stringImportPaths": [
 		"resources/compiletime"
 	],
+	"copyFiles": [
+		"resources/runtime/Resources/"
+	],
 	"description": "An image color processor that processes image color",
 	"dependencies": {
 		"imageformats": "~>7.0.2",

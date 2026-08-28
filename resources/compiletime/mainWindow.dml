@@ -1,13 +1,15 @@
 HorizontalLayout {
     VerticalLayout {
+        styleId: "ICP_DEFAULT_LAYOUT"
         layoutHeight: fill
-        minWidth: 100
-        maxWidth: 250
+        minWidth: 100pt
+        maxWidth: 250pt
         ComboBox {
             id: presetsComboBox
         }
         
         VerticalLayout {
+            styleId: "ICP_DEFAULT_LAYOUT"
             id: presetView
         }
 
@@ -15,12 +17,34 @@ HorizontalLayout {
             layoutHeight: fill
         }
 
-        Button {
-            id: runButton
-            text: "run"
+        HorizontalLayout {
+            layoutWidth: fill
+            HSpacer {
+                layoutWidth: fill
+            }
+
+            Button {
+                styleId: "BUTTON_ACCENT"
+                id: runButton
+                layoutWidth: 60pt
+                layoutHeight: 20pt
+                alignment: Center
+                text: "run"
+                fontSize: 125%
+            }         
+
+            HSpacer {
+                layoutWidth: fill
+            }
+        }
+
+        VSpacer{
+            layoutHeight: 15pt
         }
     }
+
     VerticalLayout {
+        styleId:"ICP_DEFAULT_LAYOUT"
         id: previewSide
     }
 }

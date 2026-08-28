@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<theme id="theme_dark" parent="theme_dark" textColor="#FFFFFF">
+
+<style id="ICP_DEFAULT_LAYOUT" backgroundColor="#050505"></style>
+
+<style id="BUTTON" textColor="#000000" backgroundImageId="buttonBackground"></style>
+<style id="STATUS_LINE" backgroundColor="#121212"></style>
+<style id="MAIN_MENU" backgroundColor="#121212"></style>
+<style id="EDIT_LINE" backgroundColor="#121212"></style>
+<style id="COMBO_BOX" backgroundColor="#121212"></style>
+<style id="MENU_ITEM" backgroundColor="#202020"></style>
+<style id="POPUP_MENU" backgroundColor="#151515" padding="5pt,5pt,5pt,5pt"></style>
+<style id="FILE_DIALOGUE_GRID" backgroundColor="#121212"></style>
+
+<style id="SCROLLBAR" backgroundColor="#121212"></style>
+<style id="SCROLLBAR_BUTTON" backgroundColor="#151515"></style>
+
+<style id="BUTTON_ACCENT" backgroundImageId="buttonAccentBackground" textColor="#fcfcfc"></style>
+</theme>
