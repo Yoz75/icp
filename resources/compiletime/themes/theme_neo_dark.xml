@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <theme id="theme_dark" parent="theme_dark" textColor="#FFFFFF">
 
-<style id="ICP_DEFAULT_LAYOUT" backgroundColor="#050505"></style>
+<style id="ICP_DEFAULT_LAYOUT" backgroundColor="#0A0A0A"></style>
 
 <style id="BUTTON" textColor="#000000" backgroundImageId="buttonBackground"></style>
 <style id="STATUS_LINE" backgroundColor="#121212"></style>
