@@ -91,7 +91,7 @@ public final class PreviewWindow : CanvasWidget
         immutable imageRect = Rect(0, 0, imageBuffer_.width, imageBuffer_.height);
         Rect rescaledRect = rc.fit(imageRect);
 
-        buf.fill(0xFFFFFF);
+        buf.fill(0x0);
         buf.drawRescaled(rescaledRect, cacheDrawBuf, cacheDrawBufRect);
     }
 }
