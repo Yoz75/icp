@@ -1,4 +1,4 @@
-// Custom widgets
+// This package contains custom Widgets, they can be easily used in other projects
 module view;
 
 public import view.memorydrawable;
