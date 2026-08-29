@@ -2,3 +2,5 @@ images/unloaded.png
 images/ui/buttonBackground.9.png
 images/ui/buttonAccentBackground.9.png
 themes/theme_neo_dark.xml
+themes/theme_default_fixed.xml
+themes/theme_dark_fixed.xml

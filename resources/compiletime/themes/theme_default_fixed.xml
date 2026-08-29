@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--Boilerplate theme to fix custom styles when using default themes-->
+<theme id="theme_default_fixed" parent="theme_default">
+<style id="BUTTON_ACCENT" parent="BUTTON"></style>
+</theme>

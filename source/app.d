@@ -15,20 +15,9 @@ import dlangui.dialogs.dialog : Dialog;
 
 mixin APP_ENTRY_POINT;
 
-/*
-    новое туду на завтра:
-    1) добавить возможность использовать уже существующую палитру цветов в виде .png картинки, а именно:
-        1.1) 2 радио кнопки для переключения между медианным сечением и существующей палитрой
-        1.2) добавить интерфейс IQuantizer с методом IPalette quantize(IPalette). Переделать медианное сечение из фильтра в квантайзер. 
-        1.4) Переделать сигнатуру IDitherer, чтобы он прниимал не ассоциативный массив, а IPalette
-        1.3) добавить фильтр-склейку на замену MedianSectionFilter, который склеивает IDitherer и IQuantizer. 
-             Его задача: создать палитру из оригинального изображения, пропустить её через IQuantizer, потом задизерить картинку
-             ну и вернуть её (ну тп обычный фильтр)
-    2) подумать над тем, что можно сделать не IPalette, а final(пока что) class Palette, чтобы инкапсулировать всё говно, но при этом не вызывать
-       пстоянно виртуальные методы, ЛИБО ИСПОЛЬЗОВАТЬ ШАБЛОНЫ!
-*/
 extern(C) int UIAppMain(string[] args)
 {
+    //туду: сделать тёмную и светлую темы, унаследованные от стандартных, но с классом акцентной кнопки чтобы кнопка запуска не баговалась
     programVersion = Version.fromString(import("version.txt"));
 
     import std.stdio;
@@ -63,7 +52,8 @@ enum ActionIds : int
 {
     openFileAction = 100_000,
     saveFileAction,
-    runAction
+    runAction,
+    settingsAction
 }
 
 private final class MainFrame : AppFrame
@@ -99,9 +89,10 @@ private final class MainFrame : AppFrame
         with(ActionIds)
         final switch(action.id)
         {
-            case openFileAction: openFile(); break;
-            case saveFileAction: saveFile(); break;
-            case runAction:      run();      break;
+            case openFileAction: openFile();           break;
+            case saveFileAction: saveFile();           break;
+            case runAction:      run();                break;
+            case settingsAction: openSettingsWindow(); break;
         }
         
         return true;
@@ -246,6 +237,14 @@ private final class MainFrame : AppFrame
 
         globalAppLogger.logGCMemory();
     } 
+
+    private void openSettingsWindow()
+    {
+        import windows.settings;
+
+        auto window = new SettingsWindow("Settings"d, window);
+        window.show;
+    }
 }
 
 private final abstract class MainMenuMaker
@@ -253,7 +252,7 @@ private final abstract class MainMenuMaker
     private enum FolderIds
     {
         fileFolder = 0,
-        actionFolder = 1
+        editFolder
     }
 static:
     const Action openFileAction
@@ -263,8 +262,11 @@ static:
      = new Action(ActionIds.saveFileAction, "Save image..."d).addAccelerator(KeyCode.F7)
                                                              .addAccelerator(KeyCode.KEY_S, KeyFlag.Control);
     const Action runAction
-               = new Action(ActionIds.runAction, "Run"d).addAccelerator(KeyCode.F5)
-                                                             .addAccelerator(KeyCode.KEY_F, KeyFlag.Control);
+     = new Action(ActionIds.runAction, "Run"d).addAccelerator(KeyCode.F5)
+                                              .addAccelerator(KeyCode.KEY_F, KeyFlag.Control);
+    const Action settingsAction
+     = new Action(ActionIds.settingsAction, "Settings..."d).addAccelerator(KeyCode.F13)
+                                                           .addAccelerator(KeyCode.KEY_S, KeyFlag.Alt);                      
 
     // I moved all the menu-shit here cuz other parts of MainFrame shouldn't know about ActionIds for example
     public MainMenu makeMainMenu()
@@ -272,7 +274,7 @@ static:
         auto menuFolders = new MenuItem();
 
         menuFolders.add(createFileFolder());
-        menuFolders.add(createActionFolder());
+        menuFolders.add(createEditFolder());
         MainMenu mainMenu = new MainMenu(menuFolders);
 
         return mainMenu;
@@ -287,10 +289,11 @@ static:
         return fileFolder;
     }
 
-    private MenuItem createActionFolder()
+    private MenuItem createEditFolder()
     {
-        MenuItem actionFolder = new MenuItem(new Action(FolderIds.actionFolder, "Action"d));
+        MenuItem actionFolder = new MenuItem(new Action(FolderIds.editFolder, "Edit"d));
         actionFolder.add(new MenuItem(runAction));
+        actionFolder.add(new MenuItem(settingsAction));
 
         return actionFolder;
     }

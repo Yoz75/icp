@@ -1,0 +1,30 @@
+HorizontalLayout {
+    layoutWidth: fill
+    VerticalLayout {
+        styleId: "ICP_DEFAULT_LAYOUT"
+        layoutWidth: 200
+
+        Button {
+            id: persinalizationSettingsButton
+            text: "Personalization"
+        }
+    }
+
+    FrameLayout {
+        styleId: "ICP_DEFAULT_LAYOUT"
+        id: settingsLayout;
+        layoutWidth: fill
+        
+        VerticalLayout {
+            styleId: "ICP_DEFAULT_LAYOUT"
+            layoutWidth: fill
+            layoutHeight: fill
+            id: personalizationSettingsLayout
+
+            ComboBox {
+                id: themeSelectionComboBox
+                items: ["Dark Neo", "Dark", "Light"]
+            }
+        }
+    }
+}
