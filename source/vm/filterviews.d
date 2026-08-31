@@ -133,7 +133,8 @@ public final class QuantizerFilterView : IReplaceableView
         sierra3,
         sierra2Row,
         sierraLight,
-        rightPropagation
+        rightPropagation,
+        randomDitherer
     }
 
     private enum SupportedQuantizers
@@ -346,6 +347,9 @@ public final class QuantizerFilterView : IReplaceableView
                     break;
                 case rightPropagation:
                     filter.ditherer = new RightPropagationDitherer!Palette();
+                    break;
+                case randomDitherer:
+                    filter.ditherer = new RandomDitherer!Palette();
                     break;
             }
         };

@@ -132,5 +132,4 @@ public void logGCMemory(Logger logger, LogType logType = LogType.debug_)
     
     logger.log("Used GC memory: " ~ 
      gcMemoryUsage.to!string ~ "MiB. Free GC memory: " ~ gcReserved.to!string ~ "MiB", logType);
-    logger.log("Processed an image. No errors occured.");
 }   

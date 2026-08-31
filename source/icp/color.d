@@ -78,3 +78,27 @@ public int manhattanDistance(Color first, Color second) pure
 
     return rDifference + gDifference + bDifference;
 }
+
+/// Get index in `slice` of the most similar `slice`'s element to the `color`
+/// Params:
+///   slice = the slice of colors
+///   color = the target color
+/// Returns: index in `slice` of the most similar `slice`'s element to the `color`
+public size_t getIndexOfMostSimilar(alias distanceFun = distanceSquare)(Color[] slice, Color color) pure
+{
+    int minDistance = int.max;
+    size_t mostSimilarIndex;
+
+    foreach(i, found; slice)
+    {
+        immutable distance = distanceFun(color, found);
+
+        if(distance < minDistance)
+        {
+            minDistance = distance;
+            mostSimilarIndex = i;
+        }
+    }
+
+    return mostSimilarIndex;
+}

@@ -1,5 +1,5 @@
 module icp.dithering.iditherer;
-import icp.image;
+public import icp.image;
 public import icp.palettes;
 
 /*
