@@ -33,7 +33,7 @@ extern(C) int UIAppMain(string[] args)
     // how we load the version so it is what it is
     immutable width = 800;
     immutable height = 600;
-    Window window = Platform.instance.createWindow("Image Color Processor " ~ programVersion.toDstring(), null, 0, width, height);
+    Window window = Platform.instance.createWindow("ICP " ~ programVersion.toDstring(), null, 0, width, height);
     window.windowOrContentResizeMode = WindowOrContentResizeMode.shrinkWidgets;
 
     auto frame = new MainFrame();
