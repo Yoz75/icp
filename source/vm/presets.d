@@ -103,7 +103,7 @@ private Preset makeResizeOnlyPreset()
 
 private Preset makePixelizerPreset()
 {
-    Preset pixelizerPreset = new Preset("Pixelizer 1.0");
+    Preset pixelizerPreset = new Preset("Pixelizer");
 
     auto resizeFilter = new ResizeFilter();
     pixelizerPreset.filters ~= resizeFilter;
