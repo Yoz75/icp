@@ -34,6 +34,11 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
         immutable least = mostDifferent[0];
         immutable greatest = mostDifferent[1];
 
+        immutable float[3] direction = [greatest.r - least.r,
+                                        greatest.g - least.g,
+                                        greatest.b - least.b];
+        immutable directionDot = dot(direction, direction);
+        
         float[] positions;
         positions.reserve(colors.length);
 
@@ -42,7 +47,11 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
 
         foreach(i, color; colors)
         {
-            immutable float position = manhattanDistance(least, color) / mostDifferentsDistance;
+            float[3] difference = [color.r - least.r, 
+                                   color.g - least.g,
+                                   color.b - least.b];
+
+            immutable float position = dot(difference, direction) / directionDot;
             positions ~= position;
         }
 
@@ -65,6 +74,11 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
         }
 
         return result;
+    }
+
+    private float dot(float[3] left, float[3] right) pure
+    {
+        return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
     }
 
     /// Find a pair of two most different colors in the whole slice
@@ -127,53 +141,27 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
     ///   sortedArray = the array of all values
     ///   value = the target value
     /// Returns: index of most similar value or size_t.max
-    private size_t findIndexOfNearest(float[] sortedArray, float value) pure
+    private size_t findIndexOfNearest(float[] positions, float targetPosition) pure
     {
         import std.math : abs;
 
-        if(sortedArray.length == 0)
-        {
+        if (positions.length == 0)
             return size_t.max;
-        }
 
-        size_t startIndex;
-        size_t endIndex = sortedArray.length - 1;
-        size_t bestIndex = size_t.max;
+        size_t nearestIndex = 0;
+        float nearestDistance = abs(positions[0] - targetPosition);
 
-        while(startIndex <= endIndex)
+        foreach (index, position; positions[1 .. $])
         {
-            immutable middle = (startIndex + endIndex) / 2;
-            if(middle > 100_000_000)
-            {
-                int a =1488;
-            }
-            immutable middleValue = sortedArray[middle];
+            immutable distance = abs(position - targetPosition);
 
-            bestIndex = middle;
-            if(value < middleValue)
+            if (distance < nearestDistance)
             {
-                if(middle == 0)
-                {
-                    break;
-                }
-
-                endIndex = middle - 1;
-            }
-            else if(value > middleValue)
-            {
-                if(middle >= sortedArray.length)
-                {
-                    break;
-                }
-
-                startIndex = middle + 1;
-            }
-            else
-            {
-                break;
+                nearestDistance = distance;
+                nearestIndex = index + 1;
             }
         }
 
-        return bestIndex;
+        return nearestIndex;
     }
 }
