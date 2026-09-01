@@ -11,6 +11,20 @@ import std.string : isNumeric;
 import std.path : dirName;
 import dlangui;
 
+/// A replaceable view without content. Used when you don't want to add parameters but have to use IReplaceableView cuz of boilerplate
+public final class DummyView : IReplaceableView
+{
+    public void initialize(WidgetGroup group)
+    {
+        // nothing
+    }
+
+    public void destroy()
+    {
+        // ditto
+    }
+}
+
 public final class NoFilterView : IReplaceableView
 {
     public void initialize(WidgetGroup group)
@@ -141,6 +155,43 @@ public final class QuantizerFilterView : IReplaceableView
     {
         medianSection = 0,
         paletteInjection
+    }
+
+    private static final class RandomDithererView : IReplaceableView
+    {
+        private WidgetGroup parent;
+        private VerticalLayout settingsLayout;
+
+        private RandomDitherer!Palette ditherer;
+
+        public this(RandomDitherer!Palette ditherer)
+        {
+            this.ditherer = ditherer;
+        }
+
+        public void initialize(WidgetGroup group)
+        {
+            parent = group;
+            settingsLayout = new VerticalLayout("randomDithererSettingsLayout");
+            settingsLayout.layoutWidth = FILL_PARENT;
+
+            auto randomnessBox = new NumberBox!float("randomDithererRandomnessNumberBox", min: 0, defaultValue: 0.5f, max: 1, step: 0.05f);
+            randomnessBox.layoutWidth = FILL_PARENT;
+            randomnessBox.numberEdited ~= (float value)
+            {
+                ditherer.spreading = value;                
+            };    
+
+            settingsLayout.addChild(randomnessBox);
+            parent.addChild(settingsLayout);            
+        }
+
+        public void destroy()
+        {
+            immutable layoutIndex = parent.childIndex(settingsLayout);
+            assert(layoutIndex > -1, "Oh crap, our widgets were already deleted!");
+            parent.removeChild(layoutIndex);
+        }
     }
 
     private static final class MedianSectionView : IReplaceableView
@@ -305,6 +356,9 @@ public final class QuantizerFilterView : IReplaceableView
 
     private WidgetGroup parent;
     private VerticalLayout settingsLayout;
+
+    private WidgetGroup dithererViewParent, quantizerViewParent;
+    private IReplaceableView dithererView;
     private IReplaceableView quantizerView;
 
     private QuantizeFilter filter;
@@ -321,38 +375,54 @@ public final class QuantizerFilterView : IReplaceableView
         settingsLayout = new VerticalLayout("quantizerFilterSettingsLayout");
 
         import cereslib.todo;
-        mixin TODO!"Try to make abstraction for every quantizer. Probably use IReplaceableView";
         
         auto dithererText = new TextWidget("quantizerFilterDithererText").text("Ditherer");
-        auto dithererSelector = new StateWidget!SupportedDitherers("quantizerFilterrDithererSelector");
+        auto dithererSelector = new StateWidget!SupportedDitherers("quantizerFilterDithererSelector");
         dithererSelector.stateChanged ~= (SupportedDitherers state)
         {
+            if(dithererView !is null)
+                dithererView.destroy();
+
             with(SupportedDitherers)
             final switch(state)
             {
                 case no:
                     filter.ditherer = new NoDitherer!Palette();
+                    dithererView = new DummyView();
                     break;
                 case floydSteinberg:
                     filter.ditherer = new FloydSteinbergDitherer!Palette();
+                    dithererView = new DummyView();
                     break;
                 case sierra3:
                     filter.ditherer = new SierraThreeDitherer!Palette();
+                    dithererView = new DummyView();
                     break;
                 case sierra2Row:
                     filter.ditherer = new SierraTwoRowDitherer!Palette();
+                    dithererView = new DummyView();
                     break;
                 case sierraLight:
                     filter.ditherer = new SierraLightDitherer!Palette();
+                    dithererView = new DummyView();
                     break;
                 case rightPropagation:
                     filter.ditherer = new RightPropagationDitherer!Palette();
+                    dithererView = new DummyView();
                     break;
                 case randomDitherer:
-                    filter.ditherer = new RandomDitherer!Palette();
+                    auto ditherer = new RandomDitherer!Palette();
+                    filter.ditherer = ditherer;
+                    dithererView = new RandomDithererView(ditherer);
                     break;
             }
+
+            dithererView.initialize(dithererViewParent);
         };
+
+        dithererViewParent = new VerticalLayout("quantizerFilterDithererViewParent");
+        dithererViewParent.layoutHeight = FILL_PARENT;
+        dithererViewParent.layoutWeight = FILL_PARENT;
 
         auto quantizerText = new TextWidget("quantizerFilterDithererText").text("Quantizer");
         auto quantizerSelector = new StateWidget!SupportedQuantizers("quantizerFilterrQuantizerSelector");
@@ -377,17 +447,23 @@ public final class QuantizerFilterView : IReplaceableView
                     break;
             }
 
-            quantizerView.initialize(parent);
+            quantizerView.initialize(quantizerViewParent);
         };
+
+        quantizerViewParent = new VerticalLayout("quantizerFilterQuantizerViewParent");
+        quantizerViewParent.layoutHeight = FILL_PARENT;
+        quantizerViewParent.layoutWeight = FILL_PARENT;
 
         parent.addChild(settingsLayout);
         settingsLayout.addChild(dithererText);
         settingsLayout.addChild(dithererSelector);
+        settingsLayout.addChild(dithererViewParent);
         settingsLayout.addChild(quantizerText);
         settingsLayout.addChild(quantizerSelector);
+        settingsLayout.addChild(quantizerViewParent);
 
         quantizerView = new MedianSectionView(cast(MedianSectionQuantizer!Palette) filter.quantizer);
-        quantizerView.initialize(parent);
+        quantizerView.initialize(quantizerViewParent);
     }
 
     public void destroy()
@@ -395,18 +471,5 @@ public final class QuantizerFilterView : IReplaceableView
         immutable layoutIndex = parent.childIndex(settingsLayout);
         assert(layoutIndex > -1, "Oh crap, our widgets were already deleted!");
         parent.removeChild(layoutIndex);
-    }
-}
-
-private class NoDithererView : IReplaceableView
-{
-    public void initialize(WidgetGroup group)
-    {
-        // nothing
-    }
-
-    public void destroy()
-    {
-        // ditto``
     }
 }

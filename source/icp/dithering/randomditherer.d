@@ -7,6 +7,19 @@ import std.random;
 /// Using random to dither the image
 public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette : IPalette))
 {    
+    private float spreading_ = 0.5f;
+
+    public @property float spreading() => spreading_;
+    public @property void spreading(float value)
+    {
+        if(value == float.nan || value == float.infinity  || value == -float.infinity)
+        {
+            throw new Exception("Random ditherer got non-finite value!");
+        }
+
+        spreading_ = value;
+    }
+
     /// Dither an image.
     /// Params:
     /// sourceImage = the original not quantized image
@@ -38,23 +51,13 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
         foreach(y; 0..result.resolution[1])
         foreach(x; 0..result.resolution[0])
         {
-            enum spreading = 0.5f;
-            /*
-            туду:
-                1) выбрать близжайший цвет
-                2) получить егонную позицию
-                3) получить позицию+рандом
-                4) бинарным поиском найти индекс близжайшей позиции к хуйне из 3п
-                5) назначить конечному цвету цвет по индексу из 4п            
-            */
-
             immutable sourceColor = sourceImage[x, y];
 
             // since elements in colors, and color2position have same locations,, we can use this index in both arrays
             immutable selectedColorIndex = colors.getIndexOfMostSimilar!manhattanDistance(sourceColor);
 
             immutable randomFactor =  uniform01() * 2f - 1;
-            immutable selectedPosition = positions[selectedColorIndex] + spreading * randomFactor;
+            immutable selectedPosition = positions[selectedColorIndex] + spreading_ * randomFactor;
             immutable bestColorIndex = findIndexOfNearest(positions, selectedPosition);
             assert(bestColorIndex != size_t.max, "could not find the best index!");
             
