@@ -103,7 +103,7 @@ public final class ResizeFilterView : IReplaceableView
 
         auto xResolutionLayout = new VerticalLayout("resizeFilterXResolutionLayout");
         auto xResolutionText = new TextWidget("resizeFilterXResolutionText", "Res X"d);
-        NumberBox!short xResolutionBox = new NumberBox!short("resizeFilterXResBox", min: 1, defaultValue: 16);
+        NumberBox!short xResolutionBox = new NumberBox!short("resizeFilterXResBox", min: 1, defaultValue: 256);
 
         xResolutionBox.numberEdited ~= (short value)
         {
@@ -113,7 +113,7 @@ public final class ResizeFilterView : IReplaceableView
         auto yResolutionLayout = new VerticalLayout("resizeFilterYResolutionLayout");
         auto yResolutionText = new TextWidget("resizeFilterYResolutionText", "Res Y"d);
 
-        NumberBox!short yResolutionBox = new NumberBox!short("resizeFilterYResBox", min: 1, defaultValue: 16);
+        NumberBox!short yResolutionBox = new NumberBox!short("resizeFilterYResBox", min: 1, defaultValue: 256);
         yResolutionBox.numberEdited ~= (short value)
         {
             filter.resultYResolution = value;

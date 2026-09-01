@@ -9,7 +9,7 @@ import cereslib.math;
 /// Resizes the image
 public @filter final class ResizeFilter : IFilter
 {
-    private int[2] resultResolution = [16, 16];
+    private int[2] resultResolution = [256, 256];
 
     public @property void resultXResolution(int resolution)
     {
