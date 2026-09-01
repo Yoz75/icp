@@ -14,6 +14,12 @@ This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and 
 * `buildlto.bat (.sh)` to only build app in release mode with [LTO](https://llvm.org/docs/LinkTimeOptimization.html) enabled
 * `run.bat (.sh)` to run last build (or do nothing if didn't build)  
 
+# Hotkeys
+* `F5` -- run ICP
+* `F6` or `ctrl + O` -- open an image
+* `F7` or `ctrl + S` -- save processed image
+* `F13` (yup) or `alt + S` -- open settings (currently you can only change app theme)
+
 # Known Issues
 Sorry for these:
 * Sometimes ICP doesn't like how you press buttons in open/save dialogue window and crashes
