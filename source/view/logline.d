@@ -35,7 +35,7 @@ public final class LogLine : StatusLine
 
         if(logsCount > logsCapacity)
         {
-            logsQueue.removeBack();
+            logsQueue.removeFront();
             logsCount = logsCapacity;
         }
     }
