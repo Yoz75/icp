@@ -61,6 +61,14 @@ public final class NumberBox(T) : HorizontalLayout if(isNumeric!T)
         initializeChildren();
     }
 
+    public override @property Widget enabled(bool value)
+    {
+        if(value) enable();
+        else disable();
+
+        return this;
+    }
+
     /// Initialize the number box
     private void initializeChildren()
     {
@@ -123,6 +131,7 @@ public final class NumberBox(T) : HorizontalLayout if(isNumeric!T)
         }
 
         editLine.enabled = true;
+        super.enabled = true;
     }
 
     public void disable()
@@ -135,6 +144,7 @@ public final class NumberBox(T) : HorizontalLayout if(isNumeric!T)
         }
 
         editLine.enabled = false;
+        super.enabled = false;
     }
 
     private void setValue(T value)

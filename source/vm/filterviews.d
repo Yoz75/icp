@@ -143,8 +143,8 @@ public final class ResizeFilterView : IReplaceableView
             xResolutionText.enabled = false;
             yResolutionText.enabled = false;
 
-            xResolutionBox.disable();
-            yResolutionBox.disable();
+            xResolutionBox.enabled = false;
+            yResolutionBox.enabled = false;
 
             percentageResolutionText.enabled = true;
             percentageResolutionBox.enable();
@@ -312,15 +312,15 @@ public final class QuantizerFilterView : IReplaceableView
 
                 if(state)
                 {
-                    redCorrectionBox.enabled();
-                    greenCorrectionBox.enable();
-                    blueCorrectionBox.enable();
+                    redCorrectionBox.enabled = true;
+                    greenCorrectionBox.enabled = true;
+                    blueCorrectionBox.enabled = true;
                 }
                 else
                 {
-                    redCorrectionBox.disable();
-                    greenCorrectionBox.disable();
-                    blueCorrectionBox.disable();
+                    redCorrectionBox.enabled = false;
+                    greenCorrectionBox.enabled = false;
+                    blueCorrectionBox.enabled = false;
                 }
                 
                 return true;
