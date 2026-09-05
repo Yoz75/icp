@@ -175,6 +175,7 @@ private final class MainFrame : AppFrame
         auto dialog = new FileDialog(UIString.fromRaw("Save image..."d), 
         window, fileDialogFlags: FileDialogFlag.Save | FileDialogFlag.EnableCreateDirectory);
         dialog.styleId = "ICP_DEFAULT_LAYOUT";
+        dialog.filename = "save.png";
 
         dialog.dialogResult = (Dialog unused, const Action action)
         {
