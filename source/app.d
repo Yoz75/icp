@@ -233,6 +233,10 @@ private final class MainFrame : AppFrame
             globalAppLogger.log("An error occured: " ~ ex.message.to!string, LogType.error);
         }
 
+        // During processing, ICP allocates a lot of stuff
+        globalAppLogger.logGCMemory();
+        globalAppLogger.log("Calling GC.collect() and GC.minimize()...");
+        import core.memory; GC.collect(); GC.minimize();
         globalAppLogger.logGCMemory();
     } 
 
