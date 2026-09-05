@@ -4,6 +4,9 @@ import icp.image;
 import icp.palettes;
 import std.algorithm.comparison : clamp;
 import std.math;
+import std.parallelism : parallel;
+import std.range : iota;
+
 /// A dither mask for one pixel
 /// ----------
 /// // This line means "when processing a pixel and error is not zero, add 40% of the error to the right neighbor"
@@ -68,10 +71,10 @@ public class Ditherer(TPalette) : IDitherer!TPalette if(is(TPalette : IPalette))
             }
         }
 
-        foreach(y; 0..result.resolution[1])
+        foreach(y; iota(0, result.resolution[1]).parallel())
         {
             immutable lineIndex = y * result.resolution[0];
-            foreach(x; 0..result.resolution[0])
+            foreach(x; iota(0, result.resolution[0]).parallel())
             {
                 immutable sourceColor = sourceImage[x, y];
                 immutable int[3] errors = accumulatedErrors[lineIndex + x];
