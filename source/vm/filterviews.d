@@ -86,10 +86,13 @@ public final class BW_FilterView : IReplaceableView
 
 public final class ResizeFilterView : IReplaceableView
 {
+    private enum defaultResolution = 256;
+
     private WidgetGroup parent;
-    private HorizontalLayout resolutionParent;
+    private VerticalLayout settingsLayout;
 
     private ResizeFilter filter;
+    private int[2] currentResolution = [defaultResolution, defaultResolution];
 
     public this(ResizeFilter filter)
     {
@@ -98,41 +101,98 @@ public final class ResizeFilterView : IReplaceableView
 
     public void initialize(WidgetGroup group)
     {
+        /*туду: 
+        1) сделать радиобаттон который переключает ручное изменение картинки и процентеное соотношение изменения картинкиэ*/
+
         parent = group;
-        resolutionParent = new HorizontalLayout("resizeFilterResolutionParent");
+        settingsLayout = new VerticalLayout("resizeFilterSettingsLayout");        
+        auto absoluteResolutionParent = new HorizontalLayout("resizeFilterResolutionParent");
+
+        auto resolutionPercentageRadioButton = new RadioButton("resizeFilterResResizeModeRadioButton").text("Percentage"d);
+        resolutionPercentageRadioButton.checked = true;
+        auto resolutionCustomRadioButton = new RadioButton("resizeFilterResResizeModeRadioButton").text("Custom Resolution"d);
+
+        auto percentageResolutionText = new TextWidget("resizeFilterPercentageResizeText", "Image scale (%):"d);
+        NumberBox!float percentageResolutionBox = new NumberBox!float("resizeFilterXResBox", min: 1f, defaultValue: 100f);
+        percentageResolutionBox.numberEdited ~= (float value)
+        {
+            filter.resultPercentageResolution = value;
+        };
 
         auto xResolutionLayout = new VerticalLayout("resizeFilterXResolutionLayout");
         auto xResolutionText = new TextWidget("resizeFilterXResolutionText", "Res X"d);
-        NumberBox!short xResolutionBox = new NumberBox!short("resizeFilterXResBox", min: 1, defaultValue: 256);
+        NumberBox!short xResolutionBox = new NumberBox!short("resizeFilterXResBox", min: 1, defaultValue: defaultResolution);
 
         xResolutionBox.numberEdited ~= (short value)
         {
-            filter.resultXResolution = value;
+            currentResolution[0] = value;
+            filter.resultResolution = currentResolution;
         };
 
         auto yResolutionLayout = new VerticalLayout("resizeFilterYResolutionLayout");
         auto yResolutionText = new TextWidget("resizeFilterYResolutionText", "Res Y"d);
-
-        NumberBox!short yResolutionBox = new NumberBox!short("resizeFilterYResBox", min: 1, defaultValue: 256);
+        NumberBox!short yResolutionBox = new NumberBox!short("resizeFilterYResBox", min: 1, defaultValue: defaultResolution);
         yResolutionBox.numberEdited ~= (short value)
         {
-            filter.resultYResolution = value;
+            currentResolution[1] = value;
+            filter.resultResolution = currentResolution;
         };
 
+        resolutionPercentageRadioButton.click = (widget)
+        {
+            xResolutionText.enabled = false;
+            yResolutionText.enabled = false;
+
+            xResolutionBox.disable();
+            yResolutionBox.disable();
+
+            percentageResolutionText.enabled = true;
+            percentageResolutionBox.enable();
+
+            return true;
+        };
+
+        resolutionCustomRadioButton.click = (widget)
+        {
+            xResolutionText.enabled = true;
+            yResolutionText.enabled = true;
+
+            xResolutionBox.enabled = true;
+            yResolutionBox.enabled = true;
+
+            percentageResolutionText.enabled = false;
+            percentageResolutionBox.disable();
+
+            return true;
+        };
+
+        settingsLayout.addChild(resolutionPercentageRadioButton);
+        settingsLayout.addChild(resolutionCustomRadioButton);
+        settingsLayout.addChild(percentageResolutionText);
+        settingsLayout.addChild(percentageResolutionBox);
+
+        settingsLayout.addChild(absoluteResolutionParent);
         xResolutionLayout.addChild(xResolutionText);
         xResolutionLayout.addChild(xResolutionBox);
-        resolutionParent.addChild(xResolutionLayout);
+        absoluteResolutionParent.addChild(xResolutionLayout);
 
         yResolutionLayout.addChild(yResolutionText);
         yResolutionLayout.addChild(yResolutionBox);
-        resolutionParent.addChild(yResolutionLayout);
+        absoluteResolutionParent.addChild(yResolutionLayout);
 
-        parent.addChild(resolutionParent);
+        //cuz initially we don't use them
+        xResolutionText.enabled = false;
+        yResolutionText.enabled = false;
+
+        xResolutionBox.disable();
+        yResolutionBox.disable();
+
+        parent.addChild(settingsLayout);
     }
 
     public void destroy()
     {
-        immutable resolutionIndex = parent.childIndex(resolutionParent);
+        immutable resolutionIndex = parent.childIndex(settingsLayout);
         assert(resolutionIndex > -1, "Oh crap, our widgets were already deleted!");
         parent.removeChild(resolutionIndex);
     }
@@ -252,7 +312,7 @@ public final class QuantizerFilterView : IReplaceableView
 
                 if(state)
                 {
-                    redCorrectionBox.enable();
+                    redCorrectionBox.enabled();
                     greenCorrectionBox.enable();
                     blueCorrectionBox.enable();
                 }

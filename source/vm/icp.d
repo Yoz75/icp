@@ -7,7 +7,7 @@ import icp.color;
 import icp.image;
 import icp.filters;
 import std.sumtype;
-import std.algorithm : remove;
+import std.algorithm : remove, endsWith;
 import std.string : strip, splitLines;
 import imageformats;
 import dlangui;
@@ -80,33 +80,39 @@ public final class ICP_VM
             int pixel;
         }
 
-        int[] pixels = new int[buffer.width * buffer.height];
-
         immutable width = buffer.width;
-        immutable height = buffer.height;
-        
-        foreach(y; 0..height)
+        immutable height = buffer.height;        
+
+        if(filePath.endsWith(".png"))
         {
-            int[] line = cast(int[]) buffer.scanLine(y)[0..width];
-
-            foreach(x; 0..width)
+            int[] pixels = new int[buffer.width * buffer.height];
+            foreach(y; 0..height)
             {
-                immutable index = y * width + x;
-                RawColor color; 
-                color.pixel = line[x];
-                
-                // Don't ask me why i did this but it fixes "red and blue swapping" when saving1607
-                immutable temp = color.color.r;
-                color.color.r = color.color.b;
-                color.color.b = temp;
-                color.color.a = 255;
+                int[] line = cast(int[]) buffer.scanLine(y)[0..width];
 
-                // dlangui inverts alfa at some reason :/
-                pixels[index] = color.pixel;
+                foreach(x; 0..width)
+                {
+                    immutable index = y * width + x;
+                    RawColor color; 
+                    color.pixel = line[x];
+                    
+                    // Don't ask me why i did this but it fixes "red and blue swapping" when saving1607
+                    immutable temp = color.color.r;
+                    color.color.r = color.color.b;
+                    color.color.b = temp;
+                    color.color.a = 255;
+
+                    // dlangui inverts alfa at some reason :/
+                    pixels[index] = color.pixel;
+                }
             }
+            
+            ubyte[] channels = cast(ubyte[]) pixels;
+            write_image(filePath, buffer.width, buffer.height, channels, ColFmt.RGBA);
         }
-        
-        ubyte[] channels = cast(ubyte[]) pixels;
-        write_image(filePath, buffer.width, buffer.height, channels, ColFmt.RGBA);
+        else
+        {
+            throw new Exception("Only PNG supported!");
+        }
     }
 }
