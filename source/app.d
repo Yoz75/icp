@@ -17,7 +17,6 @@ mixin APP_ENTRY_POINT;
 
 extern(C) int UIAppMain(string[] args)
 {
-    //туду: сделать тёмную и светлую темы, унаследованные от стандартных, но с классом акцентной кнопки чтобы кнопка запуска не баговалась
     programVersion = Version.fromString(import("version.txt"));
 
     import std.stdio;
@@ -28,12 +27,9 @@ extern(C) int UIAppMain(string[] args)
     embeddedResourceList.addResources(embedResourcesFromList!("resources.list")());
     Platform.instance.uiTheme = "theme_neo_dark";
 
-    // loading version from string file and then converting it to string sounds strange, but
-    // what if we move window initialization somewhere? The "window initializatior" shlound't ever know
-    // how we load the version so it is what it is
     immutable width = 800;
     immutable height = 600;
-    Window window = Platform.instance.createWindow("ICP " ~ programVersion.toDstring(), null, 0, width, height);
+    Window window = Platform.instance.createWindow("ICP " ~ programVersion.toDstring(), null, WindowFlag.Resizable, width, height);
     window.windowOrContentResizeMode = WindowOrContentResizeMode.shrinkWidgets;
 
     auto frame = new MainFrame();
@@ -41,6 +37,7 @@ extern(C) int UIAppMain(string[] args)
 
     globalAppLogger = new Logger();
     globalAppLogger.addLoggee(new StatusLineLoggee(frame.statusLine));
+    globalAppLogger.addLoggee(new ErrorMessageBoxLogging(window));
     globalAppLogger.addLoggee(new FileLoggee(chainPath(getcwd(), "Logs").array));
 
     window.show();
@@ -197,7 +194,7 @@ private final class MainFrame : AppFrame
         import icp.image : Image;
         if(currentFilePath.length <= 0) 
         {
-            globalAppLogger.log("Open an image before processing.");
+            globalAppLogger.log("Open an image before processing.", LogType.warning);
             return;
         }
 
