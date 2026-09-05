@@ -3,6 +3,8 @@ module icp.dithering.randomditherer;
 import icp.dithering.iditherer;
 import std.meta : AliasSeq;
 import std.random;
+import std.parallelism : parallel;
+import std.range : iota;
 
 /// Using random to dither the image
 public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette : IPalette))
@@ -28,7 +30,7 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
     /// Returns: quantized and dithered image
     public Image dither(const Image sourceImage, TPalette palette)
     {
-        Color[] colors = palette.get();
+        Color[] colors = findColors(sourceImage);
 
         immutable mostDifferent = findMostDifferent(colors);
         immutable least = mostDifferent[0];
@@ -42,9 +44,6 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
         float[] positions;
         positions.reserve(colors.length);
 
-        /// distance of most different colors;
-        immutable float mostDifferentsDistance = manhattanDistance(least, greatest);
-
         foreach(i, color; colors)
         {
             float[3] difference = [color.r - least.r, 
@@ -57,8 +56,8 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
 
         Image result = new Image(sourceImage.resolution);
 
-        foreach(y; 0..result.resolution[1])
-        foreach(x; 0..result.resolution[0])
+        foreach(y; iota(0, result.resolution[1]).parallel())
+        foreach(x; iota(0, result.resolution[0]).parallel())
         {
             immutable sourceColor = sourceImage[x, y];
 
@@ -70,7 +69,7 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
             immutable bestColorIndex = findIndexOfNearest(positions, selectedPosition);
             assert(bestColorIndex != size_t.max, "could not find the best index!");
             
-            result[x, y] = colors[bestColorIndex];
+            result[x, y] = palette.getClosestOnPalette(colors[bestColorIndex]);
         }
 
         return result;

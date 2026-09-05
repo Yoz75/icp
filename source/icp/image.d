@@ -42,7 +42,7 @@ public class Image
 /// Params:
 ///   image = the image 
 /// Returns: array  of colors
-private Color[] findColors(in Image image) pure
+public Color[] findColors(in Image image) pure
 {
     struct Dummy{};
     Dummy[Color] registeredColors;
