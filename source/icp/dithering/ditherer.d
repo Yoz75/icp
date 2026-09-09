@@ -71,10 +71,10 @@ public class Ditherer(TPalette) : IDitherer!TPalette if(is(TPalette : IPalette))
             }
         }
 
-        foreach(y; iota(0, result.resolution[1]).parallel())
+        foreach(y; 0.. result.resolution[1])
         {
             immutable lineIndex = y * result.resolution[0];
-            foreach(x; iota(0, result.resolution[0]).parallel())
+            foreach(x; 0.. result.resolution[0])
             {
                 immutable sourceColor = sourceImage[x, y];
                 immutable int[3] errors = accumulatedErrors[lineIndex + x];
