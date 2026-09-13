@@ -25,19 +25,6 @@ public final class DummyView : IReplaceableView
     }
 }
 
-public final class NoFilterView : IReplaceableView
-{
-    public void initialize(WidgetGroup group)
-    {
-        // nothing
-    }
-
-    public void destroy()
-    {
-        // ditto
-    }
-}
-
 public final class BW_FilterView : IReplaceableView
 {
     private static size_t lastId;

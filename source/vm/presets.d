@@ -85,7 +85,7 @@ private Preset makeNothingPreset()
     
     auto noFilter = new NoFilter();
     nothingPreset.filters ~= noFilter;
-    nothingPreset.views ~= new NoFilterView();
+    nothingPreset.views ~= new DummyView();
 
     return nothingPreset;
 }
