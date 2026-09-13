@@ -95,9 +95,9 @@ public final class ResizeFilterView : IReplaceableView
         settingsLayout = new VerticalLayout("resizeFilterSettingsLayout");        
         auto absoluteResolutionParent = new HorizontalLayout("resizeFilterResolutionParent");
 
-        auto resolutionPercentageRadioButton = new RadioButton("resizeFilterResResizeModeRadioButton").text("Percentage"d);
+        auto resolutionPercentageRadioButton = new RadioButton("resizeFilterResResizeModeRadioButton").text(UIString.fromId("ResizeFilterView_resolutionPercentageRadioButton"));
         resolutionPercentageRadioButton.checked = true;
-        auto resolutionCustomRadioButton = new RadioButton("resizeFilterResResizeModeRadioButton").text("Custom Resolution"d);
+        auto resolutionCustomRadioButton = new RadioButton("resizeFilterResResizeModeRadioButton").text(UIString.fromId("ResizeFilterView_resolutionCustomRadioButton"));
 
         auto percentageResolutionText = new TextWidget("resizeFilterPercentageResizeText", "Image scale (%):"d);
         NumberBox!float percentageResolutionBox = new NumberBox!float("resizeFilterXResBox", min: 1f, defaultValue: 100f);
@@ -107,7 +107,7 @@ public final class ResizeFilterView : IReplaceableView
         };
 
         auto xResolutionLayout = new VerticalLayout("resizeFilterXResolutionLayout");
-        auto xResolutionText = new TextWidget("resizeFilterXResolutionText", "Res X"d);
+        auto xResolutionText = new TextWidget("resizeFilterXResolutionText", "ResizeFilterView_xResolutionText");
         NumberBox!short xResolutionBox = new NumberBox!short("resizeFilterXResBox", min: 1, defaultValue: defaultResolution);
 
         xResolutionBox.numberEdited ~= (short value)
@@ -117,7 +117,7 @@ public final class ResizeFilterView : IReplaceableView
         };
 
         auto yResolutionLayout = new VerticalLayout("resizeFilterYResolutionLayout");
-        auto yResolutionText = new TextWidget("resizeFilterYResolutionText", "Res Y"d);
+        auto yResolutionText = new TextWidget("resizeFilterYResolutionText", "ResizeFilterView_yResolutionText");
         NumberBox!short yResolutionBox = new NumberBox!short("resizeFilterYResBox", min: 1, defaultValue: defaultResolution);
         yResolutionBox.numberEdited ~= (short value)
         {
@@ -258,7 +258,7 @@ public final class QuantizerFilterView : IReplaceableView
             parent = group;
             settingsLayout = new VerticalLayout("medianSectionSettingsLayout");
 
-            auto colorsCountText = new TextWidget("quantizerFilterColorsCountText").text("Colors Count");
+            auto colorsCountText = new TextWidget("quantizerFilterColorsCountText").textResource("MedianSectionView_colorsCountText");
             auto colorsCountBox = new NumberBox!uint("quantizerFilterColorsCountNumberBox", min: 2, defaultValue: 8, max: 255);
             colorsCountBox.layoutWidth = FILL_PARENT;
             colorsCountBox.numberEdited ~= (uint value)
@@ -287,10 +287,9 @@ public final class QuantizerFilterView : IReplaceableView
                 quantizer.blueCorrectionMultiplier = value;
             };
 
-            import cereslib.todo; mixin TODO!("Rename rgb correction checkbox text to make it clearer");
             auto useColorCorrectionText = 
             new MultilineTextWidget("medianSectionFilterCoorrectionText").
-            text("Color-width correction (median cut)");
+            textResource("MedianSectionView_colorCorrectionText");
 
             auto useColorCorrectionBox = new CheckBox("medianSectionFilterCorrectionCheckBox");
             useColorCorrectionBox.checkChange = (Widget widget, bool state)
@@ -358,12 +357,12 @@ public final class QuantizerFilterView : IReplaceableView
             parent = group;
             settingsLayout = new VerticalLayout("cloneSettingsLayout");
 
-            auto selectImageButton = new Button("cloneSelectImageButton").text("Palette Image..."d);
+            auto selectImageButton = new Button("cloneSelectImageButton").textResource("CloneView_selectImageButtonText");
             selectImageButton.click = (widget)
             {
-                auto dialog = new FileDialog(UIString.fromRaw("Open palette source image..."d), parent.window);
+                auto dialog = new FileDialog(UIString.fromId("CloneView_dialogueHeader"), parent.window);
                 dialog.styleId = "ICP_DEFAULT_LAYOUT";
-                dialog.addFilter(FileFilterEntry(UIString.fromRaw("Images (png|jpg|bmp|tga)"d),
+                dialog.addFilter(FileFilterEntry(UIString.fromRaw("(png|jpg|bmp|tga)"d),
                 "*.png;*.jpg;*.jpeg;*.bmp;*.tga"));
 
                 if(currentFilePath.length > 0)
@@ -423,7 +422,7 @@ public final class QuantizerFilterView : IReplaceableView
 
         import cereslib.todo;
         
-        auto dithererText = new TextWidget("quantizerFilterDithererText").text("Ditherer");
+        auto dithererText = new TextWidget("quantizerFilterDithererText").textResource("QuantizerFilterView_ditherer");
         auto dithererSelector = new StateWidget!SupportedDitherers("quantizerFilterDithererSelector");
         dithererSelector.stateChanged ~= (SupportedDitherers state)
         {
@@ -471,8 +470,8 @@ public final class QuantizerFilterView : IReplaceableView
         dithererViewParent.layoutHeight = FILL_PARENT;
         dithererViewParent.layoutWeight = FILL_PARENT;
 
-        auto quantizerText = new TextWidget("quantizerFilterDithererText").textResource("test");
-        auto quantizerSelector = new StateWidget!SupportedQuantizers("quantizerFilterrQuantizerSelector");
+        auto quantizerText = new TextWidget("quantizerFilterDithererText").textResource("QuantizerFilterView_quantizer");
+        auto quantizerSelector = new StateWidget!SupportedQuantizers("quantizerFilterQuantizerSelector");
         quantizerSelector.stateChanged ~= (SupportedQuantizers state)
         {
             if(quantizerView !is null)

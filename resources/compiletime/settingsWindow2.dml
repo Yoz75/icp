@@ -6,12 +6,12 @@ HorizontalLayout {
 
         Button {
             id: persinalizationSettingsButton
-            text: SettingsWindow_personalizationButton
+            text: "Personalization"
         }
 
         Button { 
             id: generalSettingsButton
-            text: SettingsWindow_generalButton
+            text: "General"
         }
     }
 
@@ -40,7 +40,7 @@ HorizontalLayout {
 
             CheckBox {
                 id: cleanupGCCheckbox
-                text: SettingsWindow_cleanupGCCheckbox
+                text: "Cleanup GC when done"
                 checked: true;
             }
         }

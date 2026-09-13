@@ -259,16 +259,16 @@ private final abstract class MainMenuMaker
     }
 static:
     const Action openFileAction
-     = new Action(ActionIds.openFileAction, "Open image..."d).addAccelerator(KeyCode.F6)
+     = new Action(ActionIds.openFileAction, "MainMenuMaker_openFileAction"c).addAccelerator(KeyCode.F6)
                                                              .addAccelerator(KeyCode.KEY_O, KeyFlag.Control);
     const Action saveFileAction 
-     = new Action(ActionIds.saveFileAction, "Save image..."d).addAccelerator(KeyCode.F7)
+     = new Action(ActionIds.saveFileAction, "MainMenuMaker_saveFileAction"c).addAccelerator(KeyCode.F7)
                                                              .addAccelerator(KeyCode.KEY_S, KeyFlag.Control);
     const Action runAction
-     = new Action(ActionIds.runAction, "Run"d).addAccelerator(KeyCode.F5)
+     = new Action(ActionIds.runAction, "MainMenuMaker_runAction"c).addAccelerator(KeyCode.F5)
                                               .addAccelerator(KeyCode.KEY_F, KeyFlag.Control);
     const Action settingsAction
-     = new Action(ActionIds.settingsAction, "Settings..."d).addAccelerator(KeyCode.F13)
+     = new Action(ActionIds.settingsAction, "MainMenuMaker_settingsAction"c).addAccelerator(KeyCode.F13)
                                                            .addAccelerator(KeyCode.KEY_S, KeyFlag.Alt);                      
 
     // I moved all the menu-shit here cuz other parts of MainFrame shouldn't know about ActionIds for example
@@ -285,7 +285,7 @@ static:
 
     private MenuItem createFileFolder()
     {
-        MenuItem fileFolder = new MenuItem(new Action(FolderIds.fileFolder, "File"d));
+        MenuItem fileFolder = new MenuItem(new Action(FolderIds.fileFolder, "MainMenuMaker_fileFolder"c));
         fileFolder.add(new MenuItem(openFileAction));
         fileFolder.add(new MenuItem(saveFileAction));
 
@@ -294,10 +294,10 @@ static:
 
     private MenuItem createEditFolder()
     {
-        MenuItem actionFolder = new MenuItem(new Action(FolderIds.editFolder, "Edit"d));
-        actionFolder.add(new MenuItem(runAction));
-        actionFolder.add(new MenuItem(settingsAction));
+        MenuItem editFolder = new MenuItem(new Action(FolderIds.editFolder, "MainMenuMaker_editFolder"c));
+        editFolder.add(new MenuItem(runAction));
+        editFolder.add(new MenuItem(settingsAction));
 
-        return actionFolder;
+        return editFolder;
     }
 }
