@@ -357,7 +357,7 @@ public final class QuantizerFilterView : IReplaceableView
             parent = group;
             settingsLayout = new VerticalLayout("cloneSettingsLayout");
 
-            auto selectImageButton = new Button("cloneSelectImageButton").textResource("CloneView_selectImageButtonText");
+            auto selectImageButton = new Button("cloneSelectImageButton").textResource("CloneView_selectImageButton");
             selectImageButton.click = (widget)
             {
                 auto dialog = new FileDialog(UIString.fromId("CloneView_dialogueHeader"), parent.window);
