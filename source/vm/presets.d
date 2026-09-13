@@ -59,6 +59,7 @@ public final class Preset
     */
 }
 
+/// Registers default presets in `globalRegisterPresets` calling this function multiple times results in multiple preset clones XD
 public void registerDefaultPresets()
 {
     globalRegisteredPresets ~= makePixelizerPreset();
