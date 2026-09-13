@@ -47,7 +47,7 @@ public Result!(T, JSONErrorCode) loadFromFile(T)(const string path)
 /// Params:
 ///   path = the path to the file
 ///   value = the data that should be serialized
-public void saveToFile(T)(const string path, const T value)
+public void saveToFile(T)(const string path, in T value)
 {
     writeJSON!T(path, value);
 }

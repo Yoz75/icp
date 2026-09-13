@@ -1,6 +1,6 @@
 module windows.settings;
 
-import dlangui;
+import settings;import dlangui;
 import dlangui.widgets.winframe;
 
 /// Creates and initializes the settings window
@@ -34,7 +34,21 @@ public final class SettingsWindow
             return true;
         };
 
+        
+        auto generalButton = window.mainWidget.childById!Button("generalSettingsButton");
+        generalButton.click = (widget)
+        {
+            settingsLayout.showChild("generalSettingsLayout");
+            return true;
+        };
+
+
+        setupGeneralLayout(settingsLayout);
         setupPersonalizationLayout(settingsLayout);
+        
+
+
+        settingsLayout.showChild("personalizationSettingsLayout");
     }
 
     private void setupPersonalizationLayout(FrameLayout settingsLayout)
@@ -59,19 +73,35 @@ public final class SettingsWindow
             {
                 case darkNeoThemeName:
                     Platform.instance.uiTheme = darkNeoThemeId;
+                    Settings.instance.selectedTheme = darkNeoThemeId;
                     break;
 
                 case darkThemeName:
                     Platform.instance.uiTheme = darkThemeId;
+                    Settings.instance.selectedTheme = darkThemeId;
                     break;
 
                 case lightThemeName:
                     Platform.instance.uiTheme = lightThemeId;
+                    Settings.instance.selectedTheme = lightThemeId;
                     break;
                 default:
                     throw new Exception("Unknown theme!");
             }
 
+            return true;
+        };
+    }
+
+    private void setupGeneralLayout(FrameLayout settingsLayout)
+    {
+        auto generalLayout = settingsLayout.childById!VerticalLayout("generalSettingsLayout");
+
+        auto cleanupGCCheckbox = generalLayout.childById!CheckBox("cleanupGCCheckbox");
+        cleanupGCCheckbox.checked = Settings.instance.shouldCleanGCMemoryOnDone;
+        cleanupGCCheckbox.checkChange = (Widget widget, bool state)
+        {
+            Settings.instance.shouldCleanGCMemoryOnDone = state;
             return true;
         };
     }

@@ -1,3 +1,4 @@
+import settings;
 import vm;
 import view;
 import vm.logging;
@@ -18,14 +19,11 @@ mixin APP_ENTRY_POINT;
 extern(C) int UIAppMain(string[] args)
 {
     programVersion = Version.fromString(import("version.txt"));
-
-    import std.stdio;
-    stderr = File("./err.txt", "w");
-    stdout = File("./out.txt", "w");
-
+    Settings.loadOrSetDefault();
+    
     registerDefaultPresets();
     embeddedResourceList.addResources(embedResourcesFromList!("resources.list")());
-    Platform.instance.uiTheme = "theme_neo_dark";
+    Platform.instance.uiTheme = Settings.instance.selectedTheme;
 
     immutable width = 800;
     immutable height = 600;
@@ -233,11 +231,14 @@ private final class MainFrame : AppFrame
             globalAppLogger.log("An error occured: " ~ ex.message.to!string, LogType.error);
         }
 
-        // During processing, ICP allocates a lot of stuff
         globalAppLogger.logGCMemory();
-        globalAppLogger.log("Calling GC.collect() and GC.minimize()...");
-        import core.memory; GC.collect(); GC.minimize();
-        globalAppLogger.logGCMemory();
+        if(Settings.instance.shouldCleanGCMemoryOnDone)
+        {
+            // During processing, ICP allocates a lot of stuff
+            globalAppLogger.log("Calling GC.collect() and GC.minimize()...");
+            import core.memory; GC.collect(); GC.minimize();
+            globalAppLogger.logGCMemory();
+        }
     } 
 
     private void openSettingsWindow()

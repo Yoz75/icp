@@ -484,7 +484,7 @@ public final class QuantizerFilterView : IReplaceableView
         dithererViewParent.layoutHeight = FILL_PARENT;
         dithererViewParent.layoutWeight = FILL_PARENT;
 
-        auto quantizerText = new TextWidget("quantizerFilterDithererText").text("Quantizer");
+        auto quantizerText = new TextWidget("quantizerFilterDithererText").textResource("test");
         auto quantizerSelector = new StateWidget!SupportedQuantizers("quantizerFilterrQuantizerSelector");
         quantizerSelector.stateChanged ~= (SupportedQuantizers state)
         {

@@ -8,6 +8,11 @@ HorizontalLayout {
             id: persinalizationSettingsButton
             text: "Personalization"
         }
+
+        Button { 
+            id: generalSettingsButton
+            text: "General"
+        }
     }
 
     FrameLayout {
@@ -24,6 +29,19 @@ HorizontalLayout {
             ComboBox {
                 id: themeSelectionComboBox
                 items: ["Dark Neo", "Dark", "Light"]
+            }
+        }
+
+        VerticalLayout { 
+            id: generalSettingsLayout
+            styleId: "ICP_DEFAULT_LAYOUT"
+            layoutWidth: fill
+            layoutHeight: fill
+
+            CheckBox {
+                id: cleanupGCCheckbox
+                text: "Cleanup GC when done"
+                checked: true;
             }
         }
     }
