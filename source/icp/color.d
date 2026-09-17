@@ -138,6 +138,27 @@ do
     return result;
 }
 
+/// Project only `color` to a 1D axis between left and right
+/// Params:
+///   color = 
+///   left = 
+///   right = 
+/// Returns: 
+public float projectColor1D(Color color, Color left, Color right) pure
+{
+    immutable float[3] direction = [right.r - left.r,
+                                    right.g - left.g,
+                                    right.b - left.b];
+
+    immutable directionDot = dot(direction, direction);
+        
+    float[3] difference = [color.r - left.r, 
+                           color.g - left.g,
+                           color.b - left.b];
+
+    return dot(difference, direction) / directionDot;
+}
+
 /// Find color with the least channels sum
 /// Params:
 ///   colors = the slice of colors
@@ -178,4 +199,40 @@ public Color findColorWithGreatestChannelsSum(Color[] colors) pure
         }
     }
     return colors[greatestIndex];
+}
+
+
+/// Find "nearest" colors indexes for `color`
+/// Params:
+///   colors = 
+///   source = 
+/// Returns: 
+public size_t[2] findNearestIndexTo(Color[] colors, Color source) pure
+{
+    size_t leastIndex = 0;
+    int leastChannelsSum = int.min;
+
+    size_t greatestIndex = colors.length - 1;
+    int greatestChannelsSum = int.max;
+
+    immutable sourceSum = source.r + source.g + source.b;
+
+    foreach(i, color; colors)
+    {
+        immutable sum = color.r + color.g + color.b;
+        
+        if(sum > sourceSum && sum < greatestChannelsSum)
+        {
+            greatestChannelsSum = sum;
+            greatestIndex = i;
+        }
+
+        if(sum < sourceSum && sum > leastChannelsSum)
+        {
+            leastChannelsSum = sum;
+            leastIndex = i;
+        }
+    }
+
+    return [leastIndex, greatestIndex];
 }
