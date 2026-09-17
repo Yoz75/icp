@@ -2,6 +2,7 @@ module icp.dithering.randomditherer;
 
 import icp.dithering.iditherer;
 import cereslib.math;
+import cereslib.algorythm;
 import cereslib.properties;
 import std.meta : AliasSeq;
 import std.random;
@@ -51,7 +52,7 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
         immutable least = mostDifferent[0];
         immutable greatest = mostDifferent[1];
         
-        float[] positions = projectColors1D(colors, least, greatest);
+        immutable float[] positions = projectColors1D(colors, least, greatest);
 
         Image result = new Image(sourceImage.resolution);
 
@@ -87,34 +88,5 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
     private static Color[2] findMostDifferent(Color[] colors) pure
     {
         return[findColorWithLeastChannelsSum(colors), findColorWithGreatestChannelsSum(colors)];
-    }
-
-    /// Get index of most similar to `value` element of `sortedArray`
-    /// Params:
-    ///   sortedArray = the array of all values
-    ///   value = the target value
-    /// Returns: index of most similar value or size_t.max
-    private static size_t findIndexOfNearest(float[] positions, float targetPosition) pure
-    {
-        import std.math : abs;
-
-        if (positions.length == 0)
-            return size_t.max;
-
-        size_t nearestIndex = 0;
-        float nearestDistance = abs(positions[0] - targetPosition);
-
-        foreach (index, position; positions[1 .. $])
-        {
-            immutable distance = abs(position - targetPosition);
-
-            if (distance < nearestDistance)
-            {
-                nearestDistance = distance;
-                nearestIndex = index + 1;
-            }
-        }
-
-        return nearestIndex;
     }
 }

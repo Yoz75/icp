@@ -1,6 +1,7 @@
 module icp.quantizers.mediansection;
 
 import icp.quantizers.iquantizer;
+import cereslib.algorythm;
 import std.algorithm.sorting;
 import std.range;
 
@@ -111,7 +112,7 @@ public final class MedianSectionQuantizer(TPalette) : IQuantizer!TPalette if(is(
                            : [1f, 1f, 1f];
 
         recursiveAction!sortByChannel(registeredColors, colorsCount, rgbMultipliers);
-        forEachSubArray!mapColorsIn(registeredColors, colorsCount);
+        forEachSubArray!(Color, mapColorsIn)(registeredColors, colorsCount);
 
         return palette;
     }
@@ -165,7 +166,7 @@ private void recursiveAction(alias action, T...)(Color[] colors, size_t targetSu
     size_t subarraysCount = 1;
     while (subarraysCount <= targetSubarrayCount)
     {
-        forEachSubArray!action(colors, subarraysCount, params);
+        forEachSubArray!(Color, action)(colors, subarraysCount, params);
         /*for (size_t subarrayIndex = 0; subarrayIndex < subarraysCount; ++subarrayIndex)
         {
             size_t begin = colors.length * subarrayIndex / subarraysCount;
@@ -175,20 +176,7 @@ private void recursiveAction(alias action, T...)(Color[] colors, size_t targetSu
         subarraysCount *= 2;
     }
 }
-/// Perform `action` for each subarray in `colors`
-/// Params:
-///   colors = the array
-///   subArraysCount = the count of subarrays
-///   params = additional parameters of the function
-private void forEachSubArray(alias action, T...)(Color[] colors, size_t subArraysCount, T params)
-{
-    for (size_t subarrayIndex = 0; subarrayIndex < subArraysCount; ++subarrayIndex)
-    {
-        size_t begin = colors.length * subarrayIndex / subArraysCount;
-        size_t end = colors.length * (subarrayIndex + 1) / subArraysCount;
-        action(colors[begin .. end], params);
-    }
-}
+
 /// Sort the input array by widest color channel
 /// Params:
 ///   input = the in[ut array]
