@@ -137,3 +137,45 @@ do
 
     return result;
 }
+
+/// Find color with the least channels sum
+/// Params:
+///   colors = the slice of colors
+/// Returns: the "least" color
+public Color findColorWithLeastChannelsSum(Color[] colors) pure
+{
+    size_t leastIndex = 0;
+    int leastChannelsSum = int.max;
+    foreach(i, color; colors)
+    {
+        immutable sum = color.r + color.g + color.b;
+        
+        if(sum < leastChannelsSum)
+        {
+            leastChannelsSum = sum;
+            leastIndex = i;
+        }
+    }
+    return colors[leastIndex];
+}
+
+/// Find find color with the greatest channels sum
+/// Params:
+///   colors = the slice of colors
+/// Returns: the "greatest" color
+public Color findColorWithGreatestChannelsSum(Color[] colors) pure
+{
+    size_t greatestIndex = 0;
+    int greatestChannelsSum = int.min;
+    foreach(i, color; colors)
+    {
+        immutable sum = color.r + color.g + color.b;
+        
+        if(sum > greatestChannelsSum)
+        {
+            greatestChannelsSum = sum;
+            greatestIndex = i;
+        }
+    }
+    return colors[greatestIndex];
+}
