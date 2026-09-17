@@ -1,6 +1,7 @@
 module icp.dithering.randomditherer;
 
 import icp.dithering.iditherer;
+import cereslib.math;
 import std.meta : AliasSeq;
 import std.random;
 import std.parallelism : parallel;
@@ -32,27 +33,18 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
     {
         Color[] colors = findColors(sourceImage);
 
+        /// map of  indexes of color in `colors` array
+        ulong[] color2colorsIndex = new ulong[2 ^^ 24];
+        /// value of color that is NOT in `colors`
+        enum wrongIndex = uint.max;
+        
+        color2colorsIndex[] = wrongIndex;
+
         immutable mostDifferent = findMostDifferent(colors);
         immutable least = mostDifferent[0];
         immutable greatest = mostDifferent[1];
-
-        immutable float[3] direction = [greatest.r - least.r,
-                                        greatest.g - least.g,
-                                        greatest.b - least.b];
-        immutable directionDot = dot(direction, direction);
         
-        float[] positions;
-        positions.reserve(colors.length);
-
-        foreach(i, color; colors)
-        {
-            float[3] difference = [color.r - least.r, 
-                                   color.g - least.g,
-                                   color.b - least.b];
-
-            immutable float position = dot(difference, direction) / directionDot;
-            positions ~= position;
-        }
+        float[] positions = projectColors1D(colors, least, greatest);
 
         Image result = new Image(sourceImage.resolution);
 
@@ -60,9 +52,15 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
         foreach(x; iota(0, result.resolution[0]).parallel())
         {
             immutable sourceColor = sourceImage[x, y];
+            auto ref cachedIndex = color2colorsIndex[sourceColor.value];
+            
+            if(cachedIndex == wrongIndex)
+            {
+                cachedIndex = colors.getIndexOfMostSimilar!manhattanDistance(sourceColor);
+            }
 
             // since elements in colors, and color2position have same locations,, we can use this index in both arrays
-            immutable selectedColorIndex = colors.getIndexOfMostSimilar!manhattanDistance(sourceColor);
+            immutable selectedColorIndex = cachedIndex;
 
             immutable randomFactor =  uniform01() * 2f - 1;
             immutable selectedPosition = positions[selectedColorIndex] + spreading_ * randomFactor;
@@ -73,11 +71,6 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
         }
 
         return result;
-    }
-
-    private float dot(float[3] left, float[3] right) pure
-    {
-        return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
     }
 
     /// Find a pair of two most different colors in the whole slice

@@ -1,7 +1,8 @@
 module icp.color;
+
+import cereslib.math;
 import std.math : sqrt, round, abs;
 import std.traits : isNumeric;
-
 
 public struct Color
 {
@@ -101,4 +102,38 @@ public size_t getIndexOfMostSimilar(alias distanceFun = distanceSquare)(Color[] 
     }
 
     return mostSimilarIndex;
+}
+
+/// Project colors on a 1D coordinate system between `left`` and `right``
+/// Params:
+///   colors = the array of colors
+///   left = the "left" color
+///   right = the "right" color
+/// Returns: the array of positions for each color.
+public float[] projectColors1D(in Color[] colors, Color left, Color right) pure
+out(result)
+{
+    assert(result.length == colors.length);
+}
+do
+{
+    float[] result;
+    result.reserve(colors.length);
+
+    immutable float[3] direction = [right.r - left.r,
+                                    right.g - left.g,
+                                    right.b - left.b];
+        immutable directionDot = dot(direction, direction);
+
+    foreach(i, color; colors)
+    {
+        float[3] difference = [color.r - left.r, 
+                               color.g - left.g,
+                               color.b - left.b];
+
+        immutable float position = dot(difference, direction) / directionDot;
+        result ~= position;
+    }
+
+    return result;
 }
