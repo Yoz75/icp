@@ -2,6 +2,7 @@ module icp.dithering.randomditherer;
 
 import icp.dithering.iditherer;
 import cereslib.math;
+import cereslib.properties;
 import std.meta : AliasSeq;
 import std.random;
 import std.parallelism : parallel;
@@ -10,7 +11,13 @@ import std.range : iota;
 /// Using random to dither the image
 public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette : IPalette))
 {    
-    private float spreading_ = 0.5f;
+    private alias cpmin = cereslib.properties.min;
+    private alias cpmax = cereslib.properties.max;
+
+    private @cpmin!float(0) @cpmax!float(float.infinity) float spreading_ = 0.5f;
+
+    mixin MakeGetter!spreading_;
+    mixin MakeSetter!spreading_;
 
     public @property float spreading() => spreading_;
     public @property void spreading(float value)
@@ -37,7 +44,7 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
         ulong[] color2colorsIndex = new ulong[2 ^^ 24];
         /// value of color that is NOT in `colors`
         enum wrongIndex = uint.max;
-        
+
         color2colorsIndex[] = wrongIndex;
 
         immutable mostDifferent = findMostDifferent(colors);
@@ -77,55 +84,9 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
     /// Params:
     ///   colors = the colors slice
     /// Returns: two most different colors
-    private Color[2] findMostDifferent(Color[] colors) pure
+    private static Color[2] findMostDifferent(Color[] colors) pure
     {
-        return[min(colors), max(colors)];
-    }
-
-    /// Find "minimal" color in the array (the color with the least sum of channels)
-    /// Params:
-    ///   colors = the slice of colors
-    /// Returns: the "least" color
-    private Color min(Color[] colors) pure
-    {
-        size_t leastIndex = 0;
-        int leastChannelsSum = int.max;
-
-        foreach(i, color; colors)
-        {
-            immutable sum = color.r + color.g + color.b;
-            
-            if(sum < leastChannelsSum)
-            {
-                leastChannelsSum = sum;
-                leastIndex = i;
-            }
-        }
-
-        return colors[leastIndex];
-    }
-
-    /// Find "maximal" color in the array (the color with the least sum of channels)
-    /// Params:
-    ///   colors = the slice of colors
-    /// Returns: the "greatest" color
-    private Color max(Color[] colors) pure
-    {
-        size_t greatestIndex = 0;
-        int greatestChannelsSum = int.min;
-
-        foreach(i, color; colors)
-        {
-            immutable sum = color.r + color.g + color.b;
-            
-            if(sum > greatestChannelsSum)
-            {
-                greatestChannelsSum = sum;
-                greatestIndex = i;
-            }
-        }
-
-        return colors[greatestIndex];
+        return[findColorWithLeastChannelsSum(colors), findColorWithGreatestChannelsSum(colors)];
     }
 
     /// Get index of most similar to `value` element of `sortedArray`
@@ -133,7 +94,7 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
     ///   sortedArray = the array of all values
     ///   value = the target value
     /// Returns: index of most similar value or size_t.max
-    private size_t findIndexOfNearest(float[] positions, float targetPosition) pure
+    private static size_t findIndexOfNearest(float[] positions, float targetPosition) pure
     {
         import std.math : abs;
 
