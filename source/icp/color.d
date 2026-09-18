@@ -200,39 +200,3 @@ public Color findColorWithGreatestChannelsSum(Color[] colors) pure
     }
     return colors[greatestIndex];
 }
-
-
-/// Find "nearest" colors indexes for `color`
-/// Params:
-///   colors = 
-///   source = 
-/// Returns: 
-public size_t[2] findNearestIndexTo(Color[] colors, Color source) pure
-{
-    size_t leastIndex = 0;
-    int leastChannelsSum = int.min;
-
-    size_t greatestIndex = colors.length - 1;
-    int greatestChannelsSum = int.max;
-
-    immutable sourceSum = source.r + source.g + source.b;
-
-    foreach(i, color; colors)
-    {
-        immutable sum = color.r + color.g + color.b;
-        
-        if(sum > sourceSum && sum < greatestChannelsSum)
-        {
-            greatestChannelsSum = sum;
-            greatestIndex = i;
-        }
-
-        if(sum < sourceSum && sum > leastChannelsSum)
-        {
-            leastChannelsSum = sum;
-            leastIndex = i;
-        }
-    }
-
-    return [leastIndex, greatestIndex];
-}

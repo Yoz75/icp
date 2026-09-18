@@ -1,7 +1,7 @@
 module view.numberbox;
 import cereslib.event;
 import std.conv : to;
-import std.traits : isNumeric;
+import std.traits : isNumeric, isUnsigned;
 import std.string : isNumeric;
 import std.algorithm : clamp;
 import dlangui;
@@ -106,6 +106,14 @@ public final class NumberBox(T) : HorizontalLayout if(isNumeric!T)
         auto decreaseButton = new Button(id ~ "_decreaseButton", "-"d).margins(0).padding(0);
         decreaseButton.click = (widget)
         {
+            static if(isUnsigned!T)
+            {
+                if(long(currentValue) - step < 0)
+                {
+                    currentValue = 0;
+                    return true;
+                }
+            }
             //ditto!
             setValue(cast(T) (currentValue - step));
             numberEdited(currentValue);

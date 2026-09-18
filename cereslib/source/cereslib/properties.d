@@ -16,34 +16,28 @@ struct max(T)
 /// Params:
 ///   Field = the field
 ///   name = the name of the getter. Default is the `Field`s name without the last character
-template MakeGetter(alias Field, string name = __traits(identifier, Field)[0..$-1])
+mixin template MakeGetter(alias Field, string name = __traits(identifier, Field)[0..$-1])
 {
-    enum fieldName = __traits(identifier, Field);
-
-    mixin("@property auto " ~ name ~ "() => " ~ fieldName ~ ";"
-    );
+    mixin("@property auto " ~ name ~ "() => " ~ __traits(identifier, Field) ~ ";");
 }
 
 
-template MakeSetter(alias Field, string name = __traits(identifier, Field)[0..$-1])
+mixin template MakeSetter(alias Field, string name = __traits(identifier, Field)[0..$-1])
 {
     import std.traits : getUDAs, Unqual;
     enum fieldName = __traits(identifier, Field);
     alias FieldType = typeof(Field);
 
-    enum hasMin = getUDAs!(Field, cereslib.properties.min!FieldType).length != 0;
-    enum hasMax = getUDAs!(Field, cereslib.properties.max!FieldType).length != 0;
-
     mixin("@property void " ~ name ~ "(" ~ FieldType.stringof ~ " newValue)
         {
-            static if (hasMin)
+            static if (getUDAs!(Field, cereslib.properties.min!FieldType).length != 0)
             {
                 newValue = newValue < getUDAs!(Field, cereslib.properties.min!(typeof(Field)))[0].value
                     ? getUDAs!(Field, cereslib.properties.min)[0].value
                     : newValue;
             }
 
-            static if (hasMax)
+            static if (getUDAs!(Field, cereslib.properties.max!FieldType).length != 0)
             {
                 newValue = newValue > getUDAs!(Field, cereslib.properties.max!(typeof(Field)))[0].value
                     ? getUDAs!(Field, cereslib.properties.max)[0].value

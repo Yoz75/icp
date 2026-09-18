@@ -190,6 +190,7 @@ public final class QuantizerFilterView : IReplaceableView
     private enum SupportedDitherers
     {
         no = 0,
+        bayerMatrix,
         floydSteinberg,
         sierra3,
         sierra2Row,
@@ -202,6 +203,45 @@ public final class QuantizerFilterView : IReplaceableView
     {
         medianSection = 0,
         paletteInjection
+    }
+
+    private static final class BayerDithererView : IReplaceableView
+    {
+        private WidgetGroup parent;
+        private VerticalLayout settingsLayout;
+        private BayerDitherer!Palette ditherer;
+
+        public this(BayerDitherer!Palette ditherer)
+        {
+            this.ditherer = ditherer;
+        }
+
+        public void initialize(WidgetGroup group)
+        {            
+            parent = group;
+            settingsLayout = new VerticalLayout("bayerDithererSettingsLayout");
+            settingsLayout.layoutWidth = FILL_PARENT;
+
+            auto levelBoxText = new TextWidget("bayerDithererLevelBoxText", "BayerDithererView_levelBoxText");
+
+            auto levelBox = new NumberBox!uint("bayerDithererLevelNumberBox", min: 0, defaultValue: 1, max: 14);
+            levelBox.layoutWidth = FILL_PARENT;
+            levelBox.numberEdited ~= (uint value)
+            {
+                ditherer.matrixLevel = value;       
+            };    
+
+            settingsLayout.addChild(levelBoxText);
+            settingsLayout.addChild(levelBox);
+            parent.addChild(settingsLayout);
+        }
+
+        public void destroy()
+        {
+            immutable layoutIndex = parent.childIndex(settingsLayout);
+            assert(layoutIndex > -1, "Oh crap, our widgets were already deleted!");
+            parent.removeChild(layoutIndex);
+        }
     }
 
     private static final class RandomDithererView : IReplaceableView
@@ -435,6 +475,11 @@ public final class QuantizerFilterView : IReplaceableView
                 case no:
                     filter.ditherer = new NoDitherer!Palette();
                     dithererView = new DummyView();
+                    break;
+                case bayerMatrix:
+                auto ditherer = new BayerDitherer!Palette();
+                    filter.ditherer = ditherer;
+                    dithererView = new BayerDithererView(ditherer);
                     break;
                 case floydSteinberg:
                     filter.ditherer = new FloydSteinbergDitherer!Palette();

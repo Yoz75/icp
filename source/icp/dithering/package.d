@@ -5,6 +5,7 @@ public import icp.dithering.iditherer;
 public import icp.dithering.noditherer;
 public import icp.dithering.ditherer;
 public import icp.dithering.randomditherer;
+public import icp.dithering.bayerditherer;
 import icp.palettes;
 
 // Most of the algorythms I took from https://habr.com/ru/articles/326936/

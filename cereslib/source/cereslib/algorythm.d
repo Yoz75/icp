@@ -42,3 +42,43 @@ public size_t findIndexOfNearest(T)(in T[] positions, in T targetPosition) pure 
     
     return nearestIndex;
 }
+
+
+/// Find two nearest (the smaller one and the grater one) elements to `position`
+/// Params:
+///   positions = the array of `T`s
+///   position = the "center" element.
+/// Returns: array of two indexes of elements in `positions`, first one is the lower neighbor of `position`, the second one is the greatest one
+public size_t[2] findNearestIndexTo(T)(in T[] positions, in T position) pure if(isNumeric!T)
+{
+    size_t leastIndex = 0;
+
+    static if(__traits(compiles, {enum value = T.min;}))
+    {
+        T leastValue = T.min;
+    }
+    else
+    {
+        T leastValue = -T.max;
+    }
+
+    size_t greatestIndex = positions.length - 1;
+    T greatestValue = T.max;
+
+    foreach(i, currentPosition; positions)
+    {        
+        if(position < currentPosition && currentPosition < greatestValue)
+        {
+            greatestValue = currentPosition;
+            greatestIndex = i;
+        }
+
+        if(position > currentPosition && currentPosition > leastValue)
+        {
+            leastValue = currentPosition;
+            leastIndex = i;
+        }
+    }
+
+    return [leastIndex, greatestIndex];
+}
