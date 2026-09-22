@@ -44,17 +44,22 @@ public final class BayerDitherer(TPalette) : IDitherer!TPalette if(is(TPalette :
             immutable sourcePosition = projectColor1D(sourceColor, mostDifferent[0], mostDifferent[1]);
 
             /// neighbors of the color on the palette. The lleft and right ones on the 1D axis
-            immutable neighbors = findNeighborsOf(positions, sourcePosition);
+            immutable neighborIndices = findNeighborsOf(positions, sourcePosition);
+            immutable leftNeighbor = colors[neighborIndices[0]];
+            immutable rightNeighbor = colors[neighborIndices[1]];
+
+            immutable leftNeighborPosition = projectColor1D(leftNeighbor, mostDifferent[0], mostDifferent[1]);
+            immutable rightNeighborPosition = projectColor1D(rightNeighbor, mostDifferent[0], mostDifferent[1]);
 
             /// How nearby source position is to left or right position? This is needed because bayer defines threshold
             /// between two colors, not the whole 1d axis
             immutable inetpolatedSourcePos =
-                (sourcePosition - positions[$-1])
-                / (positions[0] - positions[$-1]);
+                (sourcePosition - leftNeighborPosition)
+                / (rightNeighborPosition - leftNeighborPosition);
 
             immutable threshold = bayer.evaluateNormalized(x % bayer.size, y % bayer.size);
 
-            result[x, y] = inetpolatedSourcePos > threshold ? colors[neighbors[0]] : colors[neighbors[1]];
+            result[x, y] = inetpolatedSourcePos > threshold ? rightNeighbor : leftNeighbor;
         }
 
         return result;
