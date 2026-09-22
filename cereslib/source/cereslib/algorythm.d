@@ -49,7 +49,7 @@ public size_t findIndexOfNearest(T)(in T[] positions, in T targetPosition) pure 
 ///   positions = the array of `T`s
 ///   position = the "center" element.
 /// Returns: array of two indexes of elements in `positions`, first one is the lower neighbor of `position`, the second one is the greatest one
-public size_t[2] findNearestIndexTo(T)(in T[] positions, in T position) pure if(isNumeric!T)
+public size_t[2] findNeighborsOf(T)(in T[] positions, in T position) pure if(isNumeric!T)
 {
     size_t leastIndex = 0;
 
@@ -81,4 +81,13 @@ public size_t[2] findNearestIndexTo(T)(in T[] positions, in T position) pure if(
     }
 
     return [leastIndex, greatestIndex];
+}
+
+unittest
+{
+    float[] arr = [0, 1.34, 2.25, 5, 123];
+    assert(findNeighborsOf(arr, 2.25) == [1, 3]);
+
+    float[] arr2 = [0, 1.22, 2.5, 3, 5, 2.5, 8];
+    assert(findNeighborsOf(arr2, 2.5) == [1, 3]);
 }
