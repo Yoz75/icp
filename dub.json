@@ -22,7 +22,6 @@
 	"description": "An image color processor that processes image color",
 	"dependencies": {
 		"icp:cereslib": "*",
-		"arsd-official:image_files": "~>12.1.2",
 		"dlangui": "~>0.10.8"
 	},
 	"buildTypes": {

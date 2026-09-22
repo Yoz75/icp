@@ -9,7 +9,6 @@ import icp.filters;
 import std.sumtype;
 import std.algorithm : remove, endsWith;
 import std.string : strip, splitLines;
-import imageformats;
 import dlangui;
 
 /// ICP view model
