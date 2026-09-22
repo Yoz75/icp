@@ -4,15 +4,25 @@ module vm.image;
 import view.colordrawbufex;
 public import cereslib.optional;
 import icp.image;
-import imageformats;
+import std.array : split;
+import arsd.image;
 import dlangui;
 
+/// What went wrong when loading an image?
 public enum ImageLoadErrorCode : ubyte
 {
     /// Uninitialized value
     none,
     corruptedImage,
     wrongImageFormat
+}
+
+/// What went wrong when saving an image?
+public enum ImageSaveErrorCode : ubyte
+{
+    /// Uninitialized value
+    none,
+    unknownFormat
 }
 
 /// Load an image from `path`
@@ -23,58 +33,80 @@ public Result!(Image, ImageLoadErrorCode) loadImageFrom(string path)
 {
     alias ResultType = Result!(Image, ImageLoadErrorCode);
 
-    IFImage loadedImage;
+    MemoryImage loadedImage;
     try
     {
-        loadedImage = read_image(path);
+        loadedImage = loadImageFromFile(path);
     }
-    catch(ImageIOException)
+    catch(Exception ex)
     {
+        import applogger; globalAppLogger.log(ex.msg, LogType.debug_);
         return ResultType(ImageLoadErrorCode.corruptedImage);
     }
-    
-    if(loadedImage.c != ColFmt.RGBA && loadedImage.c != ColFmt.RGB)
+
+    Image icpImage = new Image([loadedImage.width, loadedImage.height]);
+
+    foreach(y; 0..loadedImage.height)
+    foreach(x; 0..loadedImage.width)
     {
-        return ResultType(ImageLoadErrorCode.wrongImageFormat);
-    }
-
-    Image icpImage = new Image([loadedImage.w, loadedImage.h]);
-
-    /*
-        OH NO!!!1! CODE DUPLICATION11111!!11!
-    */
-    if(loadedImage.c == ColFmt.RGBA)
-    {
-        enum colorSize = 4;
-        foreach(int y; 0..icpImage.resolution[1])
-        foreach(int x; 0..icpImage.resolution[0])
-        {
-            immutable index = (y * icpImage.resolution[0] + x) * colorSize;
-            immutable icp.color.Color color =
-            icp.color.Color(loadedImage.pixels[index],
-                loadedImage.pixels[index + 1],
-                loadedImage.pixels[index + 2]);
-
-            icpImage[x, y] = color;
-        }
-    }
-    else
-    {
-        enum colorSize = 3;
-        foreach(int y; 0..icpImage.resolution[1])
-        foreach(int x; 0..icpImage.resolution[0])
-        {
-            immutable index = (y * icpImage.resolution[0] + x) * colorSize;
-            immutable icp.color.Color color =
-            icp.color.Color(loadedImage.pixels[index],
-                loadedImage.pixels[index + 1],
-                loadedImage.pixels[index + 2]);
-
-            icpImage[x, y] = color;
-        }
+        ref color = icpImage[x, y];
+        color.value = loadedImage.getPixel(x, y).asUint;
     }
 
     return ResultType(icpImage);
+}
+
+public Optional!ImageSaveErrorCode saveTrueColorImageTo(string path, Image image)
+{
+    alias ResultType = Optional!(ImageSaveErrorCode);
+    immutable extension = path.split(".")[$-1];
+
+    TrueColorImage arsdImage = new TrueColorImage(image.resolution[0], image.resolution[1]);
+
+    foreach(y; 0..arsdImage.height)
+    foreach(x; 0..arsdImage.width)
+    {
+        auto color = image[x, y];
+        arsd.color.Color arsdColor = arsd.color.Color(color.r, color.g, color.b, 255);
+
+        arsdImage.setPixel(x, y, arsdColor);
+    }
+
+    switch(extension)
+    {
+        case "png":  writePng(path, arsdImage);                break;
+        case "jpg":                                 goto case "jpeg";
+        case "jpeg": writeJpeg(path, arsdImage);               break;
+        default: return ResultType(ImageSaveErrorCode.unknownFormat);
+    }
+
+    return none!ImageSaveErrorCode;
+}
+
+public Image createImageFromDrawBuf(Ref!ColorDrawBufEx buffer)
+{
+    /// ARGB but reversed (probably cuz little endian??? Idk but dlangui accepts BGRA)
+    struct ColorBGRA
+    {
+        ubyte b, g, r, a;
+    }
+
+    Image icpImage = new Image([buffer.width, buffer.height]);
+
+    foreach(y; 0..buffer.height)
+    {
+        uint* linePtr = buffer.scanLine(y);
+
+        ColorBGRA[] line = (cast(ColorBGRA*) linePtr)[0..icpImage.resolution[0]];
+
+        foreach(x; 0..buffer.width)
+        {
+            immutable bgraColor = line[x];
+            icpImage[x, y] = icp.color.Color(bgraColor.r, bgraColor.g, bgraColor.b);
+        }
+    }
+
+    return icpImage;
 }
 
 /// Create a draw buf from image
@@ -113,4 +145,4 @@ public Ref!ColorDrawBufEx createDrawBufFromImage(Image image)
     }
 
     return Ref!ColorDrawBufEx(drawBuf);
-}   
+}

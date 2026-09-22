@@ -202,26 +202,11 @@ private final class MainFrame : AppFrame
             
             if(!buffer.hasValue)
             {
-                immutable errorCode = buffer.error;
-                string error;
+                string error = buffer.error;
 
-                final switch(errorCode)
-                {
-                    case ICP_VM.ProcessError.none:
-                        error = "Got process error while executing ICP, but its code is none (invalid).";
-                            break;
-                        case ICP_VM.ProcessError.wrongImageFormat:
-                            error = "Unknown image format. Try to resave the image";
-                            break;
-                        case ICP_VM.ProcessError.corruptedImage:
-                            error = "Image is corrupted or contains unsupported features and can not be loaded." ~
-                                    "Try to open and resave it in some editor :(";
-                            break;
-                    }
-
-                    globalAppLogger.log(error, LogType.error);
-                    return;
-                }
+                globalAppLogger.log(error, LogType.error);
+                return;
+            }
 
                 currentImage = buffer.value;
                 preview.imageBuffer = currentImage;

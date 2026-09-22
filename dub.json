@@ -2,24 +2,29 @@
 	"authors": [
 		"yoz75"
 	],
+	"subPackages": [
+		"cereslib"
+	],
+	"versions": [
+		"CereslibEnableDebugLogs",
+		"CereslibEnableLogs"
+	],
 	"license": "MIT",
 	"targetPath": "./bin/",
 	"copyright": "Copyright © 2026, yoz75",
 	"name": "icp",
-	"stringImportPaths": [
-		"resources/compiletime"
-	],
 	"copyFiles": [
 		"resources/runtime/Resources/"
 	],
+	"stringImportPaths": [
+		"resources/compiletime"
+	],
 	"description": "An image color processor that processes image color",
 	"dependencies": {
-		"imageformats": "~>7.0.2",
 		"icp:cereslib": "*",
+		"arsd-official:image_files": "~>12.1.2",
 		"dlangui": "~>0.10.8"
 	},
-	"versions": ["CereslibEnableDebugLogs", "CereslibEnableLogs"],
-	"subPackages": ["cereslib"],
 	"buildTypes": {
 		"release-lto": {
 			"dflags": [

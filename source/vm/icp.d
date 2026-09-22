@@ -16,17 +16,6 @@ import dlangui;
 public final class ICP_VM
 {
     private Preset selectedPreset;
-    
-    /// Expected errors of process method. Note that process MAY throw an exception on an unexpected error (null imagePath, devision by zero etc)
-    public enum ProcessError
-    {
-        /// Uninitialized value
-        none = 0,
-        /// Image format is not RGBA
-        wrongImageFormat,
-        /// Image is corrupted and can not be loaded
-        corruptedImage
-    }
 
     public void selectPreset(Preset preset, WidgetGroup viewVidget)
     {
@@ -40,9 +29,9 @@ public final class ICP_VM
     /// Params:
     ///   drawable = the drawable to be processed
     /// Returns: processed drawable
-    public Result!(Ref!ColorDrawBufEx, ProcessError) process(string imagePath)
+    public Result!(Ref!ColorDrawBufEx, string) process(string imagePath)
     {
-        alias ResultType = Result!(Ref!ColorDrawBufEx, ProcessError);
+        alias ResultType = Result!(Ref!ColorDrawBufEx, string);
         
         auto icpImage = loadImageFrom(imagePath);
         if(icpImage.hasValue)
@@ -57,9 +46,9 @@ public final class ICP_VM
             case none:
                 throw new Exception("loadImageFrom returned error");
             case corruptedImage:
-                return ResultType(ProcessError.corruptedImage);
+                return ResultType("ICP_VM_corruptedImageError");
             case wrongImageFormat:
-                return ResultType(ProcessError.wrongImageFormat);
+                return ResultType("ICP_VM_wrongImageFormatError");
         }
     }
 
@@ -69,50 +58,7 @@ public final class ICP_VM
     ///   path = the file path (including extension)
     public void save(Ref!ColorDrawBufEx buffer, string filePath)
     {
-        struct ColorRGBA
-        {
-            ubyte r, g, b, a;
-        }
-
-        union RawColor
-        {
-            ColorRGBA color;
-            int pixel;
-        }
-
-        immutable width = buffer.width;
-        immutable height = buffer.height;        
-
-        if(filePath.endsWith(".png"))
-        {
-            int[] pixels = new int[buffer.width * buffer.height];
-            foreach(y; 0..height)
-            {
-                int[] line = cast(int[]) buffer.scanLine(y)[0..width];
-
-                foreach(x; 0..width)
-                {
-                    immutable index = y * width + x;
-                    RawColor color; 
-                    color.pixel = line[x];
-                    
-                    // Don't ask me why i did this but it fixes "red and blue swapping" when saving1607
-                    immutable temp = color.color.r;
-                    color.color.r = color.color.b;
-                    color.color.b = temp;
-                    color.color.a = 255;
-
-                    // dlangui inverts alfa at some reason :/
-                    pixels[index] = color.pixel;
-                }
-            }
-            
-            ubyte[] channels = cast(ubyte[]) pixels;
-            write_image(filePath, buffer.width, buffer.height, channels, ColFmt.RGBA);
-        }
-        else
-        {
-            throw new Exception("Only PNG supported!");
-        }
+        Image icpImage = createImageFromDrawBuf(buffer);
+        saveTrueColorImageTo(filePath, icpImage);
     }
 }
