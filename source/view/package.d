@@ -8,3 +8,4 @@ public import view.statewidget;
 public import view.colordrawbufex;
 public import view.rectutils;
 public import view.logline;
+public import view.messagebox;

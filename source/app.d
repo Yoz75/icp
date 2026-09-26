@@ -35,7 +35,6 @@ extern(C) int UIAppMain(string[] args)
 
     globalAppLogger = new Logger();
     globalAppLogger.addLoggee(new StatusLineLoggee(frame.statusLine));
-    globalAppLogger.addLoggee(new ErrorMessageBoxLogging(window));
     globalAppLogger.addLoggee(new FileLoggee(chainPath(getcwd(), "Logs").array));
 
     window.show();
@@ -181,6 +180,7 @@ private final class MainFrame : AppFrame
             catch(Exception ex)
             {
                 globalAppLogger.log("Could not save image: " ~ ex.message.to!string, LogType.error);
+
             }
         };
 
@@ -205,15 +205,22 @@ private final class MainFrame : AppFrame
                 string error = buffer.error;
 
                 globalAppLogger.log(error, LogType.error);
+
+                auto box = new TextMessageBox(window);
+                box.show(error);
+
                 return;
             }
 
-                currentImage = buffer.value;
-                preview.imageBuffer = currentImage;
+            currentImage = buffer.value;
+            preview.imageBuffer = currentImage;
         }
         catch(Exception ex)
         {
             globalAppLogger.log("An error occured: " ~ ex.message.to!string, LogType.error);
+
+            auto box = new TextMessageBox(window);
+            box.show(ex.message.to!dstring);
         }
 
         globalAppLogger.logGCMemory();

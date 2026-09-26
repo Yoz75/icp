@@ -7,6 +7,7 @@ import icp.image;
 import std.array : split;
 import arsd.image;
 import dlangui;
+import std.string : startsWith;
 
 /// What went wrong when loading an image?
 public enum ImageLoadErrorCode : ubyte
@@ -40,8 +41,17 @@ public Result!(Image, ImageLoadErrorCode) loadImageFrom(string path)
     }
     catch(Exception ex)
     {
-        import applogger; globalAppLogger.log(ex.msg, LogType.debug_);
-        return ResultType(ImageLoadErrorCode.corruptedImage);
+        import applogger;
+        globalAppLogger.log(ex.msg, LogType.error);
+
+        // A little hack cuz as i know it throws jsut Exception.
+        // but "cannot" says it can't open image cuz header is correct, but something is broken
+        if(ex.msg.startsWith("cannot"))
+        {
+            return ResultType(ImageLoadErrorCode.corruptedImage);
+        }
+
+        return ResultType(ImageLoadErrorCode.wrongImageFormat);
     }
 
     Image icpImage = new Image([loadedImage.width, loadedImage.height]);
