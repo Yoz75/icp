@@ -33,7 +33,6 @@ public final class SettingsWindow
             settingsLayout.showChild("personalizationSettingsLayout");
             return true;
         };
-
         
         auto generalButton = window.mainWidget.childById!Button("generalSettingsButton");
         generalButton.click = (widget)
