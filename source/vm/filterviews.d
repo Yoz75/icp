@@ -88,9 +88,6 @@ public final class ResizeFilterView : IReplaceableView
 
     public void initialize(WidgetGroup group)
     {
-        /*туду: 
-        1) сделать радиобаттон который переключает ручное изменение картинки и процентеное соотношение изменения картинкиэ*/
-
         parent = group;
         settingsLayout = new VerticalLayout("resizeFilterSettingsLayout");        
         auto absoluteResolutionParent = new HorizontalLayout("resizeFilterResolutionParent");
