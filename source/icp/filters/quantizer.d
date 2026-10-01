@@ -1,9 +1,10 @@
 module icp.filters.quantizer;
 
+public import icp.quantizers;
+public import icp.dithering;
+
 import icp.filtreg;
 import icp.filters.ifilter;
-import icp.quantizers;
-import icp.dithering;
 import icp.palettes;
 
 // Some alternative to polymorphysm
