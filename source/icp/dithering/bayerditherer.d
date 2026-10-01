@@ -9,6 +9,9 @@ import std.range : iota;
 import std.algorithm : clamp, sort;
 import std.typecons : tuple, Tuple;
 
+/// Uses Bayer matrix to dither the image
+/// Params:
+///    TPalette = the type of palette to be used
 public final class BayerDitherer(TPalette) : IDitherer!TPalette if(is(TPalette : IPalette))
 {
     /// De depth of the bayer matrix
