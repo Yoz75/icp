@@ -1,7 +1,6 @@
 import settings;
 import vm;
 import view;
-import vm.logging;
 import applogger;
 import cereslib.versions;
 import std.sumtype : has, get;

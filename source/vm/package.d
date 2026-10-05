@@ -5,3 +5,4 @@ public import vm.filterviews;
 public import vm.presets;
 public import vm.icp;
 public import vm.replaceableview;
+public import vm.logging;
