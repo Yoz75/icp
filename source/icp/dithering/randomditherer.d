@@ -39,7 +39,7 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
     /// Returns: quantized and dithered image
     public Image dither(const Image sourceImage, TPalette palette)
     {
-        Color[] colors = findColors(sourceImage);
+        Color[] colors = palette.get();
 
         /// map of  indexes of color in `colors` array
         ulong[] color2colorsIndex = new ulong[2 ^^ 24];
@@ -56,26 +56,30 @@ public final class RandomDitherer(TPalette) : IDitherer!TPalette if(is(TPalette 
 
         Image result = new Image(sourceImage.resolution);
 
+        /*
+        
+            See BayerDitherer
+        
+        */
         foreach(y; iota(0, result.resolution[1]).parallel())
         foreach(x; iota(0, result.resolution[0]).parallel())
         {
             immutable sourceColor = sourceImage[x, y];
-            auto ref cachedIndex = color2colorsIndex[sourceColor.value];
-            
-            if(cachedIndex == wrongIndex)
-            {
-                cachedIndex = colors.getIndexOfMostSimilar!manhattanDistance(sourceColor);
-            }
+            immutable sourcePosition = projectColor1D(sourceColor, mostDifferent[0], mostDifferent[1]);
 
-            // since elements in colors, and color2position have same locations,, we can use this index in both arrays
-            immutable selectedColorIndex = cachedIndex;
+            immutable neighborIndices = findNeighborsOf(positions, sourcePosition);
+            immutable leftNeighbor = colors[neighborIndices[0]];
+            immutable rightNeighbor = colors[neighborIndices[1]];
 
-            immutable randomFactor =  uniform01() * 2f - 1;
-            immutable selectedPosition = positions[selectedColorIndex] + spreading_ * randomFactor;
-            immutable bestColorIndex = findIndexOfNearest(positions, selectedPosition);
-            assert(bestColorIndex != size_t.max, "could not find the best index!");
-            
-            result[x, y] = palette.getClosestOnPalette(colors[bestColorIndex]);
+            immutable leftNeighborPosition = projectColor1D(leftNeighbor, mostDifferent[0], mostDifferent[1]);
+            immutable rightNeighborPosition = projectColor1D(rightNeighbor, mostDifferent[0], mostDifferent[1]);
+
+            immutable inetpolatedSourcePos =
+                (sourcePosition - leftNeighborPosition)
+                / (rightNeighborPosition - leftNeighborPosition);
+
+            immutable threshold = spreading_ * (uniform01() * 2 - 1);
+            result[x, y] = inetpolatedSourcePos > threshold ? rightNeighbor : leftNeighbor;
         }
 
         return result;
