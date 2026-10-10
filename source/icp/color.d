@@ -49,7 +49,7 @@ public Color lerp(T)(in Color from, in Color to, in T lerpFactor) pure if (isNum
 /// Returns: 
 public int distance(Color first, Color second) pure
 {
-    return cast(int) sqrt(cast(float) distanceSquare(first, second));//.round();
+    return cast(int) sqrt(cast(float) distanceSquare(first, second)).round();
 }
 
 /// Get squared distance between two colors (can be used to compare distaces)
