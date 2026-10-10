@@ -103,7 +103,6 @@ private final class MainFrame : AppFrame
 
         import cereslib.todo; mixin TODO!"Move registerDefaultPresets call from her to outside";
         registerDefaultPresets(presetView);
-        icp.selectPreset(globalRegisteredPresets[0]);
 
         // bruh dlangui lets me assign a value to items but doesn't let me append >:(
         dstring[] presetNames = new dstring[globalRegisteredPresets.length];
@@ -113,6 +112,9 @@ private final class MainFrame : AppFrame
             preset.viewParent.requestLayout();
             presetView.addChild(preset.viewParent, preset);
         }
+
+        icp.selectPreset(globalRegisteredPresets[0]);
+        presetView.changeState(globalRegisteredPresets[0]);
 
         presetsComboBox.items = presetNames;
 
