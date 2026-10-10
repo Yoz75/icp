@@ -109,9 +109,12 @@ public final class CloneQuantizerViewFactory : IViewFactory
             {
                 dialog.path = currentFilePath.dirName;
             }
+
             dialog.dialogResult = (Dialog unused, const Action action)
             {
                 currentFilePath = action.stringParam;
+                if(currentFilePath is null) return;
+
                 auto image = loadImageFrom(currentFilePath);
                 if(!image.hasValue)
                 {
