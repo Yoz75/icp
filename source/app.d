@@ -2,13 +2,10 @@ import settings;
 import vm;
 import view;
 import applogger;
+import presetframe;
 import cereslib.versions;
 import std.sumtype : has, get;
-import std.file : getcwd;
-import std.path : chainPath;
-import std.array : array;
-import std : to;
-import std.path : dirName;
+import std: getcwd, chainPath, array, to, dirName;
 import dlangui;
 import dlangui.dialogs.filedlg : FileDialog, FileFilterEntry, FileDialogFlag;
 import dlangui.dialogs.dialog : Dialog;
@@ -19,8 +16,7 @@ extern(C) int UIAppMain(string[] args)
 {
     programVersion = Version.fromString(import("version.txt"));
     Settings.loadOrSetDefault();
-    
-    registerDefaultPresets();
+        
     embeddedResourceList.addResources(embedResourcesFromList!("resources.list")());
     Platform.instance.uiTheme = Settings.instance.selectedTheme;
 
@@ -102,16 +98,20 @@ private final class MainFrame : AppFrame
         preview.backgroundColor = "#FF00FF";
         body.childById("previewSide").addChild(preview);
 
-        auto presetView = body.childById!VerticalLayout("presetView");
+        auto presetView = body.childById!PresetFrameLayout("presetView");
         auto presetsComboBox = body.childById!ComboBox("presetsComboBox");
 
-        icp.selectPreset(globalRegisteredPresets[0], presetView);
+        import cereslib.todo; mixin TODO!"Move registerDefaultPresets call from her to outside";
+        registerDefaultPresets(presetView);
+        icp.selectPreset(globalRegisteredPresets[0]);
 
         // bruh dlangui lets me assign a value to items but doesn't let me append >:(
         dstring[] presetNames = new dstring[globalRegisteredPresets.length];
         foreach(i, preset; globalRegisteredPresets)
         {
-            presetNames [i] = preset.name;
+            presetNames[i] = preset.name;
+            preset.viewParent.requestLayout();
+            presetView.addChild(preset.viewParent, preset);
         }
 
         presetsComboBox.items = presetNames;
@@ -125,7 +125,8 @@ private final class MainFrame : AppFrame
             {
                 if(preset.name == name)
                 {
-                    icp.selectPreset(preset, presetView);
+                    icp.selectPreset(preset);
+                    presetView.changeState(preset);
                     break;
                 }
             }

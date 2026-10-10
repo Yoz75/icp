@@ -1,0 +1,50 @@
+VerticalLayout {
+    layoutWidth: FILL_PARENT
+    id: medianSectionView
+    TextWidget {
+        text: MedianSectionView_colorsCountText
+    }
+
+    IntBox {
+        id: colorsCountBox
+        layoutWidth: FILL_PARENT
+        min: 2
+        defaultValue: 8
+        max: 255
+    }
+
+    TextWidget {
+        text: MedianSectionView_colorCorrectionText
+    }
+
+    CheckBox {
+        id: useColorCorrectionBox
+    }
+
+    FloatBox {
+        layoutWidth: FILL_PARENT
+        id: redCorrectionBox
+        min: 0.0
+        defaultValue: 0.2126
+        max: 2.0
+        step: 0.05
+    }
+
+    FloatBox {
+        layoutWidth: FILL_PARENT
+        id: greenCorrectionBox
+        min: 0.0
+        defaultValue: 0.7152
+        max: 2.0
+        step: 0.05
+    }
+
+    FloatBox {
+        layoutWidth: FILL_PARENT
+        id: blueCorrectionBox
+        min: 0.0
+        defaultValue: 0.0722
+        max: 2.0
+        step: 0.05
+    }
+}

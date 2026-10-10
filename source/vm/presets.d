@@ -1,41 +1,39 @@
 module vm.presets;
 import icp.image;
 import icp.filters;
-import dlangui : WidgetGroup;
+import dlangui : Widget, WidgetGroup, parseML, VerticalLayout;
 import vm.filterviews;
+import vm.viewmakers;
 import vm.replaceableview;
+import std : to;
 
 Preset[] globalRegisteredPresets;
 
 /// An ICP preset: a bunch if filters
 public final class Preset
 {
-    private dstring name_;
+    private string name_;
 
     private IFilter[] filters;
-    private IReplaceableView[] views;
+    private WidgetGroup viewParent_;
 
-    public this(dstring name)
+    public this(string name, WidgetGroup viewParentParent)
     {
         name_ = name;
+        // cuz WidgetGroup is not registered
+        viewParent_ = cast(WidgetGroup) parseML!VerticalLayout(import("presetViewParent.dml"));
+        viewParent_.id = name;
+
+        viewParentParent.addChild(viewParent_);
     }
 
-    public @property dstring name() => name_;
+    public @property dstring name() => name_.to!dstring;
+    public @property WidgetGroup viewParent() => viewParent_;
 
-    public void enable(WidgetGroup viewsParent)
+    public void addFilter(IFilter filter, Widget view = null)
     {
-        foreach(view; views)
-        {
-            view.initialize(viewsParent);
-        }
-    }
-
-    public void disable()
-    {
-        foreach(view; views)
-        {
-            view.destroy();
-        }
+        filters ~= filter;
+        if(view !is null) viewParent_.addChild(view);
     }
 
     public Image process(Image input)
@@ -60,59 +58,55 @@ public final class Preset
 }
 
 /// Registers default presets in `globalRegisterPresets` calling this function multiple times results in multiple preset clones XD
-public void registerDefaultPresets()
+public void registerDefaultPresets(WidgetGroup parent)
 {
-    globalRegisteredPresets ~= makePixelizerPreset();
-    globalRegisteredPresets ~= makeBnW();
-    globalRegisteredPresets ~= makeNothingPreset();
-    globalRegisteredPresets ~= makeResizeOnlyPreset();
+    globalRegisteredPresets ~= makePixelizerPreset(parent);
+    globalRegisteredPresets ~= makeBnW(parent);
+    globalRegisteredPresets ~= makeNothingPreset(parent);
+    globalRegisteredPresets ~= makeResizeOnlyPreset(parent);
 }
 
-private Preset makeBnW()
+private Preset makeBnW(WidgetGroup parent)
 {
-    Preset bwPreset = new Preset("Uncolorizer");
+    Preset bwPreset = new Preset("Uncolorizer", parent);
 
     auto bwFilter = new BW_Filter();
-    bwPreset.filters ~= bwFilter;
-    bwPreset.views ~= new BW_FilterView(bwFilter);
+    bwPreset.addFilter(bwFilter, new BW_FilterViewFactory(bwFilter).create());
 
     return bwPreset;
 }
 
 // I need this to test preset switching
-private Preset makeNothingPreset()
+private Preset makeNothingPreset(WidgetGroup parent)
 {
-    Preset nothingPreset = new Preset("Nothing");
+    Preset nothingPreset = new Preset("Nothing", parent);
     
     auto noFilter = new NoFilter();
-    nothingPreset.filters ~= noFilter;
-    nothingPreset.views ~= new DummyView();
+    nothingPreset.addFilter(noFilter);
 
     return nothingPreset;
 }
 
-private Preset makeResizeOnlyPreset()
+private Preset makeResizeOnlyPreset(WidgetGroup parent)
 {
-    Preset resizeOnlyPreset = new Preset("Resizer");
+    Preset resizeOnlyPreset = new Preset("Resizer", parent);
 
     auto resizeFilter = new ResizeFilter();
-    resizeOnlyPreset.filters ~= resizeFilter;
-    resizeOnlyPreset.views ~= new ResizeFilterView(resizeFilter);
+    resizeOnlyPreset.addFilter(resizeFilter, new ResizeFilterViewFactory(resizeFilter).create());
 
     return resizeOnlyPreset;
 }
 
-private Preset makePixelizerPreset()
+private Preset makePixelizerPreset(WidgetGroup parent)
 {
-    Preset pixelizerPreset = new Preset("Pixelizer");
+    //туду: почему-то падает прога и виджет назван pixelizer такшо наверное тут  проблемиа?????? дебаг
+    Preset pixelizerPreset = new Preset("Pixelizer", parent);
 
     auto resizeFilter = new ResizeFilter();
-    pixelizerPreset.filters ~= resizeFilter;
-    pixelizerPreset.views ~= new ResizeFilterView(resizeFilter);
+    pixelizerPreset.addFilter(resizeFilter, new ResizeFilterViewFactory(resizeFilter).create());
 
-    auto quantizeFilter = new QuantizeFilter();
-    pixelizerPreset.filters ~= quantizeFilter;
-    pixelizerPreset.views ~= new QuantizerFilterView(quantizeFilter);
+    auto quantizeFilter = new QuantizeFilter();    
+    pixelizerPreset.addFilter(quantizeFilter, new QuantizeFilterViewFactory(quantizeFilter).create());
 
     return pixelizerPreset;
 }

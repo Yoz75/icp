@@ -5,24 +5,13 @@ import std.traits;
 import std.conv;
 import dlangui;
 
-/// Provides a state to the class instance
-/// Needed because std.conv.to(T) works with classes pretty bad
-public interface IStateProvider(T)
-{
-    public dstring getState() inout;
-    public T toState(in dstring state) inout;
-}
-
 // I wanted this to be WidgetGroupDefaultDrawing, but at some fucking reason it doesnt draw children/
 // Why the fuck they named it DEFAULT DRAWING?????
 /// Widget that allows user to select state T from a states range
 /// If T is a enum, all it's fields will be available
 /// Else, T MUST have toString() and fromString(string) methods
 public final class StateWidget(T) : HorizontalLayout 
-if(is(T == enum) ||
-   isSomeString!T ||
-   (__traits(compiles, { string str = T.init.toString(); }) &&
-    __traits(compiles, { T t = T.init.fromString(string.init); })))
+if(is(T == enum) || isSomeString!T || (__traits(compiles, { string str = T.init.toString(); })))
 {
     static assert(!is(T == struct), 
      "Sorry, currently StateWidget doesn't support structs as state type. Use class, string or enum instead.");
@@ -58,7 +47,7 @@ if(is(T == enum) ||
         {
             this(id);
 
-            //availableStates = states;
+            availableStates = states;
             dstring names = dstring[states.length];
             foreach(i, state; states)
             {
@@ -95,7 +84,8 @@ if(is(T == enum) ||
             }
             else
             {
-                auto state = T.toState(name);
+                assert(index < availableStates.length, "There's more combo box's states than available states!");
+                auto state = availableStates[index];
                 stateChanged(state);
             }
 

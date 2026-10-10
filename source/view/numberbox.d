@@ -6,15 +6,53 @@ import std.string : isNumeric;
 import std.algorithm : clamp;
 import dlangui;
 
+public final class IntBox : NumberBox!int
+{
+    /*set int property value, for ML loaders
+    mixin(generatePropertySettersMethodOverride("setIntProperty", "int",
+      "headerCols", "headerRows", "fixedCols", "fixedRows", "cols", "rows", "defColumnWidth", "defRowHeight"));*/
+    
+    public this()
+    {
+        this(null);
+    }
+
+    public this(string id, int min = int.max, int max = int.max, int step = int.max, int defaultValue = int.max)
+    {
+        super(id, min, max, step, defaultValue);
+    }
+
+    mixin(generatePropertySettersMethodOverride("setIntProperty", "int", "min", "max", "defaultValue", "step"));
+}
+
+public final class FloatBox : NumberBox!float
+{
+    /* set int property value, for ML loaders
+    mixin(generatePropertySettersMethodOverride("setIntProperty", "int",
+      "headerCols", "headerRows", "fixedCols", "fixedRows", "cols", "rows", "defColumnWidth", "defRowHeight"));*/
+
+    public this()
+    {
+        this(null);
+    }
+
+    public this(string id, float min = float.max, float max = float.max, float step = float.max, float defaultValue = float.max)
+    {
+        super(id, min, max, step, defaultValue);
+    }
+
+    mixin(generatePropertySettersMethodOverride("setDoubleProperty", "double", "min", "max", "defaultValue", "step"));
+}
+
 /// An Edit Line and 2 buttons, can only contain numbers
-public final class NumberBox(T) : HorizontalLayout if(isNumeric!T)
+public class NumberBox(T) : HorizontalLayout if(isNumeric!T)
 {
     invariant
     {
         assert(min < T.max, "Min value can not be " ~ T.stringof ~ ".max!");
         assert(defaultValue < T.max, "Default value can not be " ~ T.stringof ~ ".max!");
         assert(step < T.max, "Step can not be " ~ T.stringof ~ ".max!");
-        assert(defaultValue >= min && defaultValue <= max, "Default value is not in [min, max] bounds!");
+        //assert(defaultValue >= min && defaultValue <= max, "Default value is not in [min, max] bounds! " ~ min.to!string ~ " " ~ defaultValue.to!string ~ " " ~ max.to!string);
     }
 
     alias NumberEditedAction = void delegate(T newValue);
@@ -22,8 +60,8 @@ public final class NumberBox(T) : HorizontalLayout if(isNumeric!T)
     /// Invokes when number was edited (you can invoke it manually, but why?)
     public Event!T numberEdited;
 
-    immutable T min, max;
-    immutable T defaultValue = 0;
+    public T min, max;
+    public T defaultValue = 0;
 
     public T step = 1;
 
@@ -31,6 +69,11 @@ public final class NumberBox(T) : HorizontalLayout if(isNumeric!T)
     private VerticalLayout buttonsLayout;
 
     private T currentValue = 0;
+
+    public this()
+    {
+        this(null);
+    }
 
     public this(string id, T min = T.max, T max = T.max, T step = T.max, T defaultValue = T.max)
     {
@@ -131,27 +174,27 @@ public final class NumberBox(T) : HorizontalLayout if(isNumeric!T)
 
     public void enable()
     {
-        immutable count = buttonsLayout.childCount;
+        /*immutable count = buttonsLayout.childCount;
         foreach(i; 0..count)
         {
             auto child = buttonsLayout.child(i);
             child.enabled = true;
         }
 
-        editLine.enabled = true;
+        editLine.enabled = true;*/
         super.enabled = true;
     }
 
     public void disable()
     {
-        immutable count = buttonsLayout.childCount;
+        /*immutable count = buttonsLayout.childCount;
         foreach(i; 0..count)
         {
             auto child = buttonsLayout.child(i);
             child.enabled = false;
         }
 
-        editLine.enabled = false;
+        editLine.enabled = false;*/
         super.enabled = false;
     }
 

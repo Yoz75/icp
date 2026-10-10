@@ -1,0 +1,15 @@
+VerticalLayout {
+    layoutWidth: FILL_PARENT
+    id: randomDithererView
+    TextWidget {
+        text: RandomDithererView_randomnessBoxText
+    }
+    
+    FloatBox {
+        id: randomnessBox;
+        min: 0.0;
+        defaultValue: 0.5;
+        max: 1.0;
+        step: 0.05;
+    }
+}

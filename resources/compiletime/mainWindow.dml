@@ -8,7 +8,7 @@ HorizontalLayout {
             id: presetsComboBox
         }
         
-        VerticalLayout {
+        PresetFrameLayout {
             styleId: "ICP_DEFAULT_LAYOUT"
             id: presetView
         }

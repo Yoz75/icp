@@ -182,267 +182,32 @@ public final class ResizeFilterView : IReplaceableView
     }
 }
 
-public final class QuantizerFilterView : IReplaceableView
+/*public final class QuantizerFilterView : IReplaceableView
 {
-    private enum SupportedDitherers
-    {
-        no = 0,
-        bayerMatrix,
-        floydSteinberg,
-        sierra3,
-        sierra2Row,
-        sierraLight,
-        rightPropagation,
-        randomDitherer
-    }
 
-    private enum SupportedQuantizers
-    {
-        medianSection = 0,
-        paletteInjection
-    }
 
-    private static final class BayerDithererView : IReplaceableView
-    {
-        private WidgetGroup parent;
-        private VerticalLayout settingsLayout;
-        private BayerDitherer!Palette ditherer;
-
-        public this(BayerDitherer!Palette ditherer)
-        {
-            this.ditherer = ditherer;
-        }
-
-        public void initialize(WidgetGroup group)
-        {            
-            parent = group;
-            settingsLayout = new VerticalLayout("bayerDithererSettingsLayout");
-            settingsLayout.layoutWidth = FILL_PARENT;
-
-            auto levelBoxText = new TextWidget("bayerDithererLevelBoxText", "BayerDithererView_levelBoxText");
-
-            auto levelBox = new NumberBox!uint("bayerDithererLevelNumberBox", min: 0, defaultValue: 1, max: 14);
-            levelBox.layoutWidth = FILL_PARENT;
-            levelBox.numberEdited ~= (uint value)
-            {
-                ditherer.matrixLevel = value;       
-            };    
-
-            settingsLayout.addChild(levelBoxText);
-            settingsLayout.addChild(levelBox);
-            parent.addChild(settingsLayout);
-        }
-
-        public void destroy()
-        {
-            immutable layoutIndex = parent.childIndex(settingsLayout);
-            assert(layoutIndex > -1, "Oh crap, our widgets were already deleted!");
-            parent.removeChild(layoutIndex);
-        }
-    }
-
-    private static final class RandomDithererView : IReplaceableView
-    {
-        private WidgetGroup parent;
-        private VerticalLayout settingsLayout;
-
-        private RandomDitherer!Palette ditherer;
-
-        public this(RandomDitherer!Palette ditherer)
-        {
-            this.ditherer = ditherer;
-        }
-
-        public void initialize(WidgetGroup group)
-        {
-            parent = group;
-            settingsLayout = new VerticalLayout("randomDithererSettingsLayout");
-            settingsLayout.layoutWidth = FILL_PARENT;
-
-            auto randomnessBox = new NumberBox!float("randomDithererRandomnessNumberBox", min: 0, defaultValue: 0.5f, max: 1, step: 0.05f);
-            randomnessBox.layoutWidth = FILL_PARENT;
-            randomnessBox.numberEdited ~= (float value)
-            {
-                ditherer.spreading = value;                
-            };    
-
-            settingsLayout.addChild(randomnessBox);
-            parent.addChild(settingsLayout);            
-        }
-
-        public void destroy()
-        {
-            immutable layoutIndex = parent.childIndex(settingsLayout);
-            assert(layoutIndex > -1, "Oh crap, our widgets were already deleted!");
-            parent.removeChild(layoutIndex);
-        }
-    }
-
-    private static final class MedianSectionView : IReplaceableView
-    {
-        private WidgetGroup parent;
-        private VerticalLayout settingsLayout;
-
-        private MedianSectionQuantizer!Palette quantizer;
-
-        public this(MedianSectionQuantizer!Palette quantizer)
-        {
-            this.quantizer = quantizer;
-        }
-        
-        public void initialize(WidgetGroup group)
-        {
-            parent = group;
-            settingsLayout = new VerticalLayout("medianSectionSettingsLayout");
-
-            auto colorsCountText = new TextWidget("quantizerFilterColorsCountText").textResource("MedianSectionView_colorsCountText");
-            auto colorsCountBox = new NumberBox!uint("quantizerFilterColorsCountNumberBox", min: 2, defaultValue: 8, max: 255);
-            colorsCountBox.layoutWidth = FILL_PARENT;
-            colorsCountBox.numberEdited ~= (uint value)
-            {
-                quantizer.colorsCount = value;                
-            };
-
-            auto redCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionRedCorrectionNumberBox", 
-                                    min: 0, defaultValue: 0.2126f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
-            redCorrectionBox.numberEdited ~= (float value)
-            {
-                quantizer.redCorrectionMultiplier = value;                
-            };
-            
-            auto greenCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionGreenCorrectionNumberBox", 
-                                    min: 0, defaultValue: 0.7152f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
-            greenCorrectionBox.numberEdited ~= (float value)
-            {
-                quantizer.greenCorrectionMultiplier = value;
-            };
-
-            auto blueCorrectionBox = cast(NumberBox!float) new NumberBox!float("medianSectionBlueCorrectionNumberBox", 
-                                    min: 0, defaultValue: 0.0722f, max: 2, step: 0.05f).layoutWidth(FILL_PARENT);
-            blueCorrectionBox.numberEdited ~= (float value)
-            {
-                quantizer.blueCorrectionMultiplier = value;
-            };
-
-            auto useColorCorrectionText = 
-            new MultilineTextWidget("medianSectionFilterCoorrectionText").
-            textResource("MedianSectionView_colorCorrectionText");
-
-            auto useColorCorrectionBox = new CheckBox("medianSectionFilterCorrectionCheckBox");
-            useColorCorrectionBox.checkChange = (Widget widget, bool state)
-            {
-                quantizer.useColorCorrection = state;
-
-                if(state)
-                {
-                    redCorrectionBox.enabled = true;
-                    greenCorrectionBox.enabled = true;
-                    blueCorrectionBox.enabled = true;
-                }
-                else
-                {
-                    redCorrectionBox.enabled = false;
-                    greenCorrectionBox.enabled = false;
-                    blueCorrectionBox.enabled = false;
-                }
-                
-                return true;
-            };
-
-            parent.addChild(settingsLayout);
-            settingsLayout.addChild(colorsCountText);
-            settingsLayout.addChild(colorsCountBox);
-            settingsLayout.addChild(useColorCorrectionText);
-            settingsLayout.addChild(useColorCorrectionBox);
-            settingsLayout.addChild(redCorrectionBox);
-            settingsLayout.addChild(greenCorrectionBox);
-            settingsLayout.addChild(blueCorrectionBox);
-
-            
-            //cuz initially color correction disabled
-            redCorrectionBox.disable();
-            greenCorrectionBox.disable();
-            blueCorrectionBox.disable();
-        }
-
-        public void destroy()
-        {
-            immutable layoutIndex = parent.childIndex(settingsLayout);
-            assert(layoutIndex > -1, "Oh crap, our widgets were already deleted!");
-            parent.removeChild(layoutIndex);
-        }
-    }
-
-    private static final class CloneView : IReplaceableView
-    {
-        private WidgetGroup parent;
-        private VerticalLayout settingsLayout;
-        private string currentFilePath;
-
-        private CloneQuantizer!Palette quantizer;
-
-        public this(CloneQuantizer!Palette quantizer)
-        {
-            this.quantizer = quantizer;
-        }
-        
-        public void initialize(WidgetGroup group)
-        {
-            import dlangui.dialogs.dialog;
-            import dlangui.dialogs.filedlg;
-            
-            parent = group;
-            settingsLayout = new VerticalLayout("cloneSettingsLayout");
-
-            auto selectImageButton = new Button("cloneSelectImageButton").textResource("CloneView_selectImageButton");
-            selectImageButton.click = (widget)
-            {
-                auto dialog = new FileDialog(UIString.fromId("CloneView_dialogueHeader"), parent.window);
-                dialog.styleId = "ICP_DEFAULT_LAYOUT";
-                dialog.addFilter(FileFilterEntry(UIString.fromRaw("(png|jpg|bmp|tga)"d),
-                "*.png;*.jpg;*.jpeg;*.bmp;*.tga"));
-
-                if(currentFilePath.length > 0)
-                {
-                    dialog.path = currentFilePath.dirName;
-                }
-
-                dialog.dialogResult = (Dialog unused, const Action action)
-                {
-                    currentFilePath = action.stringParam;
-                    auto image = loadImageFrom(currentFilePath);
-                    if(!image.hasValue)
-                    {
-                        import applogger;
-                        globalAppLogger.log("Couldn't load a palette-source image, Try resaving it.", LogType.error);
-                        return;
-                    }
-
-                    quantizer.sourceImage = image.value;
-                };
-
-                dialog.show();
-                return true;
-            };
-
-            parent.addChild(settingsLayout);
-            settingsLayout.addChild(selectImageButton);
-        }
-
-        public void destroy()
-        {
-            immutable layoutIndex = parent.childIndex(settingsLayout);
-            assert(layoutIndex > -1, "Oh crap, our widgets were already deleted!");
-            parent.removeChild(layoutIndex);
-        }
-    }
 
     private WidgetGroup parent;
     private VerticalLayout settingsLayout;
 
-    private WidgetGroup dithererViewParent, quantizerViewParent;
+    private FrameLayout dithererViewParent, quantizerViewParent;
     private IReplaceableView dithererView;
     private IReplaceableView quantizerView;
+
+    /// Parent for ditherers without parameters
+    private WidgetGroup parameterlessDithererParent;
+    private WidgetGroup bayerDithereParent;
+    private WidgetGroup randomDithererParent;
+
+    private enum parameterlessDithererParentId = "quantizerFilterParameterlessDithererParent";
+    private enum bayerDithererParentId = "quantizerFilterBayerDithererParent";
+    private enum randomDithererParentId = "quantizerFilterRandomDithererParent";
+
+    private WidgetGroup medianSectionQuantizerParent;
+    private WidgetGroup cloneQuantizerParent;
+
+    private enum medianSectionQuantizerParentId = "quantizerFilterMedianSectionQuantizerParent";
+    private enum cloneQuantizerParentId = "quantizerFilterCloneQuantizerParent";
 
     private QuantizeFilter filter;
 
@@ -454,10 +219,7 @@ public final class QuantizerFilterView : IReplaceableView
     public void initialize(WidgetGroup group)
     {
         parent = group;
-
         settingsLayout = new VerticalLayout("quantizerFilterSettingsLayout");
-
-        import cereslib.todo;
         
         auto dithererText = new TextWidget("quantizerFilterDithererText").textResource("QuantizerFilterView_ditherer");
         auto dithererSelector = new StateWidget!SupportedDitherers("quantizerFilterDithererSelector");
@@ -508,7 +270,7 @@ public final class QuantizerFilterView : IReplaceableView
             dithererView.initialize(dithererViewParent);
         };
 
-        dithererViewParent = new VerticalLayout("quantizerFilterDithererViewParent");
+        dithererViewParent = new FrameLayout("quantizerFilterDithererViewParent");
         dithererViewParent.layoutHeight = FILL_PARENT;
         dithererViewParent.layoutWeight = FILL_PARENT;
 
@@ -538,7 +300,7 @@ public final class QuantizerFilterView : IReplaceableView
             quantizerView.initialize(quantizerViewParent);
         };
 
-        quantizerViewParent = new VerticalLayout("quantizerFilterQuantizerViewParent");
+        quantizerViewParent = new FrameLayout("quantizerFilterQuantizerViewParent");
         quantizerViewParent.layoutHeight = FILL_PARENT;
         quantizerViewParent.layoutWeight = FILL_PARENT;
 
@@ -560,4 +322,30 @@ public final class QuantizerFilterView : IReplaceableView
         assert(layoutIndex > -1, "Oh crap, our widgets were already deleted!");
         parent.removeChild(layoutIndex);
     }
-}
+
+    /// Create parents of ditherers
+    /// Params:
+    ///   parent = the parent of every ditherer's parent
+    private void createDithererParents(WidgetGroup parent)
+    {
+        parameterlessDithererParent = new VerticalLayout(parameterlessDithererParentId);
+        bayerDithereParent = new VerticalLayout(bayerDithererParentId);
+        randomDithererParent = new VerticalLayout(randomDithererParentId);
+
+        parent.addChild(parameterlessDithererParent);
+        parent.addChild(bayerDithereParent);
+        parent.addChild(randomDithererParent);
+    }
+
+    /// Create parents of quantizers
+    /// Params:
+    ///   parent = the parent of every quantizers's parent
+    private void createQuantizerParanets(WidgetGroup parent)
+    {
+        medianSectionQuantizerParent = new VerticalLayout(medianSectionQuantizerParentId);
+        cloneQuantizerParent = new VerticalLayout(cloneQuantizerParentId);
+
+        parent.addChild(medianSectionQuantizerParent);
+        parent.addChild(cloneQuantizerParent);
+    }
+}*/

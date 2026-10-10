@@ -16,12 +16,9 @@ public final class ICP_VM
 {
     private Preset selectedPreset;
 
-    public void selectPreset(Preset preset, WidgetGroup viewVidget)
+    public void selectPreset(Preset preset)
     {
-        if(selectedPreset !is null) selectedPreset.disable();
-        
         selectedPreset = preset;
-        selectedPreset.enable(viewVidget);
     }
 
     /// Process a `ICP_ImageDrawable` and get a processed one

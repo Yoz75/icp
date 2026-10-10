@@ -1,4 +1,4 @@
-module icp.filters.quantizer;
+module icp.filters.quantizefilter;
 
 public import icp.quantizers;
 public import icp.dithering;

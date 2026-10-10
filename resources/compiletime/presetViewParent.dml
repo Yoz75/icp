@@ -1,0 +1,3 @@
+VerticalLayout {
+    styleId: "ICP_DEFAULT_LAYOUT"
+}

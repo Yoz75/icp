@@ -1,0 +1,15 @@
+VerticalLayout {
+    layoutWidth: FILL_PARENT
+    id: bayerDithererView
+    TextWidget {
+        text: BayerDithererView_levelBoxText
+    }
+
+    IntBox {
+        id: levelBox
+        layoutWidth: FILL_PARENT
+        min: 0
+        defaultValue: 1
+        max: 8
+    }
+}
