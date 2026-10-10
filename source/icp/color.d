@@ -120,19 +120,9 @@ do
     float[] result;
     result.reserve(colors.length);
 
-    immutable float[3] direction = [right.r - left.r,
-                                    right.g - left.g,
-                                    right.b - left.b];
-        immutable directionDot = dot(direction, direction);
-
     foreach(i, color; colors)
     {
-        float[3] difference = [color.r - left.r, 
-                               color.g - left.g,
-                               color.b - left.b];
-
-        immutable float position = dot(difference, direction) / directionDot;
-        result ~= position;
+        result ~= projectColor1D(color, left, right);
     }
 
     return result;
@@ -152,9 +142,9 @@ public float projectColor1D(Color color, Color left, Color right) pure
 
     immutable directionDot = dot(direction, direction);
         
-    float[3] difference = [color.r - left.r, 
-                           color.g - left.g,
-                           color.b - left.b];
+    immutable float[3] difference = [color.r - left.r, 
+                                     color.g - left.g,
+                                     color.b - left.b];
 
     return dot(difference, direction) / directionDot;
 }
