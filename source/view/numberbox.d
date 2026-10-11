@@ -174,27 +174,27 @@ public class NumberBox(T) : HorizontalLayout if(isNumeric!T)
 
     public void enable()
     {
-        /*immutable count = buttonsLayout.childCount;
+        immutable count = buttonsLayout.childCount;
         foreach(i; 0..count)
         {
             auto child = buttonsLayout.child(i);
             child.enabled = true;
         }
 
-        editLine.enabled = true;*/
+        editLine.enabled = true;
         super.enabled = true;
     }
 
     public void disable()
     {
-        /*immutable count = buttonsLayout.childCount;
+        immutable count = buttonsLayout.childCount;
         foreach(i; 0..count)
         {
             auto child = buttonsLayout.child(i);
             child.enabled = false;
         }
 
-        editLine.enabled = false;*/
+        editLine.enabled = false;
         super.enabled = false;
     }
 
