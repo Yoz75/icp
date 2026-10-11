@@ -50,7 +50,7 @@ public class NumberBox(T) : HorizontalLayout if(isNumeric!T)
     invariant
     {
         assert(min < T.max, "Min value can not be " ~ T.stringof ~ ".max!");
-        assert(defaultValue < T.max, "Default value can not be " ~ T.stringof ~ ".max!");
+        assert(defaultValue_ < T.max, "Default value can not be " ~ T.stringof ~ ".max!");
         assert(step < T.max, "Step can not be " ~ T.stringof ~ ".max!");
         //assert(defaultValue >= min && defaultValue <= max, "Default value is not in [min, max] bounds! " ~ min.to!string ~ " " ~ defaultValue.to!string ~ " " ~ max.to!string);
     }
@@ -61,7 +61,7 @@ public class NumberBox(T) : HorizontalLayout if(isNumeric!T)
     public Event!T numberEdited;
 
     public T min, max;
-    public T defaultValue = 0;
+    private T defaultValue_ = 0;
 
     public T step = 1;
 
@@ -96,13 +96,22 @@ public class NumberBox(T) : HorizontalLayout if(isNumeric!T)
             this.min = min;
         }
 
+        initializeChildren();
+        
         max == T.max ? (this.max = T.max) : (this.max = max);
-        defaultValue == T.max ? (this.defaultValue = 0) : (this.defaultValue = defaultValue);
+        defaultValue_ == T.max ? (this.defaultValue = 0) : (this.defaultValue = defaultValue);
         step == T.max ? (this.step = 1) : (this.step = step);
 
         layoutHeight = 25;
-        initializeChildren();
     }
+
+    /// A costyl needed to fix situations when DML initializes `defaultValue_` as 0 even if `min`` > 0
+    public @property void defaultValue(T value)
+    {
+        setValue(value);
+    }
+
+    public @property T defaultValue() => defaultValue_;
 
     public override @property Widget enabled(bool value)
     {
@@ -202,7 +211,11 @@ public class NumberBox(T) : HorizontalLayout if(isNumeric!T)
     {
         currentValue = value.clamp(min, max);
 
-        editLine.text = currentValue.to!dstring;
+        if(editLine !is null)
+        {
+            editLine.text = currentValue.to!dstring;
+        }
+
         numberEdited(currentValue);
     }
 }
