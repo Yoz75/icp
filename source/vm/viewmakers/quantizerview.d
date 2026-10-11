@@ -39,6 +39,7 @@ public final class QuantizeFilterViewFactory : IViewFactory
 
         LinearLayout settingsLayout = new LinearLayout("quantizerSettingsLayout");
 
+        filter.ditherer = noDitherer;
         auto dithererText = new TextWidget("quantizerDithererText").textResource("QuantizerView_ditherer");
         auto dithererFrame = createDithererFrame();
         auto dithererSelector = new StateWidget!SupportedDitherers("quantizerDithererSelector");
@@ -61,6 +62,7 @@ public final class QuantizeFilterViewFactory : IViewFactory
             dithererFrame.changeState(state);
         };
 
+        filter.quantizer = medianSectionQuantizer;
         auto quantizerText = new TextWidget("quantizerDithererText").textResource("QuantizerView_quantizer");
         auto quantizerFrame = createQuantizerFrame();        
         auto quantizerSelector = new StateWidget!SupportedQuantizers("quantizerQuantizerSelector");
