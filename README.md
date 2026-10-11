@@ -6,6 +6,8 @@ You can find default palettes and images in `[path to exe]/Resources/Example Ima
 <img width="386" alt="icp2" src="https://github.com/user-attachments/assets/870b21c2-4146-4e0d-8142-a16043d36eeb"/>
 <img width="386" alt="icp3" src="https://github.com/user-attachments/assets/0c1f17ed-84d9-4657-b205-58fb5a6b67a5"/>
 <img width="386" alt="icp4" src="https://github.com/user-attachments/assets/33708f27-c181-4fd2-9107-8fabfe8ba5e0"/>
+<img width="386" alt="icp5" src="https://github.com/user-attachments/assets/e4f94585-2856-4d9b-9252-ae5bf3f80d06"/>
+
 
 # Building
 This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and doesn't guarantee you can build it with dmd or gdc. Run `dub run` to build and run debug build, or run:
@@ -22,6 +24,5 @@ This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and 
 
 # Known Issues
 Sorry for these:
-* ICP doesn't like when you double click buttons in the open file dialogue so it crushes
-* When you open a preset second time, it restores old values but UI shows default values
-* If you select preset A, then preset B and again select preset A, the program crashes (if you select preset C between them, it won't happen)
+* ICP crashes when you double click buttons in file dialogue. ([I made an issue](https://github.com/buggins/dlangui/issues/702))
+* [Bayer-Matrix](https://en.wikipedia.org/wiki/Bayer_filter) dithering looks strange with huge amount of colors (smth like 24+ colors)
