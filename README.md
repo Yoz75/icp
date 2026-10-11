@@ -24,6 +24,4 @@ This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and 
 
 # Known Issues
 Sorry for these:
-* ICP doesn't like when you double click buttons in the open file dialogue so it crushes
-* When you open a preset second time, it restores old values but UI shows default values
-* If you select preset A, then preset B and again select preset A, the program crashes (if you select preset C between them, it won't happen)
+* ICP crashes when you double click buttons in file dialogue. ([I made an issue](https://github.com/buggins/dlangui/issues/702))
