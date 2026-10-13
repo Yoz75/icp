@@ -2,7 +2,6 @@ module vm.presets;
 import icp.image;
 import icp.filters;
 import dlangui : Widget, WidgetGroup, parseML, VerticalLayout;
-import vm.filterviews;
 import vm.viewmakers;
 import vm.replaceableview;
 import std : to;
