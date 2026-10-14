@@ -41,6 +41,7 @@ enum ActionIds : int
 {
     openFileAction = 100_000,
     saveFileAction,
+    saveAsFileAction,
     runAction,
     settingsAction
 }
@@ -48,7 +49,7 @@ enum ActionIds : int
 private final class MainFrame : AppFrame
 {
     /// path to the last open file
-    private string currentFilePath;
+    private string currentOpenFilePath, currentSaveFilePath;
     private Ref!ColorDrawBufEx currentImage;
     private PreviewWindow preview;
     private ICP_VM icp = new ICP_VM();
@@ -78,10 +79,11 @@ private final class MainFrame : AppFrame
         with(ActionIds)
         final switch(action.id)
         {
-            case openFileAction: openFile();           break;
-            case saveFileAction: saveFile();           break;
-            case runAction:      run();                break;
-            case settingsAction: openSettingsWindow(); break;
+            case openFileAction:   openFile();           break;
+            case saveFileAction:   saveFile();           break;
+            case saveAsFileAction: saveAsFile();         break;
+            case runAction:        run();                break;
+            case settingsAction:   openSettingsWindow(); break;
         }
         
         return true;
@@ -152,20 +154,36 @@ private final class MainFrame : AppFrame
         dialog.addFilter(FileFilterEntry(UIString.fromRaw("Images (png|jpg|bmp|tga)"d),
          "*.png;*.jpg;*.jpeg;*.bmp;*.tga"));
 
-        if(currentFilePath.length > 0)
+        if(currentOpenFilePath.length > 0)
         {
-           dialog.path = currentFilePath.dirName;
+           dialog.path = currentOpenFilePath.dirName;
         }
         
         dialog.dialogResult = (Dialog unused, const Action action)
         {
-            currentFilePath = action.stringParam;
+            currentOpenFilePath = action.stringParam;
         };
 
         dialog.show();
     }
 
+    import cereslib.todo;
+    mixin TODO!"Separate save and saveAsFile to its own class so these methods only call that class methods";
+
     private void saveFile()
+    {
+        if(currentSaveFilePath is null || currentSaveFilePath == "")
+        {
+            saveAsFile();            
+        }
+        else
+        {
+            icp.save(currentImage, currentSaveFilePath);
+            globalAppLogger.log("Saved image correctly", LogType.info);
+        }
+    }
+
+    private void saveAsFile()
     {
         if(currentImage is null) return;
         auto dialog = new FileDialog(UIString.fromRaw("Save image..."d), 
@@ -175,32 +193,43 @@ private final class MainFrame : AppFrame
 
         dialog.dialogResult = (Dialog unused, const Action action)
         {
+            if(action.stringParam is null || action.stringParam == "")
+            {
+                return;
+            }
+
+            currentSaveFilePath = action.stringParam;
+
             try
             {
                 icp.save(currentImage, action.stringParam);
+                globalAppLogger.log("Saved image correctly at " ~ currentSaveFilePath, LogType.info);
             }
             catch(Exception ex)
             {
                 globalAppLogger.log("Could not save image: " ~ ex.message.to!string, LogType.error);
-
             }
         };
 
-        dialog.show();        
+        dialog.show();
     }
 
     private void run()
     {
         import icp.image : Image;
-        if(currentFilePath.length <= 0) 
+        if(currentOpenFilePath.length <= 0) 
         {
-            globalAppLogger.log("Open an image before processing.", LogType.warning);
+            enum openFileZeroLengthError = "MainFrame_openFileZeroLengthWarning"c;
+            globalAppLogger.log("currentOpenFilePath length is zero, skipped running", LogType.warning);
+
+            auto box = new TextMessageBox(window);
+            box.show(openFileZeroLengthError);
             return;
         }
 
         try
         {
-            auto buffer = icp.process(currentFilePath);
+            auto buffer = icp.process(currentOpenFilePath);
             
             if(!buffer.hasValue)
             {
@@ -258,6 +287,10 @@ static:
     const Action saveFileAction 
      = new Action(ActionIds.saveFileAction, "MainMenuMaker_saveFileAction"c).addAccelerator(KeyCode.F7)
                                                              .addAccelerator(KeyCode.KEY_S, KeyFlag.Control);
+
+    const Action saveAsFileAction 
+     = new Action(ActionIds.saveAsFileAction, "MainMenuMaker_saveAsFileAction"c).addAccelerator(KeyCode.F7, KeyFlag.Shift)
+                                                             .addAccelerator(KeyCode.KEY_S, KeyFlag.Control | KeyFlag.Shift);
     const Action runAction
      = new Action(ActionIds.runAction, "MainMenuMaker_runAction"c).addAccelerator(KeyCode.F5)
                                               .addAccelerator(KeyCode.KEY_F, KeyFlag.Control);
@@ -282,6 +315,7 @@ static:
         MenuItem fileFolder = new MenuItem(new Action(FolderIds.fileFolder, "MainMenuMaker_fileFolder"c));
         fileFolder.add(new MenuItem(openFileAction));
         fileFolder.add(new MenuItem(saveFileAction));
+        fileFolder.add(new MenuItem(saveAsFileAction));
 
         return fileFolder;
     }
