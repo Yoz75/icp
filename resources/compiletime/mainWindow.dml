@@ -2,8 +2,8 @@ HorizontalLayout {
     VerticalLayout {
         styleId: "ICP_DEFAULT_LAYOUT"
         layoutHeight: fill
-        minWidth: 100pt
-        maxWidth: 250pt
+        minWidth: 200pt
+        maxWidth: 300pt
         ComboBox {
             id: presetsComboBox
         }
