@@ -30,6 +30,11 @@ HorizontalLayout {
                 id: themeSelectionComboBox
                 items: ["Dark Neo", "Dark", "Light"]
             }
+
+            ComboBox {
+                id: localizationSelectionComboBox
+                items: ["English", "Русский"]
+            }
         }
 
         VerticalLayout { 

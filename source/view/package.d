@@ -10,6 +10,7 @@ public import view.rectutils;
 public import view.logline;
 public import view.messagebox;
 public import view.stateframelayout;
+public import view.windows;
 
 import dlangui;
 import dlangui.widgets.metadata;

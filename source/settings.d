@@ -16,6 +16,7 @@ public struct Settings
     /// Should the program clean GC memory when done?
     @JsonizeField private bool shouldCleanGCMemoryOnDone_ = true;
     @JsonizeField private string selectedTheme_ = "theme_neo_dark";
+    @JsonizeField private string selectedLocale_ = "en";
 
     private static string filePath;
 
@@ -40,6 +41,13 @@ public struct Settings
     public @property void selectedTheme(string value)
     {
         selectedTheme_ = value;
+        save();
+    }
+
+    public @property string selectedLocale() => selectedLocale_;
+    public @property void selectedLocale(string value)
+    {
+        selectedLocale_ = value;
         save();
     }
 

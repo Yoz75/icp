@@ -26,15 +26,13 @@ public final class ResizeFilterViewFactory : IViewFactory
         resolutionPercentageRadioButton.checked = true;
         auto resolutionCustomRadioButton = new RadioButton("resResizeModeRadioButton").text(UIString.fromId("ResizerView_resolutionCustomRadioButton"));
 
-        auto percentageResolutionText = new TextWidget("resizeFilterPercentageResizeText", "Image scale (%):"d);
+        auto percentageResolutionText = new TextWidget("resizeFilterPercentageResizeText", "ResizerView_percetnageResolutionText");
         auto percentageResolutionBox = new FloatBox("resizeFilterXResBox", min: 1f, defaultValue: 100f);
         percentageResolutionBox.numberEdited ~= (float value)
         {
             filter.resultPercentageResolution = value;
         };
 
-        auto xResolutionLayout = new VerticalLayout("xResolutionLayout");
-        auto xResolutionText = new TextWidget("xResolutionText", "ResizerView_xResolutionText");
         auto xResolutionBox = new IntBox("xResBox", min: 1, defaultValue: defaultResolution);
 
         xResolutionBox.numberEdited ~= (int value)
@@ -43,8 +41,6 @@ public final class ResizeFilterViewFactory : IViewFactory
             filter.resultResolution = currentResolution;
         };
 
-        auto yResolutionLayout = new VerticalLayout("yResolutionLayout");
-        auto yResolutionText = new TextWidget("yResolutionText", "ResizerView_yResolutionText");
         auto yResolutionBox = new IntBox("yResBox", min: 1, defaultValue: defaultResolution);
         yResolutionBox.numberEdited ~= (int value)
         {
@@ -54,9 +50,6 @@ public final class ResizeFilterViewFactory : IViewFactory
 
         resolutionPercentageRadioButton.click = (widget)
         {
-            xResolutionText.enabled = false;
-            yResolutionText.enabled = false;
-
             xResolutionBox.enabled = false;
             yResolutionBox.enabled = false;
 
@@ -68,9 +61,6 @@ public final class ResizeFilterViewFactory : IViewFactory
 
         resolutionCustomRadioButton.click = (widget)
         {
-            xResolutionText.enabled = true;
-            yResolutionText.enabled = true;
-
             xResolutionBox.enabled = true;
             yResolutionBox.enabled = true;
 
@@ -81,22 +71,15 @@ public final class ResizeFilterViewFactory : IViewFactory
         };
 
         settingsLayout.addChild(resolutionPercentageRadioButton);
-        settingsLayout.addChild(resolutionCustomRadioButton);
-        settingsLayout.addChild(percentageResolutionText);
         settingsLayout.addChild(percentageResolutionBox);
 
+        settingsLayout.addChild(resolutionCustomRadioButton);
         settingsLayout.addChild(absoluteResolutionParent);
-        xResolutionLayout.addChild(xResolutionText);
-        xResolutionLayout.addChild(xResolutionBox);
-        absoluteResolutionParent.addChild(xResolutionLayout);
+        //xResolutionLayout.addChild(xResolutionBox);
+        absoluteResolutionParent.addChild(xResolutionBox);
 
-        yResolutionLayout.addChild(yResolutionText);
-        yResolutionLayout.addChild(yResolutionBox);
-        absoluteResolutionParent.addChild(yResolutionLayout);
-
-        //cuz initially we don't use them
-        xResolutionText.enabled = false;
-        yResolutionText.enabled = false;
+        //yResolutionLayout.addChild(yResolutionBox);
+        absoluteResolutionParent.addChild(yResolutionBox);
 
         xResolutionBox.disable();
         yResolutionBox.disable();

@@ -19,6 +19,7 @@ extern(C) int UIAppMain(string[] args)
         
     embeddedResourceList.addResources(embedResourcesFromList!("resources.list")());
     Platform.instance.uiTheme = Settings.instance.selectedTheme;
+    Platform.instance.uiLanguage = Settings.instance.selectedLocale;
 
     immutable width = 800;
     immutable height = 600;
@@ -266,10 +267,8 @@ private final class MainFrame : AppFrame
 
     private void openSettingsWindow()
     {
-        import windows.settings;
-
-        auto window = new SettingsWindow("Settings"d, window);
-        window.show;
+        auto window = new SettingsWindowFactory().create("Settings"d, window);
+        window.show();
     }
 }
 
