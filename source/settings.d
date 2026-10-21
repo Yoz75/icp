@@ -17,6 +17,7 @@ public struct Settings
     @JsonizeField private bool shouldCleanGCMemoryOnDone_ = true;
     @JsonizeField private string selectedTheme_ = "theme_neo_dark";
     @JsonizeField private string selectedLocale_ = "en";
+    @JsonizeField private float pointInterpolationThreshold_ = 1f;
 
     private static string filePath;
 
@@ -48,6 +49,13 @@ public struct Settings
     public @property void selectedLocale(string value)
     {
         selectedLocale_ = value;
+        save();
+    }
+
+    public @property float pointInterpolationThreshold() => pointInterpolationThreshold_;
+    public @property void pointInterpolationThreshold(float value)
+    {
+        pointInterpolationThreshold_ = value;
         save();
     }
 

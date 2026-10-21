@@ -48,6 +48,18 @@ HorizontalLayout {
                 text: SettingsWindow_cleanupGCCheckbox
                 checked: true;
             }
+
+            TextWidget {
+                text: SettingsWindow_pointInterpolationThresholdBox
+            }
+
+            FloatBox {
+                layoutWidth: FILL_PARENT
+                id: pointInterpolationThresholdBox
+                min: 0.0
+                defaultValue: 1.0
+                step: 0.1
+            }
         }
     }
 }

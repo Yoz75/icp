@@ -1,5 +1,6 @@
 module view.preview;
 import view;
+import settings;
 import icp.image;
 import cereslib.math;
 import cereslib.todo;
@@ -37,40 +38,39 @@ public final class PreviewWindow : CanvasWidget
             return;
         }
 
-        /// ARGB but reversed (probably cuz little endian??? Idk but dlangui accepts BGRA)
-        struct ColorBGRA
+        immutable int imageWidth = imageBuffer_.width;
+        immutable int imageHeight = imageBuffer_.height;
+
+        immutable int bufferWidth = buf.width;
+        immutable int bufferHeight = buf.height;
+
+        if(imageWidth <= 0 || imageHeight <= 0 || bufferWidth <= 0 || bufferHeight <= 0)
         {
-            ubyte b, g, r, a;
+            return;
         }
 
-        // at some reason DrawBuf doesn't have scan line method so to avoid bilinear interpolation
-        // i have to:
-        // 1) allocate a new buffer
-        // 2) fill this buffer by myself
-        // 3) copy this temp buffer to the result buffer
-        // Actually, bilinear interpolation IS APPLIED, but, for example, if image buffer is 4x4, 
-        // we apply it not for 4x4 grid, but rescale this 4x4 buffer to size of the widget (e,g 500x500) and then apply interpolation 
-        // to this 500x500 buffer
-        cacheDrawBuf = new ColorDrawBufEx(buf.width, buf.height);
+        immutable threshold = Settings.instance.pointInterpolationThreshold;
+        immutable proportion = cast(float) (imageBuffer_.height * imageBuffer_.width) / cast(float) (buf.height * buf.width);
+        immutable usePointInterpolation = proportion < threshold;
 
-        immutable height = buf.height;
-        immutable width = buf.width;
+        immutable cacheWidth = usePointInterpolation ? bufferWidth : imageWidth;
+        immutable cacheHeight = usePointInterpolation ? bufferHeight : imageHeight;
 
-        foreach(int y; 0..height)
+        cacheDrawBuf = new ColorDrawBufEx(cacheWidth, cacheHeight);
+
+        foreach (int destinationY; 0..cacheHeight)
         {
-            uint* cacheLinePtr = cacheDrawBuf.scanLine(y);
-            // this line says "assume this pointer is a slice of length of the buffer width"
-            ColorBGRA[] cacheLine = (cast(ColorBGRA*) cacheLinePtr)[0..cacheDrawBuf.width];
+            immutable int sourceY = destinationY * imageHeight / cacheHeight;
 
-            foreach(int x; 0..width)
+            uint* sourceLine = imageBuffer_.scanLine(sourceY);
+            uint* destinationLine = cacheDrawBuf.scanLine(destinationY);
+
+            foreach (int destinationX; 0..cacheWidth)
             {
-                int remapX = cast(int) remap!double(x, 0, width, 0, imageBuffer_.width);
-                int remapY = cast(int) remap!double(y, 0, height, 0, imageBuffer_.height);
+                immutable int sourceX =
+                    destinationX * imageWidth / cacheWidth;
 
-                uint* linePtr = imageBuffer_.scanLine(remapY);
-                ColorBGRA[] line = (cast(ColorBGRA*) linePtr)[0..imageBuffer_.width];
-
-                cacheLine[x] = line[remapX];
+                destinationLine[destinationX] = sourceLine[sourceX];
             }
         }
 

@@ -1,6 +1,6 @@
 module view.windows.settings;
 
-import view.windows.windowfactory;
+import view;
 import settings;
 import applogger;
 import cereslib.todo;
@@ -139,12 +139,27 @@ public final class SettingsWindowFactory : IWindowFactory
     {
         auto generalLayout = settingsLayout.childById!VerticalLayout("generalSettingsLayout");
 
-        auto cleanupGCCheckbox = generalLayout.childById!CheckBox("cleanupGCCheckbox");
-        cleanupGCCheckbox.checked = Settings.instance.shouldCleanGCMemoryOnDone;
-        cleanupGCCheckbox.checkChange = (Widget widget, bool state)
+        void setupCleanupCheckbox()
         {
-            Settings.instance.shouldCleanGCMemoryOnDone = state;
-            return true;
-        };
+            auto cleanupGCCheckbox = generalLayout.childById!CheckBox("cleanupGCCheckbox");
+            cleanupGCCheckbox.checked = Settings.instance.shouldCleanGCMemoryOnDone;
+            cleanupGCCheckbox.checkChange = (Widget widget, bool state)
+            {
+                Settings.instance.shouldCleanGCMemoryOnDone = state;
+                return true;
+            };
+        }
+
+        void setupPointInterpolationThresholdCheckbox()
+        {
+            auto thresholdBox = generalLayout.childById!FloatBox("pointInterpolationThresholdBox");
+            thresholdBox.numberEdited ~= (float value)
+            {
+                Settings.instance.pointInterpolationThreshold = value;
+            };
+        }
+
+        setupCleanupCheckbox();
+        setupPointInterpolationThresholdCheckbox();
     }
 }
