@@ -1,5 +1,6 @@
 module cereslib.algorythm;
 
+import std.math : abs;
 import std.traits : isNumeric;
 
 /// Perform `action` for each subarray in `colors`
@@ -44,43 +45,37 @@ public size_t findIndexOfNearest(T)(in T[] positions, in T targetPosition) pure 
 }
 
 
-/// Find two nearest (the smaller one and the grater one) elements to `position`
+/// Find two nearest elements to `position`
 /// Params:
 ///   positions = the array of `T`s
 ///   position = the "center" element.
-/// Returns: array of two indexes of elements in `positions`, first one is the lower neighbor of `position`, the second one is the greatest one
+/// Returns: array of two indexes of elements in `positions`, first one is the smaller neighbor of `position`, the second one is the greatest one
 public size_t[2] findNeighborsOf(T)(in T[] positions, in T position) pure if(isNumeric!T)
 {
-    size_t leastIndex = 0;
-
-    static if(__traits(compiles, {enum value = T.min;}))
-    {
-        T leastValue = T.min;
-    }
-    else
-    {
-        T leastValue = -T.max;
-    }
-
-    size_t greatestIndex = positions.length - 1;
-    T greatestValue = T.max;
+    T nearestDifference = T.max, secondNearestDifference = T.max;
+    size_t nearestIndex, secondNearestIndex;
 
     foreach(i, currentPosition; positions)
     {        
-        if(position < currentPosition && currentPosition < greatestValue)
-        {
-            greatestValue = currentPosition;
-            greatestIndex = i;
-        }
+        immutable difference = abs(position - currentPosition);
 
-        if(position > currentPosition && currentPosition > leastValue)
+        if(difference < nearestDifference)
         {
-            leastValue = currentPosition;
-            leastIndex = i;
+            // cuz currently it's still the second most different
+            secondNearestDifference = nearestDifference;
+            secondNearestIndex = i;
+            
+            nearestDifference = difference;
+            nearestIndex = i;
+        }
+        else if(difference < secondNearestDifference)
+        {
+            secondNearestDifference = difference;
+            secondNearestIndex = i;
         }
     }
 
-    return [leastIndex, greatestIndex];
+    return [nearestIndex, secondNearestIndex];
 }
 
 unittest
