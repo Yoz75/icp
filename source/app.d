@@ -288,8 +288,7 @@ static:
                                                              .addAccelerator(KeyCode.KEY_S, KeyFlag.Control);
 
     const Action saveAsFileAction 
-     = new Action(ActionIds.saveAsFileAction, "MainMenuMaker_saveAsFileAction"c).addAccelerator(KeyCode.F7, KeyFlag.Shift)
-                                                             .addAccelerator(KeyCode.KEY_S, KeyFlag.Control | KeyFlag.Shift);
+     = new Action(ActionIds.saveAsFileAction, "MainMenuMaker_saveAsFileAction"c);
     const Action runAction
      = new Action(ActionIds.runAction, "MainMenuMaker_runAction"c).addAccelerator(KeyCode.F5)
                                               .addAccelerator(KeyCode.KEY_F, KeyFlag.Control);
