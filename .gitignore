@@ -24,3 +24,5 @@ docs/
 *.lst
 /bin
 ui.log
+конкуренты.txt
+literature.txt
