@@ -4,6 +4,7 @@ module icp.dithering;
 public import icp.dithering.iditherer;
 public import icp.dithering.noditherer;
 public import icp.dithering.edditherer;
+public import icp.dithering.pditherer;
 public import icp.dithering.randomditherer;
 public import icp.dithering.bayerditherer;
 import icp.palettes;
