@@ -3,7 +3,7 @@ module icp.dithering;
 
 public import icp.dithering.iditherer;
 public import icp.dithering.noditherer;
-public import icp.dithering.ditherer;
+public import icp.dithering.edditherer;
 public import icp.dithering.randomditherer;
 public import icp.dithering.bayerditherer;
 import icp.palettes;
@@ -11,7 +11,7 @@ import icp.palettes;
 // Most of the algorythms I took from https://habr.com/ru/articles/326936/
 
 /// Uses Floyd-Steinberg dithering algorythm
-public final class FloydSteinbergDitherer(TPalette) : Ditherer!TPalette if(is(TPalette : IPalette))
+public final class FloydSteinbergDitherer(TPalette) : ErrorDiffusionDitherer!TPalette if(is(TPalette : IPalette))
 {
     public this()
     {
@@ -25,7 +25,7 @@ public final class FloydSteinbergDitherer(TPalette) : Ditherer!TPalette if(is(TP
 }
 
 /// Accumulates error on the right pixel. Super fast
-public final class RightPropagationDitherer(TPalette) : Ditherer!TPalette if(is(TPalette : IPalette))
+public final class RightPropagationDitherer(TPalette) : ErrorDiffusionDitherer!TPalette if(is(TPalette : IPalette))
 {
     public this()
     {
@@ -36,7 +36,7 @@ public final class RightPropagationDitherer(TPalette) : Ditherer!TPalette if(is(
 }
 
 /// Full Sierra's ditherer
-public final class SierraThreeDitherer(TPalette) : Ditherer!TPalette if(is(TPalette : IPalette))
+public final class SierraThreeDitherer(TPalette) : ErrorDiffusionDitherer!TPalette if(is(TPalette : IPalette))
 {
     public this()
     {
@@ -58,7 +58,7 @@ public final class SierraThreeDitherer(TPalette) : Ditherer!TPalette if(is(TPale
 }
 
 /// Medium Sierra's ditherer
-public final class SierraTwoRowDitherer(TPalette) : Ditherer!TPalette if(is(TPalette : IPalette))
+public final class SierraTwoRowDitherer(TPalette) : ErrorDiffusionDitherer!TPalette if(is(TPalette : IPalette))
 {
     public this()
     {
@@ -76,7 +76,7 @@ public final class SierraTwoRowDitherer(TPalette) : Ditherer!TPalette if(is(TPal
 }
 
 /// Tiny Sierra's ditherer
-public final class SierraLightDitherer(TPalette) : Ditherer!TPalette if(is(TPalette : IPalette))
+public final class SierraLightDitherer(TPalette) : ErrorDiffusionDitherer!TPalette if(is(TPalette : IPalette))
 {
     public this()
     {

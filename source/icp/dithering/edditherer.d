@@ -1,4 +1,4 @@
-module icp.dithering.ditherer;
+module icp.dithering.edditherer;
 import icp.dithering.iditherer;
 import icp.image;
 import icp.palettes;
@@ -18,8 +18,8 @@ public struct DitherMask
     byte[2] bias;
 }
 
-/// Default IDitherer implementation. Fully customizable mask and error multiplier
-public class Ditherer(TPalette) : IDitherer!TPalette if(is(TPalette : IPalette))
+/// Ditherer that diffuses error using a mask. Fully customizable mask and error multiplier
+public class ErrorDiffusionDitherer(TPalette) : IDitherer!TPalette if(is(TPalette : IPalette))
 {
     private DitherMask[] masks_;
 
