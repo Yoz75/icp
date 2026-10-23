@@ -1,6 +1,5 @@
 module cereslib.algorythm;
 
-import std.math : abs;
 import std.traits : isNumeric;
 
 /// Perform `action` for each subarray in `colors`
@@ -45,37 +44,43 @@ public size_t findIndexOfNearest(T)(in T[] positions, in T targetPosition) pure 
 }
 
 
-/// Find two nearest elements to `position`
+/// Find two nearest (the smaller one and the grater one) elements to `position`
 /// Params:
 ///   positions = the array of `T`s
 ///   position = the "center" element.
-/// Returns: array of two indexes of elements in `positions`, first one is the smaller neighbor of `position`, the second one is the greatest one
+/// Returns: array of two indexes of elements in `positions`, first one is the lower neighbor of `position`, the second one is the greatest one
 public size_t[2] findNeighborsOf(T)(in T[] positions, in T position) pure if(isNumeric!T)
 {
-    T nearestDifference = T.max, secondNearestDifference = T.max;
-    size_t nearestIndex, secondNearestIndex;
+    size_t leastIndex = 0;
+
+    static if(__traits(compiles, {enum value = T.min;}))
+    {
+        T leastValue = T.min;
+    }
+    else
+    {
+        T leastValue = -T.max;
+    }
+
+    size_t greatestIndex = positions.length - 1;
+    T greatestValue = T.max;
 
     foreach(i, currentPosition; positions)
     {        
-        immutable difference = abs(position - currentPosition);
-
-        if(difference < nearestDifference)
+        if(position < currentPosition && currentPosition < greatestValue)
         {
-            // cuz currently it's still the second most different
-            secondNearestDifference = nearestDifference;
-            secondNearestIndex = i;
-            
-            nearestDifference = difference;
-            nearestIndex = i;
+            greatestValue = currentPosition;
+            greatestIndex = i;
         }
-        else if(difference < secondNearestDifference)
+
+        if(position > currentPosition && currentPosition > leastValue)
         {
-            secondNearestDifference = difference;
-            secondNearestIndex = i;
+            leastValue = currentPosition;
+            leastIndex = i;
         }
     }
 
-    return [nearestIndex, secondNearestIndex];
+    return [leastIndex, greatestIndex];
 }
 
 unittest
