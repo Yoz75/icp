@@ -47,9 +47,9 @@ public Color lerp(T)(in Color from, in Color to, in T lerpFactor) pure if (isNum
 ///   first = first color
 ///   second = second color
 /// Returns: 
-public int distance(Color first, Color second) pure
+public int euclidDistance(Color first, Color second) pure
 {
-    return cast(int) sqrt(cast(float) distanceSquare(first, second)).round();
+    return cast(int) sqrt(cast(float) euclidDistanceSquare(first, second)).round();
 }
 
 /// Get squared distance between two colors (can be used to compare distaces)
@@ -57,7 +57,7 @@ public int distance(Color first, Color second) pure
 ///   first = first color
 ///   second = second color
 /// Returns: 
-public int distanceSquare(Color first, Color second) pure
+public int euclidDistanceSquare(Color first, Color second) pure
 {
     immutable rDifference = second.r = first.r;
     immutable gDifference = second.g - first.g;
@@ -188,5 +188,6 @@ public Color findColorWithGreatestChannelsSum(Color[] colors) pure
             greatestIndex = i;
         }
     }
+
     return colors[greatestIndex];
 }

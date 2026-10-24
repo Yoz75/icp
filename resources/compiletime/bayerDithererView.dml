@@ -1,6 +1,7 @@
 VerticalLayout {
     layoutWidth: FILL_PARENT
     id: bayerDithererView
+
     TextWidget {
         text: BayerDithererView_levelBoxText
     }
@@ -11,5 +12,23 @@ VerticalLayout {
         min: 0
         defaultValue: 1
         max: 8
+    }
+
+    TextWidget {
+        text: BayerDitherer_strengthBoxText
+    }
+
+    FloatBox {
+        id: strengthBox
+        layoutWidth: FILL_PARENT
+        min: -100.0
+        defaultValue: 0.35
+        max: 100.0
+        step: 0.05
+    }
+
+    CheckBox {
+        id: oldBayerCkeckbox
+        text: BayerDitherer_oldBayerCheckbox
     }
 }

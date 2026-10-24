@@ -38,6 +38,19 @@ public final class BayerDithererViewFactory : IViewFactory
         {
             ditherer.matrixLevel = value;       
         };
+
+        auto strengthBox = settingsLayout.childById!FloatBox("strengthBox");
+        strengthBox.numberEdited ~= (float value)
+        {
+            ditherer.strength = value;
+        };
+
+        auto oldAlgorithmCheckbox = settingsLayout.childById!CheckBox("oldBayerCkeckbox");
+        oldAlgorithmCheckbox.checkChange = (Widget widget, bool state)
+        {
+            ditherer.useOldBayer = state;
+            return true;  
+        };
         
         return settingsLayout;
     }
