@@ -22,7 +22,7 @@ VerticalLayout {
         id: strengthBox
         layoutWidth: FILL_PARENT
         min: -100.0
-        defaultValue: 0.35
+        defaultValue: 0.25
         max: 100.0
         step: 0.05
     }

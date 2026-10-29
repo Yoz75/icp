@@ -18,7 +18,7 @@ public final class BayerDitherer(TPalette) : ProjectedDitherer!TPalette if(is(TP
 
     /// De depth of the bayer matrix
     private @max!uint(14u) uint matrixLevel_ = 1;
-    private @min!float(-100) @max!float(100) float strength_ = 0.5f;
+    private @min!float(-100) @max!float(100) float strength_ = 0.25f;
 
     mixin MakeGetter!matrixLevel_;
     mixin MakeSetter!matrixLevel_;
@@ -42,31 +42,34 @@ public final class BayerDitherer(TPalette) : ProjectedDitherer!TPalette if(is(TP
         }
         else
         {
-            newBayer(sourceImage, result, colors, positions);
+            newBayer(sourceImage, palette, result, colors, positions);
         }
 
         return result;
     }
 
-    private void newBayer(const Image sourceImage, Image result, Color[] colors, float[] positions)
+    private void newBayer(const Image sourceImage, TPalette palette, Image result, Color[] colors, float[] positions)
     {
         Bayer bayer = Bayer(matrixLevel_);
-
-        // cuz they are sorted like positions
-        immutable leastColor = colors[0];
-        immutable greatestColor = colors[$ - 1];
-
-        immutable offset = positions.mean() * strength_;
+        
+        immutable offset = colors.findMeanDistance!(Color, (left, right) => euclidDistance(left, right))() * strength_;
         foreach(y; iota(0, result.resolution[1]).parallel())
         foreach(x; iota(0, result.resolution[0]).parallel())
         {
             immutable sourceColor = sourceImage[x, y];
-            immutable sourcePosition = projectColor1D(sourceColor, leastColor, greatestColor);
-
             immutable threshold = bayer.evaluateNormalized(x % bayer.size, y % bayer.size);
-            immutable newPosition = sourcePosition + offset * (threshold - 0.5f);
 
-            immutable resultColor = colors[positions.findIndexOfNearest(newPosition)];
+            /*
+                What's going on here?
+                These 3 lines literally say "multiply sourceColor by offset * (threshold - 0.5f)" (0.5f is a magic number)  
+                but ubyte[3] * float is float[3] so we have to convert it back to ubyte[3] with clamping
+            */
+            enum magicOffset = 0.5f;
+            immutable real[3] fuckTypes = sourceColor.rgb[] + offset * (threshold - magicOffset);
+            immutable ubyte[3] colorVector = toUbyteArr!real(fuckTypes);
+            immutable newColor = Color(colorVector);
+
+            immutable resultColor = palette.getClosestOnPalette(newColor);
             result[x, y] = resultColor;
         }
     }
@@ -103,5 +106,18 @@ public final class BayerDitherer(TPalette) : ProjectedDitherer!TPalette if(is(TP
 
             result[x, y] = inetpolatedSourcePos > threshold ? rightNeighbor : leftNeighbor;
         }
+    }
+
+    /// Converts a float[3] array to ubyte[3] array
+    /// Params:
+    ///   arr = the array
+    private static ubyte[3] toUbyteArr(T)(T[3] arr) pure
+    {
+        arr[0] = arr[0].clamp(ubyte.min, ubyte.max);
+        arr[1] = arr[1].clamp(ubyte.min, ubyte.max);
+        arr[2] = arr[2].clamp(ubyte.min, ubyte.max);
+
+        ubyte[3] result = [cast(ubyte) arr[0], cast(ubyte) arr[1], cast(ubyte) arr[2]];
+        return result;
     }
 }

@@ -16,6 +16,23 @@ public struct Color
         ubyte[3] rgb;
         uint value;
     }
+
+    public this(ubyte[3] rgb)
+    {
+        this.rgb = rgb;
+    }
+
+    public this(ubyte r, ubyte g, ubyte b)
+    {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+    }
+
+    public this(uint value)
+    {
+        this.value = value;
+    }
 }
 
 unittest
