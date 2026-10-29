@@ -194,7 +194,6 @@ unittest
 
     void foo()
     {
-        import std.stdio; writeln(a);
         a = 1000;
     }
 
