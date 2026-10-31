@@ -27,10 +27,7 @@ public @filter final class BW_Filter : IFilter
         foreach(x; 0..result.resolution[0])
         {
             ref Color color = result[x, y];
-            immutable ubyte brightness = cast (ubyte)
-            ( color.r * rMultiplier +
-              color.g * gMultiplier + 
-              color.b * bMultiplier);
+            immutable ubyte brightness = color.getBrightness!ubyte;
 
             Color brightnessColor = Color(brightness, brightness, brightness);
 

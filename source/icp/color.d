@@ -208,3 +208,12 @@ public Color findColorWithGreatestChannelsSum(Color[] colors) pure
 
     return colors[greatestIndex];
 }
+
+public R getBrightness(R = real)(Color color) pure
+{
+    enum rMultiplier = 0.2126;
+    enum gMultiplier = 0.7152;
+    enum bMultiplier = 0.0722;
+
+    return cast (R) ( color.r * rMultiplier + color.g * gMultiplier + color.b * bMultiplier);
+}
