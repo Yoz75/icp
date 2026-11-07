@@ -18,22 +18,31 @@ public void forEachSubArray(T, alias action, TParams...)(T[] array, size_t subAr
     }
 }
 
-/// Get index of most similar to `value` element of `sortedArray`
+/// Get index of most similar to `value` element of `array`
 /// Params:
-///   sortedArray = the array of all values
+///   array = the array of all values
 ///   value = the target value
-/// Returns: index of most similar value or size_t.max
-public size_t findIndexOfNearest(T)(in T[] positions, in T targetPosition) pure if(isNumeric!T)
+/// Returns: if positions.length == 0, then size_t.max, if positions.length == 1, then 0, else -- the index of most similar element of `array` to `targetPosition`
+public size_t findIndexOfNearest(T, alias differenceFunction = defaultDiffFunc!T)(in T[] array, in T targetPosition) pure
+out (nearestIndex)
+{
+    assert(nearestIndex < array.length);
+}
+do
 {
     import std.math : abs;
-    if (positions.length == 0)
+
+    if (array.length == 0)
         return size_t.max;
 
+    if(array.length == 1)
+        return 0;
+
     size_t nearestIndex = 0;
-    float nearestDistance = abs(positions[0] - targetPosition);
-    foreach (index, position; positions)
+    real nearestDistance = real.infinity;
+    foreach (index, element; array)
     {
-        immutable distance = abs(position - targetPosition);
+        immutable distance = differenceFunction(element, targetPosition);
         if (distance < nearestDistance)
         {
             nearestDistance = distance;

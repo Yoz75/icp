@@ -76,11 +76,7 @@ public int euclidDistance(Color first, Color second) pure
 /// Returns: 
 public int euclidDistanceSquare(Color first, Color second) pure
 {
-    immutable rDifference = second.r = first.r;
-    immutable gDifference = second.g - first.g;
-    immutable bDifference = second.b - first.b;
-
-    return (rDifference * rDifference) + (gDifference * gDifference) + (bDifference * bDifference);
+    return cereslib.math.euclidDistanceSquare!(ubyte, int)(first.rgb, second.rgb);
 }
 
 /// Get Manhattan distance between 2 colors

@@ -4,6 +4,7 @@ import icp.dithering.bayer;
 import icp.dithering.pditherer;
 import cereslib.properties;
 import cereslib.algorythm;
+import cereslib.conv;
 import std.parallelism : parallel;
 import std.range : iota;
 import std.algorithm : clamp, sort, mean;
@@ -42,17 +43,17 @@ public final class BayerDitherer(TPalette) : ProjectedDitherer!TPalette if(is(TP
         }
         else
         {
-            newBayer(sourceImage, palette, result, colors, positions);
+            newBayer(sourceImage, palette, result);
         }
 
         return result;
     }
 
-    private void newBayer(const Image sourceImage, TPalette palette, Image result, Color[] colors, float[] positions)
+    private void newBayer(const Image sourceImage, TPalette palette, Image result)
     {
         Bayer bayer = Bayer(matrixLevel_);
         
-        immutable offset = colors.findMeanDistance!(Color, (left, right) => euclidDistance(left, right))() * strength_;
+        immutable float offset = palette.get.findMeanDistance!(Color, (left, right) => euclidDistance(left, right))() * strength_;
         foreach(y; iota(0, result.resolution[1]).parallel())
         foreach(x; iota(0, result.resolution[0]).parallel())
         {
@@ -65,8 +66,8 @@ public final class BayerDitherer(TPalette) : ProjectedDitherer!TPalette if(is(TP
                 but ubyte[3] * float is float[3] so we have to convert it back to ubyte[3] with clamping
             */
             enum magicOffset = 0.5f;
-            immutable real[3] fuckTypes = sourceColor.rgb[] + offset * (threshold - magicOffset);
-            immutable ubyte[3] colorVector = toUbyteArr!real(fuckTypes);
+            float[3] fuckTypes = sourceColor.rgb[] + offset * (threshold - magicOffset);
+            immutable ubyte[3] colorVector = fuckTypes.toStaticArray!(float, ubyte);
             immutable newColor = Color(colorVector);
 
             immutable resultColor = palette.getClosestOnPalette(newColor);
@@ -106,18 +107,5 @@ public final class BayerDitherer(TPalette) : ProjectedDitherer!TPalette if(is(TP
 
             result[x, y] = inetpolatedSourcePos > threshold ? rightNeighbor : leftNeighbor;
         }
-    }
-
-    /// Converts a float[3] array to ubyte[3] array
-    /// Params:
-    ///   arr = the array
-    private static ubyte[3] toUbyteArr(T)(T[3] arr) pure
-    {
-        arr[0] = arr[0].clamp(ubyte.min, ubyte.max);
-        arr[1] = arr[1].clamp(ubyte.min, ubyte.max);
-        arr[2] = arr[2].clamp(ubyte.min, ubyte.max);
-
-        ubyte[3] result = [cast(ubyte) arr[0], cast(ubyte) arr[1], cast(ubyte) arr[2]];
-        return result;
     }
 }

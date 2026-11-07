@@ -11,40 +11,52 @@ struct max(T)
     T value;
 }
 
+/// Dummy function to use as default parameter in templates
+pragma(inline, true)
+private void dummyFunction()
+{
 
-/// Template for fast getter maker. 
+}
+
+/// Template to quickly make getters. 
 /// Params:
 ///   Field = the field
 ///   name = the name of the getter. Default is the `Field`s name without the last character
-mixin template MakeGetter(alias Field, string name = __traits(identifier, Field)[0..$-1])
+mixin template MakeGetter(alias field, string name = __traits(identifier, field)[0..$-1])
 {
-    mixin("@property auto " ~ name ~ "() => " ~ __traits(identifier, Field) ~ ";");
+    mixin("@property auto " ~ name ~ "() => " ~ __traits(identifier, field) ~ ";");
 }
 
 
-mixin template MakeSetter(alias Field, string name = __traits(identifier, Field)[0..$-1])
+/// Template to quickly make setters.
+/// Params:
+///   field = the field
+///   onSetSuccessfully = the `void delegate()` invoked when successfully set the `Field`
+///   name = the name of the setter. Default is the `Field`s name without the last character
+mixin template MakeSetter(alias field, alias onSetSuccessfully = dummyFunction, string name = __traits(identifier, field)[0..$-1])
 {
     import std.traits : getUDAs, Unqual;
-    enum fieldName = __traits(identifier, Field);
-    alias FieldType = typeof(Field);
+    enum fieldName = __traits(identifier, field);
+    alias FieldType = typeof(field);
 
     mixin("@property void " ~ name ~ "(" ~ FieldType.stringof ~ " newValue)
         {
-            static if (getUDAs!(Field, cereslib.properties.min!FieldType).length != 0)
+            static if (getUDAs!(field, cereslib.properties.min!FieldType).length != 0)
             {
-                newValue = newValue < getUDAs!(Field, cereslib.properties.min!(typeof(Field)))[0].value
-                    ? getUDAs!(Field, cereslib.properties.min)[0].value
+                newValue = newValue < getUDAs!(field, cereslib.properties.min!(FieldType))[0].value
+                    ? getUDAs!(field, cereslib.properties.min)[0].value
                     : newValue;
             }
 
-            static if (getUDAs!(Field, cereslib.properties.max!FieldType).length != 0)
+            static if (getUDAs!(field, cereslib.properties.max!FieldType).length != 0)
             {
-                newValue = newValue > getUDAs!(Field, cereslib.properties.max!(typeof(Field)))[0].value
-                    ? getUDAs!(Field, cereslib.properties.max)[0].value
+                newValue = newValue > getUDAs!(field, cereslib.properties.max!(FieldType))[0].value
+                    ? getUDAs!(field, cereslib.properties.max)[0].value
                     : newValue;
             }
 
             " ~ fieldName ~ " = newValue;
+            onSetSuccessfully();
         }"
     );
 }
