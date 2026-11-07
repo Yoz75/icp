@@ -3,3 +3,4 @@ https://habr.com/ru/articles/326936/
 https://habr.com/ru/articles/315490/
 https://tannerhelland.com/2012/12/28/dithering-eleven-algorithms-source-code.html
 https://30fps.net/pages/revisiting-yliluoma-2/
+https://matejlou.blog/2023/12/06/ordered-dithering-for-arbitrary-or-irregular-palettes/#appendix-i-candidate-sorting
