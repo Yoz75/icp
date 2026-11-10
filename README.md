@@ -24,5 +24,5 @@ This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and 
 
 # Known Issues
 Sorry for these:
-* ICP crashes when you double click buttons in file dialogue. ([I made an issue](https://github.com/buggins/dlangui/issues/702))
-* [Bayer-Matrix](https://en.wikipedia.org/wiki/Bayer_filter) dithering looks strange with huge amount of colors (smth like 24+ colors)
+    * Image directory resets when you press escape in open file dialogue
+    * The same happens with palette open file dialogue
