@@ -1,14 +1,14 @@
 {
 	"fileVersion": 1,
 	"versions": {
-		"arsd-official": "10.9.10",
+		"arsd-official": "12.1.2",
 		"bindbc-common": "0.1.6",
 		"bindbc-freetype": "1.2.6",
 		"bindbc-loader": "1.1.5",
 		"bindbc-opengl": "1.1.2",
 		"bindbc-sdl": "1.4.8",
 		"colorize": "1.0.5",
-		"dlangui": "0.10.8",
+		"dlangui": "0.12.1",
 		"dlib": "1.6.0",
 		"dsfml": "2.1.1",
 		"glx-d": "1.1.0",
