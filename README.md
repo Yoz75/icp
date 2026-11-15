@@ -20,6 +20,7 @@ This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and 
 * `F5` -- run ICP
 * `F6` or `ctrl + O` -- open an image
 * `F7` or `ctrl + S` -- save processed image
+* `shift + F7` or `ctrl + shift + s` -- save processed image as a new file
 * `F13` (yup) or `alt + S` -- open settings (currently you can only change app theme)
 
 # Known Issues

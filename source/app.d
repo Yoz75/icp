@@ -279,6 +279,7 @@ private final abstract class MainMenuMaker
         fileFolder = 0,
         editFolder
     }
+
 static:
     const Action openFileAction
      = new Action(ActionIds.openFileAction, "MainMenuMaker_openFileAction"c).addAccelerator(KeyCode.F6)
@@ -288,7 +289,8 @@ static:
                                                              .addAccelerator(KeyCode.KEY_S, KeyFlag.Control);
 
     const Action saveAsFileAction 
-     = new Action(ActionIds.saveAsFileAction, "MainMenuMaker_saveAsFileAction"c);
+     = new Action(ActionIds.saveAsFileAction, "MainMenuMaker_saveAsFileAction"c).addAccelerator(KeyCode.F7, KeyFlag.Shift)
+                                                              .addAccelerator(KeyCode.KEY_S, KeyFlag.Control | KeyFlag.Shift);
     const Action runAction
      = new Action(ActionIds.runAction, "MainMenuMaker_runAction"c).addAccelerator(KeyCode.F5)
                                               .addAccelerator(KeyCode.KEY_F, KeyFlag.Control);
