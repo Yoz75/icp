@@ -7,6 +7,7 @@ public import icp.dithering.edditherer;
 public import icp.dithering.pditherer;
 public import icp.dithering.randomditherer;
 public import icp.dithering.bayerditherer;
+public import icp.dithering.knollditherer;
 import icp.palettes;
 
 // Most of the algorythms I took from https://habr.com/ru/articles/326936/

@@ -9,6 +9,7 @@ import dlangui;
 /// View factory that makes views for a `QuantizerFilter`
 public final class QuantizeFilterViewFactory : IViewFactory
 {
+    private KnollDitherer!Palette knollDitherer;
     private BayerDitherer!Palette bayerDitherer;
     private RandomDitherer!Palette randomDitherer;
 
@@ -50,6 +51,7 @@ public final class QuantizeFilterViewFactory : IViewFactory
             final switch(state)
             {
                 case no:               filter.ditherer = noDitherer;               break;
+                case knoll:            filter.ditherer = knollDitherer;            break;
                 case bayerMatrix:      filter.ditherer = bayerDitherer;            break;
                 case floydSteinberg:   filter.ditherer = floydSteinbergDitherer;   break;
                 case sierra3:          filter.ditherer = sierra3Ditherer;          break;
@@ -92,6 +94,7 @@ public final class QuantizeFilterViewFactory : IViewFactory
 
     private void createDitherers()
     {
+        knollDitherer = new KnollDitherer!Palette();
         bayerDitherer = new BayerDitherer!Palette();
         randomDitherer = new RandomDitherer!Palette();
 
@@ -112,6 +115,7 @@ public final class QuantizeFilterViewFactory : IViewFactory
     private StateFrameLayout!SupportedDitherers createDithererFrame()
     {
         auto dummyFactory = new DummyViewFactory();
+        auto knollView = new KnollDithererViewFactory(knollDitherer).create();
         auto bayerView = new BayerDithererViewFactory(bayerDitherer).create();
         auto randomView = new RandomDithererViewFactory(randomDitherer).create();
 
@@ -126,6 +130,7 @@ public final class QuantizeFilterViewFactory : IViewFactory
 
         dithererFrame.addChild(randomView, SupportedDitherers.randomDitherer);
         dithererFrame.addChild(bayerView, SupportedDitherers.bayerMatrix);
+        dithererFrame.addChild(knollView, SupportedDitherers.knoll);
 
         dithererFrame.changeState(SupportedDitherers.no);
         return dithererFrame;

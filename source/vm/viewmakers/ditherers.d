@@ -8,6 +8,7 @@ import dlangui;
 public enum SupportedDitherers
 {
     no = 0,
+    knoll,
     bayerMatrix,
     floydSteinberg,
     sierra3,
@@ -15,6 +16,44 @@ public enum SupportedDitherers
     sierraLight,
     rightPropagation,
     randomDitherer
+}
+
+public final class KnollDithererViewFactory : IViewFactory
+{
+    private KnollDitherer!Palette ditherer;
+
+    public this(KnollDitherer!Palette ditherer)
+    {
+        this.ditherer = ditherer;
+    }
+
+    /// Create a view instance
+    /// Returns:
+    /// a new widget tree inside `parent`
+    public Widget create()
+    {
+        auto settingsLayout = parseML!VerticalLayout(import("knollDithererView.dml"));
+
+        auto levelBox = settingsLayout.childById!IntBox("levelBox");
+        levelBox.numberEdited ~= (int value)
+        {
+            ditherer.matrixLevel = value;       
+        };
+
+        auto strengthBox = settingsLayout.childById!FloatBox("strengthBox");
+        strengthBox.numberEdited ~= (float value)
+        {
+            ditherer.strength = value;
+        };
+
+        auto samplesBox = settingsLayout.childById!IntBox("samplesBox");
+        samplesBox.numberEdited ~= (int value)
+        {
+            ditherer.samplesCount = value;
+        };
+
+        return settingsLayout;
+    }
 }
 
 public final class BayerDithererViewFactory : IViewFactory
