@@ -1,1 +1,1 @@
-dub build --build=debug --parallel
+dub build --build=debug --parallel --compiler=ldc2

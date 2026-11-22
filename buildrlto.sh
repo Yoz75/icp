@@ -1,2 +1,2 @@
 @echo off
-dub build --build=release-lto --parallel
+dub build --build=release-lto --parallel --compiler=ldc2
