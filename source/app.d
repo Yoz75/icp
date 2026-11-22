@@ -23,8 +23,9 @@ extern(C) int UIAppMain(string[] args)
 
     immutable width = 800;
     immutable height = 600;
-    Window window = Platform.instance.createWindow("ICP " ~ programVersion.toDstring(), null, WindowFlag.Resizable, width, height);
+    Window window = Platform.instance.createWindow("Icy Pie " ~ programVersion.toDstring(), null, WindowFlag.Resizable, width, height);
     window.windowOrContentResizeMode = WindowOrContentResizeMode.shrinkWidgets;
+    window.windowIcon = drawableCache.getImage("icon2");
 
     auto frame = new MainFrame();
     window.mainWidget = frame;

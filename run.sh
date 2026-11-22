@@ -1,3 +1,3 @@
 cd bin
-./icp
+./IcyPie
 cd ..

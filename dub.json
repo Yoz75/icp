@@ -11,6 +11,7 @@
 	],
 	"license": "MIT",
 	"targetPath": "./bin/",
+	"targetName": "IcyPie",
 	"copyright": "Copyright © 2026, yoz75",
 	"name": "icp",
 	"copyFiles": [
