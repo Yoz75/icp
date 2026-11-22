@@ -7,7 +7,7 @@ You can find default palettes and images in `[path to exe]/Resources/Example Ima
 <img width="386" alt="icp3" src="https://github.com/user-attachments/assets/0c1f17ed-84d9-4657-b205-58fb5a6b67a5"/>
 <img width="386" alt="icp4" src="https://github.com/user-attachments/assets/33708f27-c181-4fd2-9107-8fabfe8ba5e0"/>
 <img width="386" alt="icp5" src="https://github.com/user-attachments/assets/e4f94585-2856-4d9b-9252-ae5bf3f80d06"/>
-
+<img width="386" alt="knollTestPalette" src="https://github.com/user-attachments/assets/a26ba121-8463-4813-9052-87c49dafd1be"/>
 
 # Building
 This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and doesn't guarantee you can build it with dmd or gdc. Run `dub run` to build and run debug build, or run:
