@@ -25,5 +25,5 @@ This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and 
 
 # Known Issues
 Sorry for these:
-    * Image directory resets when you press escape in open file dialogue
-    * The same happens with palette open file dialogue
+* Image directory resets when you press escape in open file dialogue
+* The same happens with palette open file dialogue
