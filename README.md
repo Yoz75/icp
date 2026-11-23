@@ -17,7 +17,7 @@ This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and 
 * `run.bat (.sh)` to run last build (or do nothing if didn't build)  
 
 # Hotkeys
-* `F5` -- run ICP
+* `F5` or `ctrl + F` -- run ICP
 * `F6` or `ctrl + O` -- open an image
 * `F7` or `ctrl + S` -- save processed image
 * `shift + F7` or `ctrl + shift + s` -- save processed image as a new file
