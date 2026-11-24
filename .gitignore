@@ -25,3 +25,7 @@ docs/
 /bin
 ui.log
 конкуренты.txt
+
+# scheisse
+/.vscode/launch.json
+/.vscode/tasks.json
