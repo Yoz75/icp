@@ -25,5 +25,5 @@ This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and 
 
 # Known Issues
 Sorry for these:
-* Image directory resets when you press escape in open file dialogue
-* The same happens with palette open file dialogue
+* Combo boxes don't remember it's last choice between sessions. For example, if you'd chose russian and then restarted the app, it'd still be in russian, but
+language-choice-combo-box's value would be `english`
