@@ -23,7 +23,7 @@
 	"description": "An image color processor that processes image color",
 	"dependencies": {
 		"icp:cereslib": "*",
-		"dlangui": "~>0.12.1"
+		"dlangui": "~>0.13.1"
 	},
 	"buildTypes": {
 		"release-lto": {
