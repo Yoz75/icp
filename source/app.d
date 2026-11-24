@@ -163,7 +163,7 @@ private final class MainFrame : AppFrame
         
         dialog.dialogResult = (Dialog unused, const Action action)
         {
-            currentOpenFilePath = action.stringParam;
+            currentOpenFilePath = action.stringParam == "" ? currentOpenFilePath : action.stringParam;
         };
 
         dialog.show();
