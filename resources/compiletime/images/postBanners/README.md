@@ -1,0 +1,1 @@
+This directory contains various banners, used when making a devlog on itchio or somewhere else
