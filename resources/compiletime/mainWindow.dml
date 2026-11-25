@@ -26,11 +26,11 @@ HorizontalLayout {
             Button {
                 styleId: "BUTTON_ACCENT"
                 id: runButton
-                layoutWidth: 60pt
-                layoutHeight: 20pt
+                layoutWidth: 75pt
+                layoutHeight: 25pt
                 alignment: Center
                 text: "run"
-                fontSize: 125%
+                fontSize: 100%
             }         
 
             HSpacer {

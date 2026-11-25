@@ -15,5 +15,5 @@
 <style id="SCROLLBAR" backgroundColor="#121212"></style>
 <style id="SCROLLBAR_BUTTON" backgroundColor="#151515"></style>
 
-<style id="BUTTON_ACCENT" backgroundImageId="buttonAccentBackground" textColor="#fcfcfc"></style>
+<style id="BUTTON_ACCENT" backgroundImageId="buttonAccentBackground" textColor="#fcfcfc" fontSize="125%"></style>
 </theme>
