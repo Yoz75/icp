@@ -48,7 +48,7 @@ public final class ICP_VM
         }
     }
 
-    /// Save `buffer` to the `path`
+    /// Save `buffer` to `path` as true color image
     /// Params:
     ///   buffer = the buffer 
     ///   path = the file path (including extension)
@@ -56,5 +56,16 @@ public final class ICP_VM
     {
         Image icpImage = createImageFromDrawBuf(buffer);
         saveTrueColorImageTo(filePath, icpImage);
+    }
+
+    
+    /// Save `buffer` to `path` as indexed image
+    /// Params:
+    ///   buffer = the buffer 
+    ///   path = the file path (including extension)
+    public void saveIndexed(Ref!ColorDrawBufEx buffer, string filePath)
+    {
+        Image icpImage = createImageFromDrawBuf(buffer);
+        saveIndexedImageTo(filePath, icpImage);
     }
 }

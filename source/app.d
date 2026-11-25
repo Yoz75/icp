@@ -43,13 +43,21 @@ enum ActionIds : int
 {
     openFileAction = 100_000,
     saveFileAction,
+    saveIndexedFileAction,
     saveAsFileAction,
+    saveAsIndexedFileAction,
     runAction,
     settingsAction
 }
 
 private final class MainFrame : AppFrame
 {
+    /// A kastyl to avoid writing boilerplate saveIdnexedFile and saveAsIndexedFile
+    private enum FileType
+    {
+        trueColor,
+        indexed
+    }
     /// path to the last open file
     private string currentOpenFilePath, currentSaveFilePath;
     private Ref!ColorDrawBufEx currentImage;
@@ -81,11 +89,13 @@ private final class MainFrame : AppFrame
         with(ActionIds)
         final switch(action.id)
         {
-            case openFileAction:   openFile();           break;
-            case saveFileAction:   saveFile();           break;
-            case saveAsFileAction: saveAsFile();         break;
-            case runAction:        run();                break;
-            case settingsAction:   openSettingsWindow(); break;
+            case openFileAction:          openFile();                     break;
+            case saveFileAction:          saveFile(FileType.trueColor);   break;
+            case saveAsFileAction:        saveAsFile(FileType.trueColor); break;
+            case saveIndexedFileAction:   saveFile(FileType.indexed);     break;
+            case saveAsIndexedFileAction: saveAsFile(FileType.indexed);   break;
+            case runAction:               run();                          break;
+            case settingsAction:          openSettingsWindow();           break;
         }
         
         return true;
@@ -172,20 +182,30 @@ private final class MainFrame : AppFrame
     import cereslib.todo;
     mixin TODO!"Separate save and saveAsFile to its own class so these methods only call that class methods";
 
-    private void saveFile()
-    {
+    private void saveFile(FileType type)
+    {        
         if(currentSaveFilePath is null || currentSaveFilePath == "")
         {
-            saveAsFile();            
+            saveAsFile(type);
         }
         else
         {
-            icp.save(currentImage, currentSaveFilePath);
+            with(FileType)
+            final switch(type)
+            {
+                case trueColor:
+                    icp.save(currentImage, currentSaveFilePath);
+                    break;
+                case indexed:
+                    icp.saveIndexed(currentImage, currentSaveFilePath);
+                    break;
+            }
+
             globalAppLogger.log("Saved image correctly", LogType.info);
         }
     }
 
-    private void saveAsFile()
+    private void saveAsFile(FileType type)
     {
         if(currentImage is null) return;
         auto dialog = new FileDialog(UIString.fromRaw("Save image..."d), 
@@ -204,8 +224,19 @@ private final class MainFrame : AppFrame
 
             try
             {
-                icp.save(currentImage, action.stringParam);
-                globalAppLogger.log("Saved image correctly at " ~ currentSaveFilePath, LogType.info);
+                with(FileType)
+                final switch(type)
+                {
+                    case trueColor:
+                        icp.save(currentImage, currentSaveFilePath);
+                        globalAppLogger.log("Saved true color image correctly at " ~ currentSaveFilePath, LogType.info);
+                        break;
+                    case indexed:
+                        icp.saveIndexed(currentImage, currentSaveFilePath);
+                        globalAppLogger.log("Saved indexed image correctly at " ~ currentSaveFilePath, LogType.info);
+                        break;
+                }
+            
             }
             catch(Exception ex)
             {
@@ -292,6 +323,14 @@ static:
     const Action saveAsFileAction 
      = new Action(ActionIds.saveAsFileAction, "MainMenuMaker_saveAsFileAction"c).addAccelerator(KeyCode.F7, KeyFlag.Shift)
                                                               .addAccelerator(KeyCode.KEY_S, KeyFlag.Control | KeyFlag.Shift);
+    const Action saveIndexedFileAction 
+     = new Action(ActionIds.saveIndexedFileAction, "MainMenuMaker_saveIndexedFileAction"c).addAccelerator(KeyCode.F7, KeyFlag.Alt)
+                                                             .addAccelerator(KeyCode.KEY_S, KeyFlag.Control | KeyFlag.Alt);
+
+    const Action saveAsIndexedFileAction 
+     = new Action(ActionIds.saveAsIndexedFileAction, "MainMenuMaker_saveAsIndexedFileAction"c).addAccelerator(KeyCode.F7, KeyFlag.Shift | KeyFlag.Alt)
+                                                              .addAccelerator(KeyCode.KEY_S, KeyFlag.Control | KeyFlag.Shift | KeyFlag.Alt);
+
     const Action runAction
      = new Action(ActionIds.runAction, "MainMenuMaker_runAction"c).addAccelerator(KeyCode.F5)
                                               .addAccelerator(KeyCode.KEY_F, KeyFlag.Control);
@@ -317,6 +356,8 @@ static:
         fileFolder.add(new MenuItem(openFileAction));
         fileFolder.add(new MenuItem(saveFileAction));
         fileFolder.add(new MenuItem(saveAsFileAction));
+        fileFolder.add(new MenuItem(saveIndexedFileAction));
+        fileFolder.add(new MenuItem(saveAsIndexedFileAction));
 
         return fileFolder;
     }

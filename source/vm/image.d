@@ -23,7 +23,10 @@ public enum ImageSaveErrorCode : ubyte
 {
     /// Uninitialized value
     none,
-    unknownFormat
+    /// Icy Pie couldn't recognize format of the image
+    unknownFormat,
+    /// Icy Pie recognizes this format, but it's unsupported in this context
+    unsupportedFormat
 }
 
 /// Load an image from `path`
@@ -66,9 +69,16 @@ public Result!(Image, ImageLoadErrorCode) loadImageFrom(string path)
     return ResultType(icpImage);
 }
 
+/// Save an image as a [true color](https://en.wikipedia.org/wiki/True_color) image
+/// Params:
+///   path = the path of the image including extension
+///   image = the image to be saved
+/// Returns: an `Optional`, witch contains an error if something gone wrong
 public Optional!ImageSaveErrorCode saveTrueColorImageTo(string path, Image image)
 {
     alias ResultType = Optional!(ImageSaveErrorCode);
+
+    // yup we allocate memory, but it's a couple of bytes and we won't call this scheisse 100 times a second, lmao
     immutable extension = path.split(".")[$-1];
 
     TrueColorImage arsdImage = new TrueColorImage(image.resolution[0], image.resolution[1]);
@@ -90,6 +100,47 @@ public Optional!ImageSaveErrorCode saveTrueColorImageTo(string path, Image image
         default: return ResultType(ImageSaveErrorCode.unknownFormat);
     }
 
+    return none!ImageSaveErrorCode;
+}
+
+/// Save an image as an indexed one
+/// Params:
+///   path = the path of the image including extension
+///   image = the image to be saved
+/// Returns: an `Optional`, witch contains an error if something gone wrong
+public Optional!ImageSaveErrorCode saveIndexedImageTo(string path, Image image)
+{
+    import applogger;
+    alias ResultType = Optional!(ImageSaveErrorCode);
+
+    // ditto
+    immutable extension = path.split(".")[$-1];
+
+    IndexedImage arsdImage = new IndexedImage(image.resolution[0], image.resolution[1]);
+
+    auto colors = image.findColors();
+    globalAppLogger.log("Found " ~ colors.length.to!string ~ " colors in the image", LogType.info);
+    foreach(color; colors)
+    {
+        arsdImage.addColor(arsd.color.Color(color.r, color.g, color.b, 255));
+    }
+
+    foreach(y; 0..arsdImage.height)
+    foreach(x; 0..arsdImage.width)
+    {
+        auto color = image[x, y];
+        arsd.color.Color arsdColor = arsd.color.Color(color.r, color.g, color.b, 255);
+
+        arsdImage.setPixel(x, y, arsdColor);
+    }
+
+    /// We support only png and jpeg and jpeg doesn't support indexed images
+    if(extension != "png")
+    {
+        return ResultType(ImageSaveErrorCode.unsupportedFormat);
+    }
+
+    writePng(path, arsdImage);
     return none!ImageSaveErrorCode;
 }
 
