@@ -29,3 +29,4 @@ ui.log
 # scheisse
 /.vscode/launch.json
 /.vscode/tasks.json
+/releaseltoBuilds
