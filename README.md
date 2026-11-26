@@ -19,8 +19,10 @@ This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and 
 # Hotkeys
 * `F5` or `ctrl + F` -- run ICP
 * `F6` or `ctrl + O` -- open an image
-* `F7` or `ctrl + S` -- save processed image
-* `shift + F7` or `ctrl + shift + s` -- save processed image as a new file
+* `F7` or `ctrl + S` -- save result as an image
+* `shift + F7` or `ctrl + shift + s` -- save result as a new image
+* `F7` or `ctrl + S` -- save result as an indexed image (witch uses fixed palette and occupies less space)
+* `shift + F7` or `ctrl + shift + s` -- save result as a new indexed image (witch uses fixed palette and occupies less space)
 * `F13` (yup) or `alt + S` -- open settings (currently you can only change app theme)
 
 # Known Issues
