@@ -255,8 +255,7 @@ private final class MainFrame : AppFrame
             enum openFileZeroLengthError = "MainFrame_openFileZeroLengthWarning"c;
             globalAppLogger.log("currentOpenFilePath length is zero, skipped running", LogType.warning);
 
-            auto box = new TextMessageBox(window);
-            box.show(openFileZeroLengthError);
+            showError(openFileZeroLengthError);
             return;
         }
 
@@ -270,9 +269,7 @@ private final class MainFrame : AppFrame
 
                 globalAppLogger.log(error, LogType.error);
 
-                auto box = new TextMessageBox(window);
-                box.show(error);
-
+                showError(error);
                 return;
             }
 
@@ -283,8 +280,7 @@ private final class MainFrame : AppFrame
         {
             globalAppLogger.log("An error occured: " ~ ex.message.to!string, LogType.error);
 
-            auto box = new TextMessageBox(window);
-            box.show(ex.message.to!dstring);
+            showError(ex.message.to!string);            
         }
 
         globalAppLogger.logGCMemory();
@@ -301,6 +297,11 @@ private final class MainFrame : AppFrame
     {
         auto window = new SettingsWindowFactory().create("Settings"d, window);
         window.show();
+    }
+    private void showError(string error)
+    {
+        auto box = new TextMessageBox(window);
+        box.show(error);
     }
 }
 
