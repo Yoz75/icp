@@ -174,6 +174,17 @@ private final class MainFrame : AppFrame
         dialog.dialogResult = (Dialog unused, const Action action)
         {
             currentOpenFilePath = action.stringParam == "" ? currentOpenFilePath : action.stringParam;
+
+            auto imageBuffer = icp.openImage(currentOpenFilePath);
+            if(!imageBuffer.hasValue)
+            {
+                string error = imageBuffer.error;
+                globalAppLogger.log(error, LogType.error);
+                showError(error);
+                return;
+            }
+
+            updatePreview(imageBuffer.value);
         };
 
         dialog.show();
@@ -274,7 +285,7 @@ private final class MainFrame : AppFrame
             }
 
             currentImage = buffer.value;
-            preview.imageBuffer = currentImage;
+            updatePreview(currentImage);
         }
         catch(Exception ex)
         {
@@ -298,6 +309,12 @@ private final class MainFrame : AppFrame
         auto window = new SettingsWindowFactory().create("Settings"d, window);
         window.show();
     }
+
+    private void updatePreview(Ref!ColorDrawBufEx buffer)
+    {
+        preview.imageBuffer = buffer;
+    }
+
     private void showError(string error)
     {
         auto box = new TextMessageBox(window);

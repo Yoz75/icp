@@ -25,14 +25,40 @@ public final class ICP_VM
     /// Params:
     ///   drawable = the drawable to be processed
     /// Returns: processed drawable
-    public Result!(Ref!ColorDrawBufEx, string) process(string imagePath)
+    public Result!(Ref!ColorDrawBufEx, string) process(string path)
     {
         alias ResultType = Result!(Ref!ColorDrawBufEx, string);
         
-        auto icpImage = loadImageFrom(imagePath);
+        auto icpImage = loadImageFrom(path);
         if(icpImage.hasValue)
         {
             icpImage = selectedPreset.process(icpImage.value);
+            return ResultType(createDrawBufFromImage(icpImage.value));
+        }
+
+        with(ImageLoadErrorCode)
+        final switch(icpImage.error)
+        {
+            case none:
+                throw new Exception("loadImageFrom returned error");
+            case corruptedImage:
+                return ResultType("ICP_VM_corruptedImageError");
+            case wrongImageFormat:
+                return ResultType("ICP_VM_wrongImageFormatError");
+        }
+    }
+
+    /// Open an image and get it as a color buffer
+    /// Params:
+    ///   path = 
+    /// Returns: 
+    public Result!(Ref!ColorDrawBufEx, string) openImage(string path)
+    {
+                alias ResultType = Result!(Ref!ColorDrawBufEx, string);
+        
+        auto icpImage = loadImageFrom(path);
+        if(icpImage.hasValue)
+        {
             return ResultType(createDrawBufFromImage(icpImage.value));
         }
 
