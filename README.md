@@ -21,8 +21,8 @@ This project uses [ldc2](https://github.com/ldc-developers/ldc) as compiler and 
 * `F6` or `ctrl + O` -- open an image
 * `F7` or `ctrl + S` -- save result as an image
 * `shift + F7` or `ctrl + shift + s` -- save result as a new image
-* `F7` or `ctrl + S` -- save result as an indexed image (witch uses fixed palette and occupies less space)
-* `shift + F7` or `ctrl + shift + s` -- save result as a new indexed image (witch uses fixed palette and occupies less space)
+* `alt + F7` or `ctrl + alt + S ` -- save result as an indexed image (witch uses fixed palette and occupies less space)
+* `alt + shift + F7` or `ctrl + alt + shift + s` -- save result as a new indexed image (witch uses fixed palette and occupies less space)
 * `F13` (yup) or `alt + S` -- open settings (currently you can only change app theme)
 
 # Known Issues
