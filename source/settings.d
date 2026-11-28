@@ -15,8 +15,11 @@ public struct Settings
 
     /// Should the program clean GC memory when done?
     @JsonizeField private bool shouldCleanGCMemoryOnDone_ = true;
+    /// The selected theme
     @JsonizeField private string selectedTheme_ = "theme_neo_dark";
+    /// The selected locale
     @JsonizeField private string selectedLocale_ = "en";
+    /// At witch ratio result image should be rendered with bilinear interpolation?
     @JsonizeField private float pointInterpolationThreshold_ = 1f;
 
     private static string filePath;
@@ -31,28 +34,39 @@ public struct Settings
         loadOrSave!Settings(filePath, instance);
     }
 
+    /// Should the program clean GC memory when done?
     public @property bool shouldCleanGCMemoryOnDone() => shouldCleanGCMemoryOnDone_;
+
+    /// Should the program clean GC memory when done?
     public @property void shouldCleanGCMemoryOnDone(bool value)
     {
         shouldCleanGCMemoryOnDone_ = value;
         save();
     }
 
+    /// The selected theme
     public @property string selectedTheme() => selectedTheme_;
+
+    /// The selected theme
     public @property void selectedTheme(string value)
     {
         selectedTheme_ = value;
         save();
     }
 
+    /// The selected locale
     public @property string selectedLocale() => selectedLocale_;
+    /// The selected locale
     public @property void selectedLocale(string value)
     {
         selectedLocale_ = value;
         save();
     }
 
+    /// At witch ratio result image should be rendered with bilinear interpolation?
     public @property float pointInterpolationThreshold() => pointInterpolationThreshold_;
+    
+    /// At witch ratio result image should be rendered with bilinear interpolation?
     public @property void pointInterpolationThreshold(float value)
     {
         pointInterpolationThreshold_ = value;
