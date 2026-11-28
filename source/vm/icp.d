@@ -54,7 +54,7 @@ public final class ICP_VM
     /// Returns: 
     public Result!(Ref!ColorDrawBufEx, string) openImage(string path)
     {
-                alias ResultType = Result!(Ref!ColorDrawBufEx, string);
+        alias ResultType = Result!(Ref!ColorDrawBufEx, string);
         
         auto icpImage = loadImageFrom(path);
         if(icpImage.hasValue)
